@@ -12,124 +12,61 @@ body {
     overflow-x: hidden;
 }
 
-/* --- HERO & LOGO --- */
-.hero {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
+/* --- LOGO & FOX --- */
 .logo-container {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 25px;
-}
-
-@keyframes tracking-out-expand-fwd {
-    0% { letter-spacing: -0.5em; transform: scale(0.5); opacity: 0; }
-    100% { letter-spacing: 0.2em; transform: scale(1); opacity: 1; }
+    gap: 20px;
 }
 
 .text-expand-fwd {
     font-size: 3.5rem;
-    text-transform: uppercase;
     animation: tracking-out-expand-fwd 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) both;
 }
 
-/* --- MASCOT (DUO-STYLE BOUNCE) --- */
+@keyframes tracking-out-expand-fwd {
+    0% { letter-spacing: -0.5em; transform: scale(0.5); opacity: 0; }
+    100% { letter-spacing: 0.1em; transform: scale(1); opacity: 1; }
+}
+
 .mascot-wrapper {
-    width: 80px;
-    height: 80px;
-    animation: duo-bounce 2.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    width: 60px;
+    height: 60px;
+    animation: duo-bounce 2s ease-in-out infinite;
 }
 
 @keyframes duo-bounce {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-15px) scale(1.05); }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
 }
 
-.fox-blink {
-    animation: blink 4s infinite;
-}
-
-@keyframes blink {
-    0%, 90%, 100% { transform: scaleY(1); }
-    95% { transform: scaleY(0.1); }
-}
-
-/* --- SLEEK VINES --- */
+/* --- VINES --- */
 .corner-vines {
     position: fixed;
-    width: 250px;
-    height: 250px;
+    width: 200px;
+    height: 200px;
     z-index: -1;
-    pointer-events: none;
 }
 
-.tl { top: 0; left: 0; }
-.br { bottom: 0; right: 0; }
+.tl { top: 10px; left: 10px; }
+.br { bottom: 10px; right: 10px; }
 
 .vine-line {
     fill: none;
     stroke: var(--primary-green);
-    stroke-width: 1.5;
-    stroke-dasharray: 500;
-    stroke-dashoffset: 500;
-    animation: grow-vine 3s ease-out forwards;
-    stroke: #00e676;
-    stroke-width: 1.5;
-    opacity: 0; 
-}
-
-@keyframes grow-vine {
-    to { stroke-dashoffset: 0; }
+    stroke-width: 2;
+    /* This ensures they are ready for drawing */
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
 }
 
 .vine-dot {
     fill: var(--primary-green);
     opacity: 0;
-    animation: fade-in 1s ease-out forwards;
-    animation-delay: 2.5s;
 }
 
-/* --- UI ELEMENTS --- */
-.container { padding: 2rem; max-width: 800px; margin: auto; }
-
-.card {
-    background: #1e1e1e;
-    padding: 2rem;
-    border-radius: 15px;
-    border: 1px solid #333;
-    transition: 0.3s;
-}
-
-.card:hover {
-    border-color: var(--primary-green);
-    transform: translateY(-5px);
-}
-
-.btn-interactive {
-    margin-top: 20px;
-    padding: 12px 30px;
-    background: none;
-    border: 2px solid var(--primary-green);
-    color: var(--primary-green);
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-.btn-interactive:hover {
-    background: var(--primary-green);
-    color: black;
-    box-shadow: 0 0 20px var(--primary-green);
-}
-
-.reveal { opacity: 0; transform: translateY(30px); transition: 1s; }
-.reveal.active { opacity: 1; transform: translateY(0); }
-
-@keyframes fade-in { to { opacity: 0.5; } }
+/* --- UI --- */
+.container { padding: 40px; display: flex; justify-content: center; }
+.card { background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid #333; max-width: 500px; }
+.btn-interactive { border: 2px solid var(--primary-green); background: none; color: var(--primary-green); padding: 10px 20px; cursor: pointer; font-weight: bold; margin-top: 15px; transition: 0.3s; }
+.btn-interactive:hover { background: var(--primary-green); color: #000; box-shadow: 0 0 15px var(--primary-green); }
