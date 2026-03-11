@@ -1,7 +1,5 @@
 window.onload = () => {
-    console.log("Anime.js logic starting...");
-
-    // 1. Grow the Vines
+    // Grow the Vines
     anime({
         targets: '.vine-line',
         strokeDashoffset: [anime.setDashoffset, 0],
@@ -10,7 +8,7 @@ window.onload = () => {
         delay: 500
     });
 
-    // 2. Pop the Dots
+    // Pop the Dots
     anime({
         targets: '.vine-dot',
         opacity: [0, 0.7],
