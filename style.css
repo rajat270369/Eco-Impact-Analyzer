@@ -1,0 +1,70 @@
+:root {
+    --primary-green: #00ff88;
+    --dark-bg: #121212;
+    --text-light: #ffffff;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+.hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* THE ANIMATION YOU REQUESTED */
+@keyframes tracking-out-expand-fwd {
+    0% { letter-spacing: -0.5em; transform: scale(0.5); opacity: 0; }
+    100% { letter-spacing: 0.2em; transform: scale(1); opacity: 1; }
+}
+
+.text-expand-fwd {
+    font-size: 4rem;
+    text-transform: uppercase;
+    animation: tracking-out-expand-fwd 1.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+}
+
+/* Interactive Card */
+.card {
+    background: #1e1e1e;
+    padding: 2rem;
+    border-radius: 15px;
+    border: 1px solid #333;
+    transition: 0.3s;
+}
+
+.card:hover {
+    border-color: var(--primary-green);
+    transform: translateY(-5px);
+}
+
+/* Button with Glow */
+.btn-interactive {
+    margin-top: 20px;
+    padding: 12px 30px;
+    background: none;
+    border: 2px solid var(--primary-green);
+    color: var(--primary-green);
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-interactive:hover {
+    background: var(--primary-green);
+    color: black;
+    box-shadow: 0 0 20px var(--primary-green);
+}
+
+/* Scroll Reveal */
+.reveal { opacity: 0; transform: translateY(30px); transition: 1s; }
+.reveal.active { opacity: 1; transform: translateY(0); }
