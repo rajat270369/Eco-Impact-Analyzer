@@ -8,46 +8,27 @@
 </head>
 <body>
 
-    <svg class="corner-vines tl" viewBox="0 0 200 200">
-        <path class="vine-line" d="M0,0 Q50,10 60,60 T100,100 T150,120" />
-        <circle class="vine-dot" cx="60" cy="60" r="3" />
-        <circle class="vine-dot" cx="150" cy="120" r="2" />
+    <svg class="vine-container tl" viewBox="0 0 200 200">
+        <path class="vine-stem" d="M0,0 Q30,10 50,60 T100,120" />
+        <path class="leaf" d="M50,60 Q70,40 90,60 Q70,80 50,60" fill="#00e676" />
+        <path class="leaf" d="M20,15 Q40,-5 60,15 Q40,35 20,15" fill="#00c853" />
     </svg>
 
     <section class="hero">
-        <div class="logo-container">
+        <div class="logo-wrapper">
             <h1 class="text-expand-fwd">Eco Impact Analyzer</h1>
-            
-            <div class="mascot-wrapper">
-                <svg class="eco-fox" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M70,70 Q90,50 70,30" fill="none" stroke="#00e676" stroke-width="4" stroke-linecap="round"/>
-                    <path d="M30,80 Q50,90 70,80 L70,50 Q50,40 30,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-                    <path d="M35,50 L50,20 L65,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-                    <path d="M40,25 L35,10 L45,22 Z" fill="#00e676"/>
-                    <path d="M60,25 L65,10 L55,22 Z" fill="#00e676"/>
-                    <circle cx="45" cy="40" r="2" fill="#00e676" class="fox-blink"/>
-                    <circle cx="55" cy="40" r="2" fill="#00e676" class="fox-blink"/>
-                </svg>
-            </div>
+            <img src="mascot.png" alt="Eco Owl Mascot" class="mascot-3d">
         </div>
-        
         <p class="reveal active">Quantifying the footprint of progress for a sustainable future.</p>
-        <button class="btn-interactive" onclick="scrollToProject()">Explore Analysis</button>
+        <button class="btn-interactive">Explore Analysis</button>
     </section>
-    
-    <main class="container">
-        <div class="card reveal active" id="project-info">
-            <h2>Project Overview</h2>
-            <p>Welcome to the <strong>Eco Impact Analyzer</strong>. Our team is evaluating environmental shifts in air quality, biodiversity, and local ecosystems.</p>
-        </div>
-    </main>
 
-    <svg class="corner-vines br" viewBox="0 0 200 200">
-        <path class="vine-line" d="M200,200 Q150,190 140,140 T100,100 T50,80" />
-        <circle class="vine-dot" cx="140" cy="140" r="3" />
-        <circle class="vine-dot" cx="50" cy="80" r="2" />
+    <svg class="vine-container br" viewBox="0 0 200 200">
+        <path class="vine-stem" d="M200,200 Q170,190 150,140 T100,80" />
+        <path class="leaf" d="M150,140 Q130,160 110,140 Q130,120 150,140" fill="#00e676" />
+        <path class="leaf" d="M180,185 Q160,205 140,185 Q160,165 180,185" fill="#00c853" />
     </svg>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
