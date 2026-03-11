@@ -1,83 +1,132 @@
 :root {
     --primary-green: #00e676;
     --dark-bg: #121212;
+    --text-light: #ffffff;
 }
 
 body {
     background-color: var(--dark-bg);
+    color: var(--text-light);
+    font-family: 'Inter', sans-serif;
     margin: 0;
     overflow-x: hidden;
-    font-family: sans-serif;
 }
 
-/* --- LOGO & 3D MASCOT --- */
-.logo-wrapper {
+/* --- HERO & LOGO --- */
+.hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.logo-container {
     display: flex;
     align-items: center;
-    gap: 20px;
+    justify-content: center;
+    gap: 25px;
 }
 
-.mascot-3d {
-    width: 120px; /* Adjust size */
-    height: auto;
-    filter: drop-shadow(0 0 15px rgba(0, 230, 118, 0.3));
-    animation: breathing 3s ease-in-out infinite;
+@keyframes tracking-out-expand-fwd {
+    0% { letter-spacing: -0.5em; transform: scale(0.5); opacity: 0; }
+    100% { letter-spacing: 0.2em; transform: scale(1); opacity: 1; }
 }
 
-@keyframes breathing {
+.text-expand-fwd {
+    font-size: 3.5rem;
+    text-transform: uppercase;
+    animation: tracking-out-expand-fwd 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+}
+
+/* --- MASCOT (DUO-STYLE BOUNCE) --- */
+.mascot-wrapper {
+    width: 80px;
+    height: 80px;
+    animation: duo-bounce 2.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+@keyframes duo-bounce {
     0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-10px) scale(1.02); }
+    50% { transform: translateY(-15px) scale(1.05); }
 }
 
-/* --- ORGANIC VINES --- */
-.vine-container {
+.fox-blink {
+    animation: blink 4s infinite;
+}
+
+@keyframes blink {
+    0%, 90%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.1); }
+}
+
+/* --- SLEEK VINES --- */
+.corner-vines {
     position: fixed;
-    width: 300px;
-    height: 300px;
+    width: 250px;
+    height: 250px;
     z-index: -1;
     pointer-events: none;
 }
 
-.tl { top: -20px; left: -20px; }
-.br { bottom: -20px; right: -20px; }
+.tl { top: 0; left: 0; }
+.br { bottom: 0; right: 0; }
 
-.vine-stem {
+.vine-line {
     fill: none;
-    stroke: #1b5e20;
-    stroke-width: 4;
-    stroke-linecap: round;
-    stroke-dasharray: 600;
-    stroke-dashoffset: 600;
-    animation: grow-vine 2.5s ease-out forwards;
+    stroke: var(--primary-green);
+    stroke-width: 1.5;
+    stroke-dasharray: 500;
+    stroke-dashoffset: 500;
+    animation: grow-vine 3s ease-out forwards;
 }
-
-.leaf {
-    opacity: 0;
-    transform-origin: center;
-    animation: pop-leaf 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-.leaf:nth-child(2) { animation-delay: 1.5s; }
-.leaf:nth-child(3) { animation-delay: 2s; }
 
 @keyframes grow-vine {
     to { stroke-dashoffset: 0; }
 }
 
-@keyframes pop-leaf {
-    0% { transform: scale(0); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+.vine-dot {
+    fill: var(--primary-green);
+    opacity: 0;
+    animation: fade-in 1s ease-out forwards;
+    animation-delay: 2.5s;
 }
 
-/* --- TITLE ANIMATION --- */
-.text-expand-fwd {
-    color: white;
-    font-size: 3rem;
-    text-transform: uppercase;
-    animation: tracking-out-expand-fwd 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+/* --- UI ELEMENTS --- */
+.container { padding: 2rem; max-width: 800px; margin: auto; }
+
+.card {
+    background: #1e1e1e;
+    padding: 2rem;
+    border-radius: 15px;
+    border: 1px solid #333;
+    transition: 0.3s;
 }
 
-@keyframes tracking-out-expand-fwd {
-    0% { letter-spacing: -0.5em; opacity: 0; }
-    100% { letter-spacing: 0.1em; opacity: 1; }
+.card:hover {
+    border-color: var(--primary-green);
+    transform: translateY(-5px);
 }
+
+.btn-interactive {
+    margin-top: 20px;
+    padding: 12px 30px;
+    background: none;
+    border: 2px solid var(--primary-green);
+    color: var(--primary-green);
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-interactive:hover {
+    background: var(--primary-green);
+    color: black;
+    box-shadow: 0 0 20px var(--primary-green);
+}
+
+.reveal { opacity: 0; transform: translateY(30px); transition: 1s; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+
+@keyframes fade-in { to { opacity: 0.5; } }
