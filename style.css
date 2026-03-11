@@ -80,6 +80,9 @@ body {
     stroke-dasharray: 500;
     stroke-dashoffset: 500;
     animation: grow-vine 3s ease-out forwards;
+    stroke: #00e676;
+    stroke-width: 1.5;
+    opacity: 0; 
 }
 
 @keyframes grow-vine {
