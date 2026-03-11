@@ -1,19 +1,17 @@
 :root {
     --primary-green: #00e676;
-    --flower-pink: #ff80ab;
+    --flower-lime: #ccff00; /* Bright green for the flowers */
     --dark-bg: #121212;
-    --text-light: #ffffff;
 }
 
 body {
     background-color: var(--dark-bg);
-    color: var(--text-light);
+    color: white;
     font-family: 'Inter', sans-serif;
     margin: 0;
     overflow-x: hidden;
 }
 
-/* --- CENTERED HERO --- */
 .hero {
     height: 100vh;
     display: flex;
@@ -21,19 +19,12 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    position: relative;
 }
 
-.logo-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-}
+.logo-container { display: flex; align-items: center; gap: 20px; }
 
 .text-expand-fwd {
     font-size: 3.5rem;
-    text-transform: uppercase;
     animation: tracking-out-expand-fwd 1.5s ease-out both;
 }
 
@@ -42,25 +33,13 @@ body {
     100% { letter-spacing: 0.1em; opacity: 1; }
 }
 
-.mascot-wrapper {
-    width: 60px;
-    height: 60px;
-    animation: duo-bounce 2s ease-in-out infinite;
-}
-
-@keyframes duo-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-/* --- THE 4 CORNER VINES --- */
+/* --- THE 4 CORNER VINES & FLOWERS --- */
 .corner-vines {
     position: fixed;
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 200px;
     z-index: -1;
     pointer-events: none;
-    opacity: 0.7;
 }
 
 .tl { top: 10px; left: 10px; }
@@ -71,16 +50,38 @@ body {
 .vine-line {
     fill: none;
     stroke: var(--primary-green);
-    stroke-width: 2;
+    stroke-width: 2.5;
+    opacity: 0.6;
 }
 
-.flower {
-    fill: var(--flower-pink);
-    filter: drop-shadow(0 0 5px var(--flower-pink));
+.flower-shape {
+    fill: none;
+    stroke: var(--flower-lime);
+    stroke-width: 2;
+    filter: drop-shadow(0 0 3px var(--flower-lime));
+    transform-origin: center;
+    animation: flower-pulse 4s ease-in-out infinite;
+}
+
+@keyframes flower-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 1; }
 }
 
 /* --- UI --- */
-.container { display: flex; justify-content: center; padding: 50px; }
-.card { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 1px solid #333; max-width: 600px; }
-.btn-interactive { border: 2px solid var(--primary-green); background: none; color: var(--primary-green); padding: 12px 24px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 20px;}
-.btn-interactive:hover { background: var(--primary-green); color: black; box-shadow: 0 0 15px var(--primary-green); }
+.btn-interactive {
+    border: 2px solid var(--primary-green);
+    background: none;
+    color: var(--primary-green);
+    padding: 12px 24px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: 0.3s;
+}
+
+.btn-interactive:hover {
+    background: var(--primary-green);
+    color: black;
+    box-shadow: 0 0 15px var(--primary-green);
+}
