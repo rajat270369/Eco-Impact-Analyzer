@@ -1,6 +1,6 @@
 :root {
     --primary-green: #00e676;
-    --flower-lime: #ccff00; /* Bright green for the flowers */
+    --flower-lime: #ccff00;
     --dark-bg: #121212;
 }
 
@@ -21,19 +21,7 @@ body {
     text-align: center;
 }
 
-.logo-container { display: flex; align-items: center; gap: 20px; }
-
-.text-expand-fwd {
-    font-size: 3.5rem;
-    animation: tracking-out-expand-fwd 1.5s ease-out both;
-}
-
-@keyframes tracking-out-expand-fwd {
-    0% { letter-spacing: -0.5em; opacity: 0; }
-    100% { letter-spacing: 0.1em; opacity: 1; }
-}
-
-/* --- THE 4 CORNER VINES & FLOWERS --- */
+/* VINE POSITIONS */
 .corner-vines {
     position: fixed;
     width: 200px;
@@ -54,11 +42,12 @@ body {
     opacity: 0.6;
 }
 
-.flower-shape {
-    fill: none;
-    stroke: var(--flower-lime);
-    stroke-width: 2;
-    filter: drop-shadow(0 0 3px var(--flower-lime));
+.petal {
+    fill: var(--primary-green);
+}
+
+.flower-group {
+    transform-box: fill-box;
     transform-origin: center;
     animation: flower-pulse 4s ease-in-out infinite;
 }
@@ -68,7 +57,31 @@ body {
     50% { transform: scale(1.15); opacity: 1; }
 }
 
-/* --- UI --- */
+.text-expand-fwd {
+    font-size: 3.5rem;
+    text-transform: uppercase;
+    animation: tracking-out-expand-fwd 1.5s ease-out both;
+}
+
+@keyframes tracking-out-expand-fwd {
+    0% { letter-spacing: -0.5em; opacity: 0; }
+    100% { letter-spacing: 0.1em; opacity: 1; }
+}
+
+.container { display: flex; justify-content: center; padding: 50px; }
+.card { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 1px solid #333; max-width: 600px; }
+
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: 0.8s ease-out;
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 .btn-interactive {
     border: 2px solid var(--primary-green);
     background: none;

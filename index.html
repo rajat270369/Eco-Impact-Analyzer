@@ -3,49 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eco Impact Analyzer | EIA Project</title>
+    <title>Eco Impact Analyzer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <svg class="corner-vines tl" viewBox="0 0 200 200">
         <path class="vine-line" d="M0,0 Q50,10 60,60 T100,100" />
-        <path class="flower-shape" d="M60,55 Q65,55 65,60 Q65,65 60,65 Q55,65 55,60 Q55,55 60,55 Z M60,52 L60,68 M52,60 L68,60" transform="translate(0,0)"/>
-        <path class="flower-shape" d="M100,95 Q105,95 105,100 Q105,105 100,105 Q95,105 95,100 Q95,95 100,95 Z M100,92 L100,108 M92,100 L108,100" />
+        <g class="flower-group" transform="translate(60, 60)">
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(0)" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(90)" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(180)" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(270)" />
+            <circle cx="0" cy="0" r="3" fill="#ccff00"></circle>
+        </g>
     </svg>
 
     <svg class="corner-vines tr" viewBox="0 0 200 200">
         <path class="vine-line" d="M200,0 Q150,10 140,60 T100,100" />
-        <path class="flower-shape" d="M140,55 Q145,55 145,60 Q145,65 140,65 Q135,65 135,60 Q135,55 140,55 Z M140,52 L140,68 M132,60 L148,60" />
+        <g class="flower-group" transform="translate(140, 60)">
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(90)" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(180)" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(270)" />
+            <circle cx="0" cy="0" r="3" fill="#ccff00"></circle>
+        </g>
     </svg>
 
     <section class="hero">
-        <div class="logo-container">
-            <h1 class="text-expand-fwd">Eco Impact Analyzer</h1>
-            <div class="mascot-wrapper">
-                <svg class="eco-fox" viewBox="0 0 100 100">
-                    <path d="M70,70 Q90,50 70,30" fill="none" stroke="#00e676" stroke-width="4" stroke-linecap="round"/>
-                    <path d="M30,80 Q50,90 70,80 L70,50 Q50,40 30,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-                    <path d="M35,50 L50,20 L65,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-                    <circle cx="45" cy="40" r="2" fill="#00e676" />
-                    <circle cx="55" cy="40" r="2" fill="#00e676" />
-                </svg>
-            </div>
-        </div>
+        <h1 class="text-expand-fwd">Eco Impact Analyzer</h1>
         <p class="reveal active">Quantifying the footprint of progress for a sustainable future.</p>
         <button class="btn-interactive" onclick="scrollToProject()">Explore Analysis</button>
     </section>
 
+    <main class="container">
+        <div class="card reveal" id="project-info">
+            <h2>Project Overview</h2>
+            <p>Welcome to the <strong>Eco Impact Analyzer</strong>. Our team is evaluating environmental shifts in air quality, biodiversity, and local ecosystems.</p>
+        </div>
+    </main>
+
     <svg class="corner-vines bl" viewBox="0 0 200 200">
         <path class="vine-line" d="M0,200 Q50,190 60,140 T100,100" />
-        <path class="flower-shape" d="M60,135 Q65,135 65,140 Q65,145 60,145 Q55,145 55,140 Q55,135 60,135 Z M60,132 L60,148 M52,140 L68,140" />
+        <g class="flower-group" transform="translate(60, 140)">
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(90)" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(180)" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(270)" />
+            <circle cx="0" cy="0" r="3" fill="#ccff00"></circle>
+        </g>
     </svg>
 
     <svg class="corner-vines br" viewBox="0 0 200 200">
         <path class="vine-line" d="M200,200 Q150,190 140,140 T100,100" />
-        <path class="flower-shape" d="M140,135 Q145,135 145,140 Q145,145 140,145 Q135,145 135,140 Q135,135 140,135 Z M140,132 L140,148 M132,140 L148,140" />
+        <g class="flower-group" transform="translate(140, 140)">
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(90)" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(180)" />
+            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(270)" />
+            <circle cx="0" cy="0" r="3" fill="#ccff00"></circle>
+        </g>
     </svg>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
