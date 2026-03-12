@@ -39,33 +39,56 @@ body {
 }
 
 /* --- Optimized Card (Merged & Aesthetic) --- */
-.card {
-  width: 195px;
-  height: 285px;
-  background: #1a1a1a;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  transition: 0.3s ease-in-out;
-  border: 1px solid #333;
-  position: relative;
-  overflow: hidden; /* This is vital for the blur effect */
-  padding: 0; /* Override the previous 40px padding to keep snippet look */
+.card.story-card {
+    width: 195px;
+    height: 285px;
+    background: #1a1a1a !important; 
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 230, 118, 0.4) !important;
+    box-shadow: 0 0 20px rgba(0, 230, 118, 0.15); /* The Card Glow */
+    padding: 0 !important;
+}
+
+/* --- THE MASCOT (Always Blurred) --- */
+.mascot-image-container.img {
+    height: 65% !important;
+    width: 100px !important;
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* This is the secret sauce for the aesthetic look */
+    filter: blur(8px) brightness(0.6) !important; 
+    opacity: 0.8;
+    animation: anim 3s infinite ease-in-out;
 }
 
 .textBox {
-  opacity: 1; /* Always visible */
-  transform: translateY(0);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  z-index: 2;
-  text-align: center;
+    opacity: 1 !important;
+    z-index: 2;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.textBox .head {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--primary-green);
+    text-shadow: 0 0 12px rgba(0, 230, 118, 0.8); /* The Text Glow */
+}
+
+@keyframes anim {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
 }
 
 .card:hover > .textBox {
@@ -77,11 +100,6 @@ body {
   font-weight: bold;
 }
 
-.textBox > .head {
-  font-size: 20px;
-  color: var(--primary-green);
-  text-shadow: 0 0 10px rgba(0, 230, 118, 0.5); /* Glow for readability */
-}
 
 .textBox > .price {
   font-size: 17px;
@@ -102,10 +120,6 @@ body {
   animation: anim 3s infinite;
 }
 
-@keyframes anim {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
-}
 
 .card:hover {
   transform: scale(1.05);
@@ -272,16 +286,6 @@ body {
 }
 
 /* --- The Mascot Container --- */
-.img, .mascot-image-container.img {
-  height: 40%;
-  position: absolute;
-  transition: 0.3s ease-in-out;
-  z-index: 1;
-  width: 80px; 
-  display: flex;
-  justify-content: center;
-  filter: blur(0px); /* Base state */
-}
 
 /* --- The Hover Aesthetic Logic --- */
 .card:hover > .img, 
