@@ -17,7 +17,6 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
 // --- 2. Create the Morphable Globe ---
-// We use detail level 2 (Icosahedron) to give enough vertices for the transformation
 const geometry = new THREE.IcosahedronGeometry(10, 2); 
 const material = new THREE.MeshBasicMaterial({ 
     color: 0x00e676, 
@@ -26,22 +25,39 @@ const material = new THREE.MeshBasicMaterial({
     opacity: 0.5 
 });
 
-// Store the original positions (The perfect Globe)
+// Store original positions (Globe)
 const originalPositions = geometry.attributes.position.array.slice();
 const vertexCount = geometry.attributes.position.count;
 
-// Create the "Watering Woman" target positions
+// Create complex "Watering Woman" target positions
 const morphTargetPositions = new Float32Array(vertexCount * 3);
 for (let i = 0; i < vertexCount; i++) {
-    let x = originalPositions[i * 3];
-    let y = originalPositions[i * 3 + 1];
-    let z = originalPositions[i * 3 + 2];
+    const segment = i / vertexCount;
+    let tx, ty, tz;
 
-    // Mathematical transformation to simulate a human-like silhouette
-    // We stretch the Y axis and taper the X/Z to create a "waist" and "head" shape
-    morphTargetPositions[i * 3] = x * (0.4 + Math.abs(y) * 0.08); // Tapering
-    morphTargetPositions[i * 3 + 1] = y * 1.6; // Stretching height
-    morphTargetPositions[i * 3 + 2] = z * 0.6; // Flattening slightly
+    if (segment < 0.4) {
+        // ZONE 1: THE BODY & HEAD (Vertical Pillar)
+        tx = (Math.random() - 0.5) * 4; 
+        ty = (segment * 40) - 15;      
+        tz = (Math.random() - 0.5) * 3;
+    } 
+    else if (segment < 0.7) {
+        // ZONE 2: THE ARM & CAN (The Arc)
+        const angle = (segment - 0.4) * Math.PI;
+        tx = 5 + Math.cos(angle) * 8;  
+        ty = 5 + Math.sin(angle) * 4;  
+        tz = (Math.random() - 0.5) * 2;
+    } 
+    else {
+        // ZONE 3: THE PLANT & BASE (Ground cluster)
+        tx = 12 + (Math.random() - 0.5) * 6; 
+        ty = -15 + (Math.random() * 8);      
+        tz = (Math.random() - 0.5) * 6;
+    }
+
+    morphTargetPositions[i * 3] = tx;
+    morphTargetPositions[i * 3 + 1] = ty;
+    morphTargetPositions[i * 3 + 2] = tz;
 }
 
 const globe = new THREE.Mesh(geometry, material);
@@ -51,24 +67,22 @@ camera.position.z = 30;
 
 // --- 3. Scroll & Morph Logic ---
 function handleScroll() {
-    // Calculate total scroll progress (0 to 1)
     const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
     
-    // Constant rotation tied to scroll
-    globe.rotation.y = scrollPercent * 8; 
-    globe.rotation.x = scrollPercent * 2; // Slight tilt for depth
-
-    // Calculate Morph Factor for Stop 1 (Transition begins after 10% scroll)
+    // Calculate Morph Factor (Transition starts at 5% scroll)
     let morphFactor = 0;
-    if (scrollPercent > 0.1) {
-        // This makes the transition reach 100% by roughly the 35% scroll mark
-        morphFactor = Math.min((scrollPercent - 0.1) * 4, 1); 
+    if (scrollPercent > 0.05) {
+        morphFactor = Math.min((scrollPercent - 0.05) * 5, 1); 
     }
 
-    // Update vertex positions using Linear Interpolation (lerp)
+    // SLOW DOWN rotation as morph completes for focus
+    const rotationSpeed = 1.0 - (morphFactor * 0.8); 
+    globe.rotation.y = scrollPercent * 8 * rotationSpeed;
+    globe.rotation.x = scrollPercent * 2 * rotationSpeed;
+
+    // Update vertex positions via Lerp
     const positions = geometry.attributes.position.array;
     for (let i = 0; i < vertexCount * 3; i++) {
-        // Smoothly slide each point between the Globe and the Woman positions
         positions[i] = THREE.MathUtils.lerp(
             originalPositions[i], 
             morphTargetPositions[i], 
@@ -76,7 +90,6 @@ function handleScroll() {
         );
     }
     
-    // Alert Three.js that the vertices have moved
     geometry.attributes.position.needsUpdate = true;
 }
 
@@ -86,7 +99,7 @@ window.addEventListener('scroll', handleScroll);
 function animate() {
     requestAnimationFrame(animate);
     
-    // Persistent slow drift for a "living" feel
+    // Persistent slow drift
     globe.rotation.y += 0.001;
     
     renderer.render(scene, camera);
