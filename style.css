@@ -129,9 +129,11 @@ body {
     transform: translateY(0);
 }
 .btn-interactive {
+    /* Main Colors - Swapped to look like it's always hovered */
+    background: var(--primary-green);
+    color: #000; /* Black text */
     border: 2px solid var(--primary-green);
-    background: rgba(0, 230, 118, 0.1); 
-    color: var(--primary-green);
+    
     padding: 14px 28px;
     cursor: pointer;
     font-weight: bold;
@@ -140,32 +142,32 @@ body {
     position: relative;
     transition: 0.3s ease;
     border-radius: 8px;
+    z-index: 10;
     
-    /* 1. This adds the glow immediately on load */
-    box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
+    /* Strong Constant Glow */
+    box-shadow: 0 0 25px var(--primary-green);
     
-    /* 2. This makes the glow "pulse" forever */
-    animation: glow-pulse 2s infinite ease-in-out;
+    /* Keep the subtle pulse for extra "life" */
+    animation: constant-glow 2s infinite ease-in-out;
 }
 
-/* 3. The logic for the "pulse" */
-@keyframes glow-pulse {
+@keyframes constant-glow {
     0%, 100% {
-        box-shadow: 0 0 8px rgba(0, 230, 118, 0.3);
+        box-shadow: 0 0 20px rgba(0, 230, 118, 0.6);
         transform: scale(1);
     }
     50% {
-        box-shadow: 0 0 25px rgba(0, 230, 118, 0.8);
-        transform: scale(1.03);
+        box-shadow: 0 0 40px rgba(0, 230, 118, 1);
+        transform: scale(1.05); /* Slightly bigger to draw attention */
     }
 }
 
-/* 4. Keep the hover effect simple so it doesn't break the animation */
+/* We can keep this simple now since it's already "hovered" */
 .btn-interactive:hover {
-    background: var(--primary-green);
-    color: black;
-    box-shadow: 0 0 40px var(--primary-green);
+    filter: brightness(1.2); /* Just gets a bit brighter when actually hovered */
+    box-shadow: 0 0 50px var(--primary-green);
 }
+
 .options-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
