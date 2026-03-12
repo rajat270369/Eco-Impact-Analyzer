@@ -1,4 +1,4 @@
-// --- Section Reveal Logic (Keep as is) ---
+// --- Section Reveal Logic ---
 window.addEventListener('scroll', () => {
     const reveals = document.querySelectorAll('.reveal');
     reveals.forEach(el => {
@@ -15,12 +15,14 @@ const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-const geometry = new THREE.IcosahedronGeometry(8, 3); 
+// --- 2. High-Density Geometry & Targets ---
+// Level 4 provides significantly more lines for a "cleaner, thicker" appearance
+const geometry = new THREE.IcosahedronGeometry(8, 4); 
 const material = new THREE.MeshBasicMaterial({ 
     color: 0x00e676, 
     wireframe: true,
     transparent: true,
-    opacity: 0.4 
+    opacity: 0.6 // Increased opacity to make the dense mesh look "solid"
 });
 
 const originalPositions = geometry.attributes.position.array.slice();
@@ -35,24 +37,22 @@ for (let i = 0; i < vertexCount; i++) {
     let y = originalPositions[i * 3 + 1];
     let z = originalPositions[i * 3 + 2];
 
-    // --- STOP 1: THE ECO-LEAF (Organic Taper) ---
-    // We use a "Diamond" taper: Wide at y=0, Sharp at y=max/min
-    let heightFactor = 1.0 - Math.abs(y / 11); 
-    let leafCurve = Math.pow(heightFactor, 0.5); // Makes the middle bulge more
+    // --- STOP 1: THE ECO-LEAF (High-Def Organic) ---
+    let heightFactor = 1.0 - Math.abs(y / 12); 
+    let leafCurve = Math.pow(heightFactor, 0.4); // Aggressive bulge for thickness
 
-    // We shift x slightly based on y to give it a "natural tilt"
-    target1_Plant[i * 3] = (x * leafCurve * 2.2) + (y * 0.1); 
-    target1_Plant[i * 3 + 1] = y * 1.5; 
-    target1_Plant[i * 3 + 2] = z * 0.02; // Make it extremely flat
+    target1_Plant[i * 3] = (x * leafCurve * 2.5) + (y * 0.15); 
+    target1_Plant[i * 3 + 1] = y * 1.6; 
+    target1_Plant[i * 3 + 2] = z * 0.01; // Flattened for a sharp blade look
 
-    // --- STOP 2: THE TECH PROCESSOR (Cube) ---
+    // --- STOP 2: THE TECH PROCESSOR (Refined Cube) ---
     target2_Tech[i * 3] = Math.max(-7, Math.min(7, x * 1.8));
     target2_Tech[i * 3 + 1] = Math.max(-7, Math.min(7, y * 1.8));
     target2_Tech[i * 3 + 2] = Math.max(-7, Math.min(7, z * 1.8));
 
-    // --- STOP 3: THE DATA WAVE ---
-    target3_Pulse[i * 3] = x * 2.8; 
-    target3_Pulse[i * 3 + 1] = Math.sin(x * 0.7) * 4; 
+    // --- STOP 3: THE DATA WAVE (Stretched) ---
+    target3_Pulse[i * 3] = x * 3.0; 
+    target3_Pulse[i * 3 + 1] = Math.sin(x * 0.8) * 4.5; 
     target3_Pulse[i * 3 + 2] = z * 0.05;
 }
 
@@ -66,18 +66,21 @@ function handleScroll() {
     const positions = geometry.attributes.position.array;
 
     if (scrollPercent <= 0.33) {
-        const factor = Math.min(scrollPercent * 4.0, 1);
+        // Globe to Plant (Increased factor for faster shape definition)
+        const factor = Math.min(scrollPercent * 4.5, 1);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(originalPositions[i], target1_Plant[i], factor);
         }
     } 
     else if (scrollPercent <= 0.66) {
+        // Plant to Cube
         const factor = Math.min((scrollPercent - 0.33) * 3.5, 1);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target1_Plant[i], target2_Tech[i], factor);
         }
     } 
     else {
+        // Cube to Wave
         const factor = Math.min((scrollPercent - 0.66) * 3.5, 1);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target2_Tech[i], target3_Pulse[i], factor);
@@ -100,8 +103,9 @@ function animate() {
     time += 0.01;
     requestAnimationFrame(animate);
     
-    // If we are at the first stop, add a gentle "leaf in the wind" sway
     const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    
+    // "Leaf in the wind" sway for the first stop
     if (scrollPercent > 0.1 && scrollPercent < 0.4) {
         globe.rotation.z = Math.sin(time) * 0.05;
     }
