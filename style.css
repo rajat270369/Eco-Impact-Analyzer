@@ -1,6 +1,5 @@
 :root {
     --primary-green: #00e676;
-    --flower-lime: #ccff00;
     --dark-bg: #121212;
 }
 
@@ -12,6 +11,7 @@ body {
     overflow-x: hidden;
 }
 
+/* --- CENTERED HERO --- */
 .hero {
     height: 100vh;
     display: flex;
@@ -21,40 +21,12 @@ body {
     text-align: center;
 }
 
-/* VINE POSITIONS */
-.corner-vines {
-    position: fixed;
-    width: 200px;
-    height: 200px;
-    z-index: -1;
-    pointer-events: none;
-}
-
-.tl { top: 10px; left: 10px; }
-.tr { top: 10px; right: 10px; }
-.bl { bottom: 10px; left: 10px; }
-.br { bottom: 10px; right: 10px; }
-
-.vine-line {
-    fill: none;
-    stroke: var(--primary-green);
-    stroke-width: 2.5;
-    opacity: 0.6;
-}
-
-.petal {
-    fill: var(--primary-green);
-}
-
-.flower-group {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: flower-pulse 4s ease-in-out infinite;
-}
-
-@keyframes flower-pulse {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.15); opacity: 1; }
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
 .text-expand-fwd {
@@ -68,13 +40,37 @@ body {
     100% { letter-spacing: 0.1em; opacity: 1; }
 }
 
-.container { display: flex; justify-content: center; padding: 50px; }
-.card { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 1px solid #333; max-width: 600px; }
+.mascot-wrapper {
+    width: 60px;
+    height: 60px;
+    animation: duo-bounce 2s ease-in-out infinite;
+}
+
+@keyframes duo-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* --- UI & CONTENT --- */
+.container { 
+    display: flex; 
+    justify-content: center; 
+    padding: 100px 20px; 
+}
+
+.card { 
+    background: #1a1a1a; 
+    padding: 40px; 
+    border-radius: 20px; 
+    border: 1px solid #333; 
+    max-width: 600px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
 
 .reveal {
     opacity: 0;
-    transform: translateY(30px);
-    transition: 0.8s ease-out;
+    transform: translateY(40px);
+    transition: 1s ease-out;
 }
 
 .reveal.active {
@@ -86,15 +82,16 @@ body {
     border: 2px solid var(--primary-green);
     background: none;
     color: var(--primary-green);
-    padding: 12px 24px;
+    padding: 14px 28px;
     cursor: pointer;
     font-weight: bold;
+    font-size: 1rem;
+    transition: 0.3s ease;
     margin-top: 20px;
-    transition: 0.3s;
 }
 
 .btn-interactive:hover {
     background: var(--primary-green);
     color: black;
-    box-shadow: 0 0 15px var(--primary-green);
+    box-shadow: 0 0 20px var(--primary-green);
 }

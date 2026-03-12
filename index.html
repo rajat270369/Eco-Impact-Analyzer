@@ -3,67 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eco Impact Analyzer</title>
+    <title>Eco Impact Analyzer | EIA Project</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <svg class="corner-vines tl" viewBox="0 0 200 200">
-        <path class="vine-line" d="M0,0 Q50,10 60,60 T100,100" />
-        <g class="flower-group" transform="translate(60, 60)">
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(0)" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(90)" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(180)" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(270)" />
-            <circle cx="0" cy="0" r="3" fill="#ccff00"></circle>
-        </g>
-    </svg>
-
-    <svg class="corner-vines tr" viewBox="0 0 200 200">
-        <path class="vine-line" d="M200,0 Q150,10 140,60 T100,100" />
-        <g class="flower-group" transform="translate(140, 60)">
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(90)" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(180)" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(270)" />
-            <circle cx="0" cy="0" r="3" fill="#ccff00"></circle>
-        </g>
-    </svg>
-
     <section class="hero">
-        <h1 class="text-expand-fwd">Eco Impact Analyzer</h1>
+        <div class="logo-container">
+            <h1 class="text-expand-fwd">Eco Impact Analyzer</h1>
+            <div class="mascot-wrapper">
+                <svg class="eco-fox" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M70,70 Q90,50 70,30" fill="none" stroke="#00e676" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M30,80 Q50,90 70,80 L70,50 Q50,40 30,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
+                    <path d="M35,50 L50,20 L65,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
+                    <circle cx="45" cy="40" r="2" fill="#00e676" />
+                    <circle cx="55" cy="40" r="2" fill="#00e676" />
+                </svg>
+            </div>
+        </div>
+        
         <p class="reveal active">Quantifying the footprint of progress for a sustainable future.</p>
         <button class="btn-interactive" onclick="scrollToProject()">Explore Analysis</button>
     </section>
-
+    
     <main class="container">
         <div class="card reveal" id="project-info">
             <h2>Project Overview</h2>
             <p>Welcome to the <strong>Eco Impact Analyzer</strong>. Our team is evaluating environmental shifts in air quality, biodiversity, and local ecosystems.</p>
         </div>
     </main>
-
-    <svg class="corner-vines bl" viewBox="0 0 200 200">
-        <path class="vine-line" d="M0,200 Q50,190 60,140 T100,100" />
-        <g class="flower-group" transform="translate(60, 140)">
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(90)" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(180)" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(270)" />
-            <circle cx="0" cy="0" r="3" fill="#ccff00"></circle>
-        </g>
-    </svg>
-
-    <svg class="corner-vines br" viewBox="0 0 200 200">
-        <path class="vine-line" d="M200,200 Q150,190 140,140 T100,100" />
-        <g class="flower-group" transform="translate(140, 140)">
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(90)" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(180)" />
-            <path class="petal" d="M0,0 C-8,-12 8,-12 0,0 Z" transform="rotate(270)" />
-            <circle cx="0" cy="0" r="3" fill="#ccff00"></circle>
-        </g>
-    </svg>
 
     <script src="script.js"></script>
 </body>
