@@ -19,6 +19,8 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
+    background: transparent;
+    z-index: 1;
 }
 
 .logo-container {
@@ -122,18 +124,13 @@ body {
     background-color: var(--dark-bg);
 }
 
-.hero {
-    background: transparent;
-    z-index: 1;
-}
 .reveal.active {
     opacity: 1;
     transform: translateY(0);
 }
-
 .btn-interactive {
     border: 2px solid var(--primary-green);
-    background: rgba(0, 230, 118, 0.05); /* Slight green tint */
+    background: rgba(0, 230, 118, 0.1); 
     color: var(--primary-green);
     padding: 14px 28px;
     cursor: pointer;
@@ -142,25 +139,17 @@ body {
     margin-top: 20px;
     position: relative;
     transition: 0.3s ease;
+    border-radius: 8px;
+    z-index: 10; /* Ensures it sits above the 3D canvas */
     
-    /* The Constant Glow */
+    /* This is the magic for the constant glow */
     box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
     animation: glow-pulse 2s infinite ease-in-out;
 }
 
 @keyframes glow-pulse {
-    0% {
-        box-shadow: 0 0 5px rgba(0, 230, 118, 0.2);
-        transform: scale(1);
-    }
-    50% {
-        box-shadow: 0 0 25px rgba(0, 230, 118, 0.7);
-        transform: scale(1.02); /* Very subtle growth */
-    }
-    100% {
-        box-shadow: 0 0 5px rgba(0, 230, 118, 0.2);
-        transform: scale(1);
-    }
+    0%, 100% { box-shadow: 0 0 8px rgba(0, 230, 118, 0.3); transform: scale(1); }
+    50% { box-shadow: 0 0 25px rgba(0, 230, 118, 0.8); transform: scale(1.03); }
 }
 
 .btn-interactive:hover {
@@ -199,9 +188,4 @@ body {
 .option-card h3 {
     color: var(--primary-green);
     margin-bottom: 10px;
-}
-.btn-interactive:hover {
-    background: var(--primary-green);
-    color: black;
-    box-shadow: 0 0 20px var(--primary-green);
 }
