@@ -16,8 +16,8 @@ const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-// --- 2. Create the Morphable Globe ---
-const geometry = new THREE.IcosahedronGeometry(10, 3); // More points for detail
+// --- 2. Create the Morphable Globe & Target Shapes ---
+const geometry = new THREE.IcosahedronGeometry(8, 3); 
 const material = new THREE.MeshBasicMaterial({ 
     color: 0x00e676, 
     wireframe: true,
@@ -27,73 +27,77 @@ const material = new THREE.MeshBasicMaterial({
 
 const originalPositions = geometry.attributes.position.array.slice();
 const vertexCount = geometry.attributes.position.count;
-const morphTargetPositions = new Float32Array(vertexCount * 3);
+
+// Define our three target shapes
+const target1_Woman = new Float32Array(vertexCount * 3);
+const target2_Tech = new Float32Array(vertexCount * 3);
+const target3_Pulse = new Float32Array(vertexCount * 3);
 
 for (let i = 0; i < vertexCount; i++) {
     let x = originalPositions[i * 3];
     let y = originalPositions[i * 3 + 1];
     let z = originalPositions[i * 3 + 2];
 
-    // THE SILHOUETTE FORMULA
-    // We project the globe onto a 2D plane and "carve" the woman shape
-    let tx = x;
-    let ty = y;
-    let tz = z * 0.1; // Flatten into a 2D "card" shape to avoid jumble
+    // --- PART 1: THE WOMAN (Stop 1) ---
+    let wX = x * 0.5;
+    let wY = y * 1.2;
+    let wZ = z * 0.2;
+    if (y > 4) wX *= 0.4; // Head
+    if (x > 0 && y > 0 && y < 5) wX += 3; // Arm
+    target1_Woman[i * 3] = wX;
+    target1_Woman[i * 3 + 1] = wY;
+    target1_Woman[i * 3 + 2] = wZ;
 
-    // Define the "Woman" silhouette using Y-axis height
-    if (y > 5) { 
-        // The Head: Narrow the top
-        tx *= 0.3; 
-    } else if (y > -5 && y <= 5) {
-        // The Torso: Slight curve
-        tx *= (0.6 - Math.abs(y) * 0.05);
-    } else {
-        // The Base/Legs: Widens out
-        tx *= 0.8;
-    }
+    // --- PART 2: THE TECH STACK (Stop 2 - Geometric Cube) ---
+    // We "boxify" the globe by snapping points toward the nearest cube face
+    target2_Tech[i * 3] = Math.sign(x) * 7;
+    target2_Tech[i * 3 + 1] = Math.sign(y) * 7;
+    target2_Tech[i * 3 + 2] = Math.sign(z) * 7;
 
-    // Add the "Watering Arm" - only to vertices on the right side
-    if (x > 0 && y > 0 && y < 4) {
-        tx += 8 * (1 - Math.abs(y - 2) * 0.5); // Extend arm outwards
-    }
-
-    morphTargetPositions[i * 3] = tx;
-    morphTargetPositions[i * 3 + 1] = ty;
-    morphTargetPositions[i * 3 + 2] = tz;
+    // --- PART 3: THE PULSE (Stop 3 - Waveform) ---
+    // Flatten everything into a wide wave
+    target3_Pulse[i * 3] = x * 2.5; // Stretch wide
+    target3_Pulse[i * 3 + 1] = Math.sin(x * 0.5) * 4; // Add a wave curve
+    target3_Pulse[i * 3 + 2] = z * 0.1; // Total flatness
 }
 
 const globe = new THREE.Mesh(geometry, material);
 scene.add(globe);
-// --- 3. Scroll & Morph Logic ---
+camera.position.z = 35;
+
+// --- 3. The Multi-Stage Scroll Logic ---
 function handleScroll() {
     const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-    
-    // Calculate Morph Factor (Transition starts at 5% scroll)
-    let morphFactor = 0;
-    if (scrollPercent > 0.05) {
-        morphFactor = Math.min((scrollPercent - 0.05) * 5, 1); 
-    }
-
-    // SLOW DOWN rotation as morph completes for focus
-    const rotationSpeed = 1.0 - (morphFactor * 0.8); 
-    globe.rotation.y = scrollPercent * 8 * rotationSpeed;
-    globe.rotation.x = scrollPercent * 2 * rotationSpeed;
-
-    // Update vertex positions via Lerp
     const positions = geometry.attributes.position.array;
-    for (let i = 0; i < vertexCount * 3; i++) {
-        positions[i] = THREE.MathUtils.lerp(
-            originalPositions[i], 
-            morphTargetPositions[i], 
-            morphFactor
-        );
+    let currentTarget;
+
+    if (scrollPercent <= 0.33) {
+        // TRANSITION 0 TO 1 (Globe to Woman)
+        const factor = Math.min(scrollPercent * 3, 1);
+        for (let i = 0; i < vertexCount * 3; i++) {
+            positions[i] = THREE.MathUtils.lerp(originalPositions[i], target1_Woman[i], factor);
+        }
+    } 
+    else if (scrollPercent <= 0.66) {
+        // TRANSITION 1 TO 2 (Woman to Tech Cube)
+        const factor = Math.min((scrollPercent - 0.33) * 3, 1);
+        for (let i = 0; i < vertexCount * 3; i++) {
+            positions[i] = THREE.MathUtils.lerp(target1_Woman[i], target2_Tech[i], factor);
+        }
+    } 
+    else {
+        // TRANSITION 2 TO 3 (Tech Cube to Pulse Wave)
+        const factor = Math.min((scrollPercent - 0.66) * 3, 1);
+        for (let i = 0; i < vertexCount * 3; i++) {
+            positions[i] = THREE.MathUtils.lerp(target2_Tech[i], target3_Pulse[i], factor);
+        }
     }
-    
+
     geometry.attributes.position.needsUpdate = true;
+    globe.rotation.y = scrollPercent * 4;
 }
 
 window.addEventListener('scroll', handleScroll);
-
 // --- 4. Constant Animation Loop ---
 function animate() {
     requestAnimationFrame(animate);
