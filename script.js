@@ -1,4 +1,4 @@
-// --- Section Reveal Logic ---
+// --- Section Reveal Logic (Keep as is) ---
 window.addEventListener('scroll', () => {
     const reveals = document.querySelectorAll('.reveal');
     reveals.forEach(el => {
@@ -12,7 +12,6 @@ window.addEventListener('scroll', () => {
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
@@ -36,22 +35,24 @@ for (let i = 0; i < vertexCount; i++) {
     let y = originalPositions[i * 3 + 1];
     let z = originalPositions[i * 3 + 2];
 
-    // --- STOP 1: THE ECO-LEAF ---
-    // We create a "Pointy Oval" shape with a central vein
-    let leafWidth = (1 - Math.abs(y / 10)); // Taper at top and bottom
-    target1_Plant[i * 3] = x * leafWidth * 1.2; 
-    target1_Plant[i * 3 + 1] = y * 1.3; // Make it taller
-    target1_Plant[i * 3 + 2] = z * 0.1; // Flatten into a leaf blade
+    // --- STOP 1: THE ECO-LEAF (Organic Taper) ---
+    // We use a "Diamond" taper: Wide at y=0, Sharp at y=max/min
+    let heightFactor = 1.0 - Math.abs(y / 11); 
+    let leafCurve = Math.pow(heightFactor, 0.5); // Makes the middle bulge more
+
+    // We shift x slightly based on y to give it a "natural tilt"
+    target1_Plant[i * 3] = (x * leafCurve * 2.2) + (y * 0.1); 
+    target1_Plant[i * 3 + 1] = y * 1.5; 
+    target1_Plant[i * 3 + 2] = z * 0.02; // Make it extremely flat
 
     // --- STOP 2: THE TECH PROCESSOR (Cube) ---
-    // A more precise cube than before
-    target2_Tech[i * 3] = Math.max(-6, Math.min(6, x * 1.5));
-    target2_Tech[i * 3 + 1] = Math.max(-6, Math.min(6, y * 1.5));
-    target2_Tech[i * 3 + 2] = Math.max(-6, Math.min(6, z * 1.5));
+    target2_Tech[i * 3] = Math.max(-7, Math.min(7, x * 1.8));
+    target2_Tech[i * 3 + 1] = Math.max(-7, Math.min(7, y * 1.8));
+    target2_Tech[i * 3 + 2] = Math.max(-7, Math.min(7, z * 1.8));
 
     // --- STOP 3: THE DATA WAVE ---
-    target3_Pulse[i * 3] = x * 2.5; 
-    target3_Pulse[i * 3 + 1] = Math.sin(x * 0.8) * 3; // Flowing wave
+    target3_Pulse[i * 3] = x * 2.8; 
+    target3_Pulse[i * 3 + 1] = Math.sin(x * 0.7) * 4; 
     target3_Pulse[i * 3 + 2] = z * 0.05;
 }
 
@@ -65,21 +66,18 @@ function handleScroll() {
     const positions = geometry.attributes.position.array;
 
     if (scrollPercent <= 0.33) {
-        // Globe to Plant
-        const factor = Math.min(scrollPercent * 3.5, 1);
+        const factor = Math.min(scrollPercent * 4.0, 1);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(originalPositions[i], target1_Plant[i], factor);
         }
     } 
     else if (scrollPercent <= 0.66) {
-        // Plant to Cube
         const factor = Math.min((scrollPercent - 0.33) * 3.5, 1);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target1_Plant[i], target2_Tech[i], factor);
         }
     } 
     else {
-        // Cube to Wave
         const factor = Math.min((scrollPercent - 0.66) * 3.5, 1);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target2_Tech[i], target3_Pulse[i], factor);
@@ -87,23 +85,34 @@ function handleScroll() {
     }
 
     geometry.attributes.position.needsUpdate = true;
-    globe.rotation.y = scrollPercent * 6; // Keep the rotation smooth
+    
+    // Slow down rotation when showing the leaf to let the shape stand out
+    let rotationBase = 6;
+    if (scrollPercent > 0.1 && scrollPercent < 0.3) rotationBase = 2;
+    globe.rotation.y = scrollPercent * rotationBase;
 }
 
 window.addEventListener('scroll', handleScroll);
+
 // --- 4. Constant Animation Loop ---
+let time = 0;
 function animate() {
+    time += 0.01;
     requestAnimationFrame(animate);
     
-    // Persistent slow drift
+    // If we are at the first stop, add a gentle "leaf in the wind" sway
+    const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    if (scrollPercent > 0.1 && scrollPercent < 0.4) {
+        globe.rotation.z = Math.sin(time) * 0.05;
+    }
+
     globe.rotation.y += 0.001;
-    
     renderer.render(scene, camera);
 }
 
 animate();
 
-// --- 5. Handle Window Resizing ---
+// --- 5. Resize Handling ---
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
