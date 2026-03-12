@@ -11,6 +11,18 @@ body {
     overflow-x: hidden;
 }
 
+/* --- 3D CANVAS SETUP --- */
+#canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--dark-bg);
+}
+
 /* --- CENTERED HERO --- */
 .hero {
     height: 100vh;
@@ -53,10 +65,38 @@ body {
     50% { transform: translateY(-10px); }
 }
 
-/* --- UI & CONTENT --- */
+/* --- PERMANENT GLOW BUTTON --- */
+.btn-interactive {
+    background: var(--primary-green);
+    color: #000;
+    border: 2px solid var(--primary-green);
+    padding: 14px 28px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 20px;
+    position: relative;
+    transition: 0.3s ease;
+    border-radius: 8px;
+    box-shadow: 0 0 25px var(--primary-green);
+    animation: constant-glow 2s infinite ease-in-out;
+}
+
+@keyframes constant-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 230, 118, 0.6); transform: scale(1); }
+    50% { box-shadow: 0 0 40px rgba(0, 230, 118, 1); transform: scale(1.05); }
+}
+
+.btn-interactive:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 0 50px var(--primary-green);
+}
+
+/* --- RESTORED UI COMPONENTS (Cards, Grids, etc.) --- */
 .container { 
     display: flex; 
-    justify-content: center; 
+    flex-direction: column;
+    align-items: center;
     padding: 100px 20px; 
 }
 
@@ -67,14 +107,41 @@ body {
     border: 1px solid #333; 
     max-width: 600px; 
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-bottom: 30px;
 }
 
-.reveal {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: 1s ease-out;
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    width: 100%;
+    max-width: 1000px;
 }
-/* Back Button Style from Uiverse */
+
+.option-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.option-card:hover {
+    background: rgba(0, 230, 118, 0.1);
+    border-color: var(--primary-green);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.option-card h3 {
+    color: var(--primary-green);
+    margin-bottom: 10px;
+}
+
+/* --- BACK BUTTON STYLE --- */
 .btn-back {
   --green: #1BFD9C;
   font-size: 15px;
@@ -91,7 +158,7 @@ body {
   color: var(--green);
   box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
   cursor: pointer;
-  background-color: transparent; /* Ensures no default button gray */
+  background-color: transparent;
 }
 
 .btn-back:hover {
@@ -113,111 +180,15 @@ body {
 .btn-back:hover:before {
   transform: translateX(15em);
 }
-#canvas-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    z-index: -1;
-    pointer-events: none;
-    background-color: var(--dark-bg);
+
+/* --- UTILITIES --- */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: 1s ease-out;
 }
 
 .reveal.active {
     opacity: 1;
     transform: translateY(0);
-}
-.btn-interactive {
-    /* Main Colors - Swapped to look like it's always hovered */
-    background: var(--primary-green);
-    color: #000; /* Black text */
-    border: 2px solid var(--primary-green);
-    
-    padding: 14px 28px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1rem;
-    margin-top: 20px;
-    position: relative;
-    transition: 0.3s ease;
-    border-radius: 8px;
-    z-index: 10;
-    
-    /* Strong Constant Glow */
-    box-shadow: 0 0 25px var(--primary-green);
-    
-    /* Keep the subtle pulse for extra "life" */
-    animation: constant-glow 2s infinite ease-in-out;
-}
-
-@keyframes constant-glow {
-    0%, 100% {
-        box-shadow: 0 0 20px rgba(0, 230, 118, 0.6);
-        transform: scale(1);
-    }
-    50% {
-        box-shadow: 0 0 40px rgba(0, 230, 118, 1);
-        transform: scale(1.05); /* Slightly bigger to draw attention */
-    }
-}
-
-/* We can keep this simple now since it's already "hovered" */
-.btn-interactive:hover {
-    filter: brightness(1.2); /* Just gets a bit brighter when actually hovered */
-    box-shadow: 0 0 50px var(--primary-green);
-}
-.story-section {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none; /* Allows you to still interact with the background if needed */
-}
-
-.story-content {
-    background: rgba(18, 18, 18, 0.8);
-    padding: 30px;
-    border-radius: 15px;
-    border: 1px solid var(--primary-green);
-    max-width: 500px;
-    text-align: center;
-    backdrop-filter: blur(10px); /* Makes it look very modern */
-    pointer-events: all; /* Re-enables clicking for buttons */
-}
-
-.story-content h2 {
-    color: var(--primary-green);
-    margin-bottom: 15px;
-}
-.options-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    padding: 20px;
-    width: 100%;
-    max-width: 1000px;
-}
-
-/* Individual Option Cards */
-.option-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
-.option-card:hover {
-    background: rgba(0, 230, 118, 0.1); /* Subtle green glow */
-    border-color: var(--primary-green);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-.option-card h3 {
-    color: var(--primary-green);
-    margin-bottom: 10px;
 }
