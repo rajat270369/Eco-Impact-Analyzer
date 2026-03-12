@@ -167,7 +167,29 @@ body {
     filter: brightness(1.2); /* Just gets a bit brighter when actually hovered */
     box-shadow: 0 0 50px var(--primary-green);
 }
+.story-section {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none; /* Allows you to still interact with the background if needed */
+}
 
+.story-content {
+    background: rgba(18, 18, 18, 0.8);
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid var(--primary-green);
+    max-width: 500px;
+    text-align: center;
+    backdrop-filter: blur(10px); /* Makes it look very modern */
+    pointer-events: all; /* Re-enables clicking for buttons */
+}
+
+.story-content h2 {
+    color: var(--primary-green);
+    margin-bottom: 15px;
+}
 .options-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

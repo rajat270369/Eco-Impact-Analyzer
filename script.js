@@ -18,7 +18,12 @@ document.getElementById('canvas-container').appendChild(renderer.domElement);
 
 // --- 2. Create the "Eco-Globe" ---
 const geometry = new THREE.IcosahedronGeometry(10, 1); 
+const loader = new THREE.TextureLoader();
+const texture = loader.load('your-image.jpg'); // Put a local image path here
+// Change MeshBasicMaterial to MeshLambertMaterial if you want it to react to light
+const materialWithTexture = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
 const material = new THREE.MeshBasicMaterial({ 
+
     color: 0x00e676, 
     wireframe: true,
     transparent: true,
@@ -33,7 +38,20 @@ camera.position.z = 30;
 function handleScroll() {
     // Calculate scroll progress (0 to 1)
     const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    globe.rotation.y = scrollPercent * 10;
     
+    // 2. Opacity / Visibility Change
+    // As we reach the end (Contact section), we can make the globe fade 
+    // or change color to signal the transition.
+    if (scrollPercent > 0.8) {
+        material.color.setHex(0xffffff); // Changes to white for the contact section
+        material.opacity = 0.8;
+    } else {
+        material.color.setHex(0x00e676); // Back to green
+        material.opacity = 0.5;
+    }
+  }
+
     // REVOLVE: Rotation tied to scroll position
     // Adding to the rotation instead of setting it allows the 'animate' loop to stay smooth
     globe.rotation.y = scrollPercent * 8; 
@@ -42,7 +60,7 @@ function handleScroll() {
     // Ensure it stays locked in the center
     globe.position.set(0, 0, 0);
     globe.scale.set(1, 1, 1);
-}
+   
 
 window.addEventListener('scroll', handleScroll);
 
