@@ -17,42 +17,44 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
 // --- 2. Create the Morphable Globe ---
-const geometry = new THREE.IcosahedronGeometry(10, 2); 
+const geometry = new THREE.IcosahedronGeometry(10, 3); // More points for detail
 const material = new THREE.MeshBasicMaterial({ 
     color: 0x00e676, 
     wireframe: true,
     transparent: true,
-    opacity: 0.5 
+    opacity: 0.4 
 });
 
-// Store original positions (Globe)
 const originalPositions = geometry.attributes.position.array.slice();
 const vertexCount = geometry.attributes.position.count;
-
-// Create complex "Watering Woman" target positions
 const morphTargetPositions = new Float32Array(vertexCount * 3);
-for (let i = 0; i < vertexCount; i++) {
-    const segment = i / vertexCount;
-    let tx, ty, tz;
 
-    if (segment < 0.4) {
-        // ZONE 1: THE BODY & HEAD (Vertical Pillar)
-        tx = (Math.random() - 0.5) * 4; 
-        ty = (segment * 40) - 15;      
-        tz = (Math.random() - 0.5) * 3;
-    } 
-    else if (segment < 0.7) {
-        // ZONE 2: THE ARM & CAN (The Arc)
-        const angle = (segment - 0.4) * Math.PI;
-        tx = 5 + Math.cos(angle) * 8;  
-        ty = 5 + Math.sin(angle) * 4;  
-        tz = (Math.random() - 0.5) * 2;
-    } 
-    else {
-        // ZONE 3: THE PLANT & BASE (Ground cluster)
-        tx = 12 + (Math.random() - 0.5) * 6; 
-        ty = -15 + (Math.random() * 8);      
-        tz = (Math.random() - 0.5) * 6;
+for (let i = 0; i < vertexCount; i++) {
+    let x = originalPositions[i * 3];
+    let y = originalPositions[i * 3 + 1];
+    let z = originalPositions[i * 3 + 2];
+
+    // THE SILHOUETTE FORMULA
+    // We project the globe onto a 2D plane and "carve" the woman shape
+    let tx = x;
+    let ty = y;
+    let tz = z * 0.1; // Flatten into a 2D "card" shape to avoid jumble
+
+    // Define the "Woman" silhouette using Y-axis height
+    if (y > 5) { 
+        // The Head: Narrow the top
+        tx *= 0.3; 
+    } else if (y > -5 && y <= 5) {
+        // The Torso: Slight curve
+        tx *= (0.6 - Math.abs(y) * 0.05);
+    } else {
+        // The Base/Legs: Widens out
+        tx *= 0.8;
+    }
+
+    // Add the "Watering Arm" - only to vertices on the right side
+    if (x > 0 && y > 0 && y < 4) {
+        tx += 8 * (1 - Math.abs(y - 2) * 0.5); // Extend arm outwards
     }
 
     morphTargetPositions[i * 3] = tx;
@@ -62,9 +64,6 @@ for (let i = 0; i < vertexCount; i++) {
 
 const globe = new THREE.Mesh(geometry, material);
 scene.add(globe);
-
-camera.position.z = 30;
-
 // --- 3. Scroll & Morph Logic ---
 function handleScroll() {
     const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
