@@ -89,7 +89,38 @@ body {
     transition: 0.3s ease;
     margin-top: 20px;
 }
+/* Container for your options */
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    width: 100%;
+    max-width: 1000px;
+}
 
+/* Individual Option Cards */
+.option-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.option-card:hover {
+    background: rgba(0, 230, 118, 0.1); /* Subtle green glow */
+    border-color: var(--primary-green);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.option-card h3 {
+    color: var(--primary-green);
+    margin-bottom: 10px;
+}
 .btn-interactive:hover {
     background: var(--primary-green);
     color: black;
