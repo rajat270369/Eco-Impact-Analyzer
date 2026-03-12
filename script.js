@@ -21,7 +21,7 @@ const material = new THREE.MeshBasicMaterial({
     color: 0x00e676, 
     wireframe: true,
     transparent: true,
-    opacity: 0.5 // Slightly lower opacity looks "thinner" and more elegant
+    opacity: 0.5 
 });
 
 const originalPositions = geometry.attributes.position.array.slice();
@@ -36,22 +36,25 @@ for (let i = 0; i < vertexCount; i++) {
     let y = originalPositions[i * 3 + 1];
     let z = originalPositions[i * 3 + 2];
 
-    // --- STOP 1: THE SLEEK LEAF + STEM ---
-    let normalizedY = y / 12; // -1 to 1 range
-    let heightFactor = 1.0 - Math.abs(normalizedY); 
+    // --- STOP 1: THE SMOOTH ORGANIC LEAF ---
+    let normalizedY = y / 12; 
     
-    // We use a higher power (1.2) to "pinch" the sides, making it thinner
-    let leafCurve = Math.pow(heightFactor, 1.2); 
+    // Smooth tapering using Sine instead of Power for rounded edges
+    let rad = (1 - Math.abs(normalizedY)) * Math.PI * 0.5;
+    let smoothCurve = Math.sin(rad); 
 
-    // Branch logic: pull bottom points down into a thin needle
-    let branchEffect = (y < -7) ? (Math.abs(y + 7) * 0.8) : 0;
-    let branchNarrow = (y < -7) ? 0.1 : 1.0; // Make the stem very thin
+    // Create a "fold" in the center (Z-axis depth) so it isn't a flat weapon
+    let fold = Math.abs(x) * 0.1; 
 
-    target1_Plant[i * 3] = (x * leafCurve * 1.5 * branchNarrow) + (y * 0.05); // Width reduced from 2.5 to 1.5
-    target1_Plant[i * 3 + 1] = (y * 1.7) - branchEffect; 
-    target1_Plant[i * 3 + 2] = z * 0.01; // Keep it flat
+    // Stem logic (Thinner and shorter)
+    let branchEffect = (y < -8) ? (Math.abs(y + 8) * 0.5) : 0;
+    let branchNarrow = (y < -8) ? 0.05 : 1.0;
 
-    // --- STOP 2: THE TECH PROCESSOR (Cube) ---
+    target1_Plant[i * 3] = (x * smoothCurve * 1.4 * branchNarrow); 
+    target1_Plant[i * 3 + 1] = (y * 1.6) - branchEffect; 
+    target1_Plant[i * 3 + 2] = (z * 0.02) + fold; // Adds organic depth
+
+    // --- STOP 2: THE TECH PROCESSOR ---
     target2_Tech[i * 3] = Math.max(-7.5, Math.min(7.5, x * 2.0));
     target2_Tech[i * 3 + 1] = Math.max(-7.5, Math.min(7.5, y * 2.0));
     target2_Tech[i * 3 + 2] = Math.max(-7.5, Math.min(7.5, z * 2.0));
@@ -92,23 +95,20 @@ function handleScroll() {
     }
 
     geometry.attributes.position.needsUpdate = true;
-    
-    let rotationBase = 6;
-    if (scrollPercent > 0.1 && scrollPercent < 0.3) rotationBase = 1.5; // Slowed down even more for clarity
-    globe.rotation.y = scrollPercent * rotationBase;
+    globe.rotation.y = scrollPercent * 4; 
 }
 
 window.addEventListener('scroll', handleScroll);
 
-// --- 4. Constant Animation Loop ---
+// --- 4. Animation Loop ---
 let time = 0;
 function animate() {
     time += 0.01;
     requestAnimationFrame(animate);
     const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
     
-    if (scrollPercent > 0.1 && scrollPercent < 0.4) {
-        globe.rotation.z = Math.sin(time) * 0.05;
+    if (scrollPercent > 0.05 && scrollPercent < 0.4) {
+        globe.rotation.z = Math.sin(time * 0.5) * 0.03; // Gentle slow sway
     }
 
     globe.rotation.y += 0.001;
@@ -116,7 +116,7 @@ function animate() {
 }
 animate();
 
-// --- 5. Resize Handling ---
+// --- 5. Resize ---
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
