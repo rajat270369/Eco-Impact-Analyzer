@@ -8,11 +8,13 @@
 </head>
 <body>
 
+    <div id="canvas-container"></div>
+
     <section class="hero">
         <div class="logo-container">
             <h1 class="text-expand-fwd">Eco Impact Analyzer</h1>
             <div class="mascot-wrapper">
-                <svg class="eco-fox" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <svg class="eco-fox" viewBox="0 0 100 100">
                     <path d="M70,70 Q90,50 70,30" fill="none" stroke="#00e676" stroke-width="4" stroke-linecap="round"/>
                     <path d="M30,80 Q50,90 70,80 L70,50 Q50,40 30,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
                     <path d="M35,50 L50,20 L65,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
@@ -21,18 +23,13 @@
                 </svg>
             </div>
         </div>
-        
         <p class="reveal active">Quantifying the footprint of progress for a sustainable future.</p>
         <button class="btn-interactive" onclick="window.location.href='analysis.html'">Explore Analysis</button>
     </section>
-    
-    <main class="container">
-        <div class="card reveal" id="project-info">
-            <h2>Project Overview</h2>
-            <p>Welcome to the <strong>Eco Impact Analyzer</strong>. Our team is evaluating environmental shifts in air quality, biodiversity, and local ecosystems.</p>
-        </div>
-    </main>
 
+    <div style="height: 150vh;"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

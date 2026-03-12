@@ -111,6 +111,21 @@ body {
 .btn-back:hover:before {
   transform: translateX(15em);
 }
+#canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--dark-bg);
+}
+
+.hero {
+    background: transparent;
+    z-index: 1;
+}
 .reveal.active {
     opacity: 1;
     transform: translateY(0);
