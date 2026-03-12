@@ -21,7 +21,7 @@ const material = new THREE.MeshBasicMaterial({
     color: 0x00e676, 
     wireframe: true,
     transparent: true,
-    opacity: 0.6 
+    opacity: 0.5 // Slightly lower opacity looks "thinner" and more elegant
 });
 
 const originalPositions = geometry.attributes.position.array.slice();
@@ -36,23 +36,27 @@ for (let i = 0; i < vertexCount; i++) {
     let y = originalPositions[i * 3 + 1];
     let z = originalPositions[i * 3 + 2];
 
-    // --- STOP 1: THE ECO-LEAF + BRANCH ---
-    let heightFactor = 1.0 - Math.abs(y / 12); 
-    let leafCurve = Math.pow(heightFactor, 0.4);
+    // --- STOP 1: THE SLEEK LEAF + STEM ---
+    let normalizedY = y / 12; // -1 to 1 range
+    let heightFactor = 1.0 - Math.abs(normalizedY); 
+    
+    // We use a higher power (1.2) to "pinch" the sides, making it thinner
+    let leafCurve = Math.pow(heightFactor, 1.2); 
 
-    // Branch logic: pull bottom points down to form a stem
-    let branchEffect = (y < -7) ? (Math.abs(y + 7) * 0.6) : 0;
+    // Branch logic: pull bottom points down into a thin needle
+    let branchEffect = (y < -7) ? (Math.abs(y + 7) * 0.8) : 0;
+    let branchNarrow = (y < -7) ? 0.1 : 1.0; // Make the stem very thin
 
-    target1_Plant[i * 3] = (x * leafCurve * 2.5) + (y * 0.1); 
-    target1_Plant[i * 3 + 1] = (y * 1.6) - branchEffect; 
-    target1_Plant[i * 3 + 2] = z * 0.01;
+    target1_Plant[i * 3] = (x * leafCurve * 1.5 * branchNarrow) + (y * 0.05); // Width reduced from 2.5 to 1.5
+    target1_Plant[i * 3 + 1] = (y * 1.7) - branchEffect; 
+    target1_Plant[i * 3 + 2] = z * 0.01; // Keep it flat
 
-    // --- STOP 2: THE TECH PROCESSOR (Refined Cube) ---
+    // --- STOP 2: THE TECH PROCESSOR (Cube) ---
     target2_Tech[i * 3] = Math.max(-7.5, Math.min(7.5, x * 2.0));
     target2_Tech[i * 3 + 1] = Math.max(-7.5, Math.min(7.5, y * 2.0));
     target2_Tech[i * 3 + 2] = Math.max(-7.5, Math.min(7.5, z * 2.0));
 
-    // --- STOP 3: THE DATA WAVE (Stretched) ---
+    // --- STOP 3: THE DATA WAVE ---
     target3_Pulse[i * 3] = x * 3.2; 
     target3_Pulse[i * 3 + 1] = Math.sin(x * 0.8) * 4.5; 
     target3_Pulse[i * 3 + 2] = z * 0.05;
@@ -60,32 +64,27 @@ for (let i = 0; i < vertexCount; i++) {
 
 const globe = new THREE.Mesh(geometry, material);
 scene.add(globe);
-camera.position.z = 38; // Slightly pushed back to keep the branch in view
+camera.position.z = 38;
 
-// --- 3. Scroll & Morph Logic with Cubic Easing ---
+// --- 3. Scroll & Morph Logic ---
 function handleScroll() {
     const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
     const positions = geometry.attributes.position.array;
-
-    // Easing function for smoother "premium" feel
     const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
     if (scrollPercent <= 0.33) {
-        // Globe to Plant
         const factor = easeInOutCubic(Math.min(scrollPercent * 3.1, 1));
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(originalPositions[i], target1_Plant[i], factor);
         }
     } 
     else if (scrollPercent <= 0.66) {
-        // Plant to Cube
         const factor = easeInOutCubic(Math.min((scrollPercent - 0.33) * 3.1, 1));
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target1_Plant[i], target2_Tech[i], factor);
         }
     } 
     else {
-        // Cube to Wave
         const factor = easeInOutCubic(Math.min((scrollPercent - 0.66) * 3.1, 1));
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target2_Tech[i], target3_Pulse[i], factor);
@@ -95,7 +94,7 @@ function handleScroll() {
     geometry.attributes.position.needsUpdate = true;
     
     let rotationBase = 6;
-    if (scrollPercent > 0.1 && scrollPercent < 0.3) rotationBase = 2;
+    if (scrollPercent > 0.1 && scrollPercent < 0.3) rotationBase = 1.5; // Slowed down even more for clarity
     globe.rotation.y = scrollPercent * rotationBase;
 }
 
@@ -106,17 +105,15 @@ let time = 0;
 function animate() {
     time += 0.01;
     requestAnimationFrame(animate);
-    
     const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
     
     if (scrollPercent > 0.1 && scrollPercent < 0.4) {
-        globe.rotation.z = Math.sin(time) * 0.05; // Leaf sway
+        globe.rotation.z = Math.sin(time) * 0.05;
     }
 
     globe.rotation.y += 0.001;
     renderer.render(scene, camera);
 }
-
 animate();
 
 // --- 5. Resize Handling ---
