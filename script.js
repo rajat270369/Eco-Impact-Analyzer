@@ -49,21 +49,21 @@ for (let i = 0; i < vertexCount; i++) {
     let y = originalPositions[i * 3 + 1];
     let z = originalPositions[i * 3 + 2];
 
-    // SAFETY CONSTANT: Prevents NaN (Not a Number) errors if x,y,z are 0
-    const epsilon = 0.0001;
 
-    // 1. EIA CORE (Modified Octahedron)
-    let octaFactor = 12 / (Math.abs(x) + Math.abs(y) + Math.abs(z) + epsilon);
+    // 1. EIA CORE (Modified Octahedron) - SLIGHTLY ENLARGED
+    const epsilon = 0.0001;
+    // Increased from 12 to 14.5 for a subtle but noticeable "size up"
+    let octaFactor = 14.5 / (Math.abs(x) + Math.abs(y) + Math.abs(z) + epsilon);
     target_EIACore[i * 3] = x * octaFactor;
     target_EIACore[i * 3 + 1] = y * octaFactor;
     target_EIACore[i * 3 + 2] = z * octaFactor;
 
-    // 2. TECH STACK (Knot Mapping) - CALIBRATED SIZE
+    // 2. TECH STACK (Knot Mapping) - ENLARGED
     let kIdx = (i % knotVertCount) * 3;
-    const knotScale = 2.4; // Increased to make it more "imposing"
+    const knotScale = 1.8; // Increase this number to make the 2nd figure even larger
     target_TorusStack[i * 3] = knotPos[kIdx] * knotScale;
     target_TorusStack[i * 3 + 1] = knotPos[kIdx + 1] * knotScale;
-    target_TorusStack[i * 3 + 2] = knotPos[kIdx + 2] * knotScale
+    target_TorusStack[i * 3 + 2] = knotPos[kIdx + 2] * knotScale;
 
     // 3. DATA PRISM (Vertical Expansion) - SCALED DOWN
     let mag = Math.sqrt(x*x + y*y + z*z) + epsilon;
