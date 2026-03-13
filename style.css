@@ -278,7 +278,60 @@ section, .hero, .snap-point {
     background: transparent !important;
     pointer-events: none; /* Crucial: Allows the mouse to pass through to the canvas */
 }
+.feedback-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
+.feedback-container {
+    width: 300px; /* Matches the 'fW' from your script */
+    text-align: center;
+    z-index: 10;
+}
+
+.form-title {
+    color: #00e676;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+    opacity: 0.8;
+}
+
+.ghost-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(0, 230, 118, 0.3);
+    color: #00e676;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 30px;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+}
+
+.ghost-input::placeholder {
+    color: rgba(0, 230, 118, 0.4);
+    font-size: 0.8rem;
+}
+
+.btn-submit {
+    background: transparent;
+    border: 1px solid #00e676;
+    color: #00e676;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    transition: 0.3s;
+}
+
+.btn-submit:hover {
+    background: #00e676;
+    color: #1a1a1a;
+}
 /* A simple wrapper to hold the title */
 .non-blocking-overlay {
     position: absolute;
