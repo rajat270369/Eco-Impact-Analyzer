@@ -75,36 +75,27 @@ for (let i = 0; i < vertexCount; i++) {
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
 
     // 4. THE GHOST FORM "BLUEPRINT" (Low-Density Technique)
-    const fW = 42; // Width of your square
-    const fH = 58; // Height of your square
+    const fW = 45; // Width of your square
+    const fH = 65; // Height of your square
     
-    // We only use a tiny fraction of the 5000+ vertices to build the form
-    // The rest are "neutralized" to clear the visual clutter
     if (i < vertexCount * 0.15) {
-        // THE OUTER FRAME: Creates the clean rectangle border
-        const side = i % 4;
-        if (side === 0) { target_FeedbackPlane[i*3] = fW;  target_FeedbackPlane[i*3+1] = (Math.random()-0.5)*fH*2; }
-        if (side === 1) { target_FeedbackPlane[i*3] = -fW; target_FeedbackPlane[i*3+1] = (Math.random()-0.5)*fH*2; }
-        if (side === 2) { target_FeedbackPlane[i*3] = (Math.random()-0.5)*fW*2; target_FeedbackPlane[i*3+1] = fH;  }
-        if (side === 3) { target_FeedbackPlane[i*3] = (Math.random()-0.5)*fW*2; target_FeedbackPlane[i*3+1] = -fH; }
-        target_FeedbackPlane[i*3+2] = -5;
-    } 
-    else if (i < vertexCount * 0.30) {
-        // THE EMAIL LINES: Two perfectly flat horizontal strokes
-        // This lines up with your "Project ID / Email" field
-        const lineY = (i % 2 === 0) ? 8 : -12; 
-        target_FeedbackPlane[i*3] = (Math.random() - 0.5) * fW * 1.5;
-        target_FeedbackPlane[i*3+1] = lineY;
-        target_FeedbackPlane[i*3+2] = -5;
-    }
-    else {
-        // THE "HIDDEN" TECHNIQUE: 
-        // We crush the remaining 70% of the mesh into a single point 
-        // at the very bottom edge. This makes the "stupid lines" vanish.
-        target_FeedbackPlane[i*3] = 0;
-        target_FeedbackPlane[i*3+1] = -fH; 
-        target_FeedbackPlane[i*3+2] = -5;
-    }
+    // THE OUTER BOX
+    const side = i % 4;
+    if (side === 0) { target_FeedbackPlane[i*3] = fW;  target_FeedbackPlane[i*3+1] = (Math.random()-0.5)*fH*2; }
+    if (side === 1) { target_FeedbackPlane[i*3] = -fW; target_FeedbackPlane[i*3+1] = (Math.random()-0.5)*fH*2; }
+    if (side === 2) { target_FeedbackPlane[i*3] = (Math.random()-0.5)*fW*2; target_FeedbackPlane[i*3+1] = fH;  }
+    if (side === 3) { target_FeedbackPlane[i*3] = (Math.random()-0.5)*fW*2; target_FeedbackPlane[i*3+1] = -fH; }
+} else if (i < vertexCount * 0.25) {
+    // THE INPUT LINES
+    const lineY = (i % 2 === 0) ? 8 : -12;
+    target_FeedbackPlane[i*3] = (Math.random()-0.5) * fW * 1.5;
+    target_FeedbackPlane[i*3+1] = lineY;
+} else {
+    // THE HIDDEN POINTS: Crushed to a single spot at the bottom
+    target_FeedbackPlane[i*3] = 0;
+    target_FeedbackPlane[i*3+1] = -fH - 20;
+}
+target_FeedbackPlane[i*3+2] = -5;
 }
 knotBake.dispose(); // Clean up memory
 
@@ -116,6 +107,17 @@ mainMesh.frustumCulled = false;
 geometry.computeBoundingSphere(); 
 
 scene.add(mainMesh);
+
+// --- ADD THIS AFTER mainMesh CREATION ---
+const particleMaterial = new THREE.PointsMaterial({ 
+    color: 0x00e676, 
+    size: 0.15, 
+    transparent: true, 
+    opacity: 0, // Hidden at start
+    blending: THREE.AdditiveBlending
+});
+const particleSystem = new THREE.Points(geometry, particleMaterial);
+scene.add(particleSystem);
 
 // --- 5. INTERACTION LOGIC ---
 function handleScroll() {
@@ -163,18 +165,23 @@ function animate() {
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
     const scroll = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
 
-    // Soft Rotation logic
-    if (scroll < 0.88) {
-        mainMesh.rotation.y += 0.005; 
-        mainMesh.rotation.x += 0.002;
-    } else {
-        // Smoothly stop rotation as we hit the form phase
-        mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.08);
-        mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.08);
-        mainMesh.rotation.z = THREE.MathUtils.lerp(mainMesh.rotation.z, 0, 0.08);
+    // --- PHASE SWAP LOGIC ---
+    if (scroll > 0.82) {
+        // FADE OUT MESH (Lines), FADE IN PARTICLES (Dots)
+        mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.12);
+        particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.12);
         
-        // Scanline opacity effect
-        material.opacity = 0.45 + Math.sin(Date.now() * 0.0015) * 0.15;
+        // Stop rotation for the blueprint
+        mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.05);
+        mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.05);
+    } else {
+        // RESTORE ORIGINAL STABLE MESH
+        mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.12);
+        particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.12);
+        
+        // Keep the stable rotation
+        mainMesh.rotation.y += 0.005;
+        mainMesh.rotation.x += 0.002;
     }
 
     renderer.render(scene, camera);
