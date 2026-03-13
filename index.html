@@ -119,22 +119,20 @@
         </div> 
     </div>
 
-    <div class="snap-point">
-        <div class="feedback-container">
-            <form id="feedback-form">
-                <h2 class="form-title">Send Feedback</h2>
-                <div class="input-group">
-                    <input type="email" id="user-email" required placeholder="your@email.com">
-                </div>
-                <div class="input-group">
-                    <textarea id="user-message" required placeholder="Your message..."></textarea>
-                </div>
-                <button type="submit" class="feedback-btn">Submit Mail</button>
-            </form>
-        </div>
-    </div> 
+    <div class="snap-point" id="form-phase">
+    <div class="ghost-form-wrapper">
+        <h2 class="reveal">Submit Impact Report</h2>
+        <form id="feedback-form">
+            <div class="input-placeholder reveal" id="input-1">
+                <input type="email" placeholder="Project ID / Email">
+            </div>
+            <div class="input-placeholder reveal" id="input-2">
+                <textarea placeholder="Mitigation Strategy Inquiry..."></textarea>
+            </div>
+            <button type="submit" class="feedback-btn reveal">Generate Report</button>
+        </form>
+    </div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>
