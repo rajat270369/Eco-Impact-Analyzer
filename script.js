@@ -1,5 +1,5 @@
-// VERSION: 1.1.7 - Simplified to 3 Target Shapes
-console.log("Three.js Morph Logic v1.1.7 Loaded");
+// VERSION: 1.1.8 - Restored Initial Shape & Fixed 3-Target Morph
+console.log("Three.js Morph Logic v1.1.8 Loaded");
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -7,6 +7,7 @@ const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
+// This is the "Main Figure" behind Explore Analysis
 const geometry = new THREE.IcosahedronGeometry(8, 4); 
 const material = new THREE.MeshBasicMaterial({ 
     color: 0x00e676, 
@@ -56,19 +57,26 @@ camera.position.z = 35;
 
 function handleScroll() {
     const positions = geometry.attributes.position.array;
+    const cards = document.querySelectorAll('.reveal');
     let scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
     const clamp = (v) => Math.min(Math.max(v, 0), 1);
 
-    // REMOVED ORIGINAL POSITIONS: Now only transitions between the 3 targets
-    if (scrollPercent <= 0.5) {
-        // Phase 1: EIA Core to Tech Stack
-        let f = clamp(scrollPercent * 2); 
+    // This logic ensures: 
+    // 0.0 - 0.33: Sphere -> Core
+    // 0.33 - 0.66: Core -> Spike
+    // 0.66 - 1.0: Spike -> Star
+    if (scrollPercent <= 0.33) {
+        let f = clamp(scrollPercent * 3);
+        for (let i = 0; i < vertexCount * 3; i++) {
+            positions[i] = THREE.MathUtils.lerp(originalPositions[i], target_EIACore[i], f);
+        }
+    } else if (scrollPercent <= 0.66) {
+        let f = clamp((scrollPercent - 0.33) * 3);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target_EIACore[i], target_SpikeTech[i], f);
         }
     } else {
-        // Phase 2: Tech Stack to Star Data
-        let f = clamp((scrollPercent - 0.5) * 2);
+        let f = clamp((scrollPercent - 0.66) * 3);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target_SpikeTech[i], target_StarData[i], f);
         }
