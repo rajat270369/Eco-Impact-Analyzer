@@ -49,46 +49,59 @@ scene.add(mainMesh);
 camera.position.z = 35;
 
 // --- 3. Fixed Scroll Transitions ---
+// --- Precise Card-Based Scroll Transitions ---
 function handleScroll() {
-    // Get the total scrollable height
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-    
-    // Safety check: avoid division by zero
-    if (scrollHeight <= 0) return;
-    
-    const scrollPercent = Math.min(Math.max(scrollTop / scrollHeight, 0), 1);
+    const cards = document.querySelectorAll('.reveal'); // Assuming your cards have the 'reveal' class
     const positions = geometry.attributes.position.array;
-    
-    // TIGHTER RANGES: 
-    // 0.0 - 0.2: Stay Icosahedron
-    // 0.2 - 0.5: Morph to Octahedron (EIA Core)
-    // 0.5 - 0.9: Morph to Hexagram (Tech Stack)
-    // 0.9 - 1.0: Final Shape Lock
 
-    if (scrollPercent <= 0.2) {
-        // First part: Stay as the default Icosahedron
+    // 1. Get positions of your key sections
+    const eiaCoreCard = cards[0];   // The card for EIA Core
+    const techStackCard = cards[1]; // The card for Tech Stack
+    const realTimeCard = cards[2];  // The card for Real-time Data
+
+    const windowCenter = window.innerHeight / 2;
+
+    // Helper to get card center relative to viewport
+    const getCardProgress = (el) => {
+        if (!el) return 0;
+        const rect = el.getBoundingClientRect();
+        // Returns 0 when below screen, 0.5 at center, 1.0 when above
+        return 1 - (rect.top / window.innerHeight);
+    };
+
+    const p1 = getCardProgress(eiaCoreCard);
+    const p2 = getCardProgress(techStackCard);
+    const p3 = getCardProgress(realTimeCard);
+
+    // --- MORPH LOGIC ---
+
+    if (p1 < 0.5) {
+        // STAGE 0: Start (Icosahedron)
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = originalPositions[i];
         }
     } 
-    else if (scrollPercent <= 0.5) {
-        // Second part: Transition to EIA Core
-        let factor = (scrollPercent - 0.2) / 0.3; // Normalize to 0-1
+    else if (p1 >= 0.5 && p2 < 0.5) {
+        // STAGE 1: Transition to EIA Core (Octahedron)
+        // Normalizes the gap between card 1 and card 2
+        let factor = THREE.MathUtils.smoothstep(p1, 0.5, 1.0); 
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(originalPositions[i], target_EIACore[i], factor);
         }
     } 
-    else {
-        // Third part: Transition to Tech Stack
-        let factor = Math.min((scrollPercent - 0.5) / 0.4, 1); // Normalize to 0-1
+    else if (p2 >= 0.5) {
+        // STAGE 2: Transition to Tech Stack (Hexagram)
+        let factor = THREE.MathUtils.smoothstep(p2, 0.5, 1.0);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target_EIACore[i], target_TechStack[i], factor);
         }
     }
 
     geometry.attributes.position.needsUpdate = true;
-    mainMesh.rotation.y = scrollPercent * 10;
+    
+    // Rotation speed based on overall scroll
+    const totalScroll = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    mainMesh.rotation.y = totalScroll * 12;
 }
 
 window.addEventListener('scroll', handleScroll);
