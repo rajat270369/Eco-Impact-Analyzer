@@ -1,26 +1,15 @@
+/* --- 1. GLOBAL ROOT & SNAP SETUP --- */
 :root {
     --primary-green: #00e676;
     --dark-bg: #121212;
+    --card-bg: #1a1a1a;
 }
-/* Add this at the very top of style.css */
+
 html {
     scroll-snap-type: y mandatory;
     scroll-behavior: smooth;
 }
 
-/* This ensures the Hero section is the first stop */
-.hero {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-    height: 100vh;
-}
-
-/* We will create a class for our future stops */
-.snap-point {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-    height: 100vh; /* Each stop takes exactly one screen height */
-}
 body {
     background-color: var(--dark-bg);
     color: white;
@@ -28,104 +17,8 @@ body {
     margin: 0;
     overflow-x: hidden;
 }
-/* --- Positioning for the Stops --- */
-.snap-point {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    padding-left: 10%; /* Positions it on the left */
-}
 
-/* --- Optimized Card (Merged & Aesthetic) --- */
-.card.story-card {
-    width: 195px;
-    height: 285px;
-    background: #1a1a1a !important; 
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-    border: 1px solid rgba(0, 230, 118, 0.4) !important;
-    box-shadow: 0 0 20px rgba(0, 230, 118, 0.15); /* The Card Glow */
-    padding: 0 !important;
-}
-
-/* --- THE MASCOT (Always Blurred) --- */
-.mascot-image-container.img {
-    height: 65% !important;
-    width: 100px !important;
-    position: absolute;
-    z-index: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* This is the secret sauce for the aesthetic look */
-    filter: blur(8px) brightness(0.6) !important; 
-    opacity: 0.8;
-    animation: anim 3s infinite ease-in-out;
-}
-
-.textBox {
-    opacity: 1 !important;
-    z-index: 2;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.textBox .head {
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--primary-green);
-    text-shadow: 0 0 12px rgba(0, 230, 118, 0.8); /* The Text Glow */
-}
-
-@keyframes anim {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
-}
-
-.card:hover > .textBox {
-  opacity: 1;
-  transform: translateY(0); /* Slide up into view */
-}
-
-.textBox > .text {
-  font-weight: bold;
-}
-
-
-.textBox > .price {
-  font-size: 17px;
-}
-
-.textBox > span {
-  font-size: 12px;
-  color: #00e676; /* Match Mascot color */
-}
-
-.card:hover > .textBox {
-  opacity: 1;
-}
-
-.card:hover > .img {
-  height: 65%;
-  filter: blur(7px);
-  animation: anim 3s infinite;
-}
-
-
-.card:hover {
-  transform: scale(1.05);
-  border-color: var(--primary-green);
-}
-/* --- 3D CANVAS SETUP --- */
+/* --- 2. THE THREE.JS STAGE --- */
 #canvas-container {
     position: fixed;
     top: 0;
@@ -137,18 +30,33 @@ body {
     background-color: var(--dark-bg);
 }
 
-/* --- CENTERED HERO --- */
-.hero {
+/* --- 3. SECTION WRAPPERS (SNAP POINTS) --- */
+.hero, .snap-point {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
     height: 100vh;
+    width: 100vw;
     display: flex;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.hero {
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: transparent;
-    z-index: 1;
 }
 
+.snap-point {
+    display: flex;
+    justify-content: space-between; /* MIRROR EFFECT: One card left, one card right */
+    align-items: center;
+    padding: 0 8%;
+    pointer-events: none; /* Let user interact with 3D model in center */
+}
+
+/* --- 4. HERO COMPONENTS --- */
 .logo-container {
     display: flex;
     align-items: center;
@@ -179,7 +87,6 @@ body {
     50% { transform: translateY(-10px); }
 }
 
-/* --- PERMANENT GLOW BUTTON --- */
 .btn-interactive {
     background: var(--primary-green);
     color: #000;
@@ -206,7 +113,139 @@ body {
     box-shadow: 0 0 50px var(--primary-green);
 }
 
-/* --- RESTORED UI COMPONENTS (Cards, Grids, etc.) --- */
+/* --- 5. THE OPTIMIZED STORY CARD SYSTEM --- */
+.card.story-card {
+    pointer-events: auto; /* Re-enable for the actual card */
+    width: 210px;
+    height: 310px;
+    background: var(--card-bg) !important; 
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 230, 118, 0.4) !important;
+    box-shadow: 0 0 20px rgba(0, 230, 118, 0.15);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card.story-card:hover {
+    transform: scale(1.08);
+    border-color: var(--primary-green) !important;
+    box-shadow: 0 0 40px rgba(0, 230, 118, 0.5);
+}
+
+/* --- 6. HOVER REVEAL & TEXTBOX --- */
+.textBox {
+    z-index: 2;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 15px;
+}
+
+.textBox .head {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--primary-green);
+    text-shadow: 0 0 12px rgba(0, 230, 118, 0.8);
+}
+
+.hover-info {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    font-size: 0.8rem;
+    color: #fff;
+    line-height: 1.4;
+    margin-top: 5px;
+}
+
+.card:hover .hover-info {
+    max-height: 100px;
+    opacity: 1;
+}
+
+.textBox span {
+    font-size: 12px;
+    color: var(--primary-green);
+}
+
+.textBox .price {
+    font-size: 17px;
+    font-weight: bold;
+}
+
+/* --- 7. THE BLURRED MASCOT AESTHETIC --- */
+.mascot-image-container.img {
+    height: 65% !important;
+    width: 120px !important;
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    filter: blur(10px) brightness(0.5) !important; 
+    opacity: 0.6;
+    animation: anim 3s infinite ease-in-out;
+}
+
+@keyframes anim {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+/* --- 8. FEEDBACK FORM STYLES --- */
+.feedback-container {
+    pointer-events: auto;
+    background: rgba(26, 26, 26, 0.9);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid var(--primary-green);
+    width: 400px;
+    margin: 0 auto;
+    box-shadow: 0 0 30px rgba(0, 230, 118, 0.2);
+    z-index: 10;
+}
+
+.input-group { margin-bottom: 15px; }
+
+.feedback-container input, .feedback-container textarea {
+    width: 100%;
+    background: #000;
+    border: 1px solid rgba(0, 230, 118, 0.3);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    outline: none;
+}
+
+.feedback-container input:focus, .feedback-container textarea:focus {
+    border-color: var(--primary-green);
+}
+
+.feedback-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary-green);
+    border: none;
+    font-weight: bold;
+    color: #000;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.feedback-btn:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 0 15px var(--primary-green);
+}
+
+/* --- 9. BACK BUTTON & GRIDS (RESTORED COMPONENTS) --- */
 .container { 
     display: flex; 
     flex-direction: column;
@@ -237,65 +276,48 @@ body {
     background: rgba(0, 230, 118, 0.1);
     border-color: var(--primary-green);
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
-.option-card h3 {
-    color: var(--primary-green);
-    margin-bottom: 10px;
-}
-
-/* --- BACK BUTTON STYLE --- */
 .btn-back {
-  --green: #1BFD9C;
-  font-size: 15px;
-  padding: 0.7em 2.7em;
-  letter-spacing: 0.06em;
-  position: relative;
-  font-family: inherit;
-  border-radius: 0.6em;
-  overflow: hidden;
-  transition: all 0.3s;
-  line-height: 1.4em;
-  border: 2px solid var(--green);
-  background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%,transparent 60% , rgba(27, 253, 156, 0.1) 100%);
-  color: var(--green);
-  box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
-  cursor: pointer;
-  background-color: transparent;
+    --green: #1BFD9C;
+    font-size: 15px;
+    padding: 0.7em 2.7em;
+    letter-spacing: 0.06em;
+    position: relative;
+    font-family: inherit;
+    border-radius: 0.6em;
+    overflow: hidden;
+    transition: all 0.3s;
+    line-height: 1.4em;
+    border: 2px solid var(--green);
+    background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%, transparent 60% , rgba(27, 253, 156, 0.1) 100%);
+    color: var(--green);
+    box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
+    cursor: pointer;
+    background-color: transparent;
 }
 
 .btn-back:hover {
-  color: #82ffc9;
-  box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.6), 0 0 9px 3px rgba(27, 253, 156, 0.2);
+    color: #82ffc9;
+    box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.6), 0 0 9px 3px rgba(27, 253, 156, 0.2);
 }
 
 .btn-back:before {
-  content: "";
-  position: absolute;
-  left: -4em;
-  width: 4em;
-  height: 100%;
-  top: 0;
-  transition: transform .4s ease-in-out;
-  background: linear-gradient(to right, transparent 1%, rgba(27, 253, 156, 0.1) 40%,rgba(27, 253, 156, 0.1) 60% , transparent 100%);
+    content: "";
+    position: absolute;
+    left: -4em;
+    width: 4em;
+    height: 100%;
+    top: 0;
+    transition: transform .4s ease-in-out;
+    background: linear-gradient(to right, transparent 1%, rgba(27, 253, 156, 0.1) 40%, rgba(27, 253, 156, 0.1) 60% , transparent 100%);
 }
 
 .btn-back:hover:before {
-  transform: translateX(15em);
+    transform: translateX(15em);
 }
 
-/* --- The Mascot Container --- */
-
-/* --- The Hover Aesthetic Logic --- */
-.card:hover > .img, 
-.card:hover > .mascot-image-container.img {
-  height: 65%;
-  filter: blur(10px) brightness(0.8); /* This creates the aesthetic background look */
-  animation: anim 3s infinite;
-}
-
-/* --- UTILITIES --- */
+/* --- 10. UTILITY REVEALS --- */
 .reveal {
     opacity: 0;
     transform: translateY(40px);
