@@ -74,35 +74,35 @@ for (let i = 0; i < vertexCount; i++) {
     target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.4); 
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
 
-    // 4. THE GHOST FORM "BLUEPRINT" (Schematic Reconstruction)
-    const fW = 40; // Box Width
-    const fH = 55; // Box Height
+    // 4. THE GHOST FORM "BLUEPRINT" (Low-Density Technique)
+    const fW = 42; // Width of your square
+    const fH = 58; // Height of your square
     
-    // We strictly use the vertex index 'i' to build specific rails
-    if (i < vertexCount * 0.4) {
-        // THE OUTER SQUARE (40% of vertices)
-        // This creates a clean rectangular border
+    // We only use a tiny fraction of the 5000+ vertices to build the form
+    // The rest are "neutralized" to clear the visual clutter
+    if (i < vertexCount * 0.15) {
+        // THE OUTER FRAME: Creates the clean rectangle border
         const side = i % 4;
-        if (side === 0) { target_FeedbackPlane[i*3] = fW;  target_FeedbackPlane[i*3+1] = (Math.random()-0.5)*fH*2; } // Right
-        if (side === 1) { target_FeedbackPlane[i*3] = -fW; target_FeedbackPlane[i*3+1] = (Math.random()-0.5)*fH*2; } // Left
-        if (side === 2) { target_FeedbackPlane[i*3] = (Math.random()-0.5)*fW*2; target_FeedbackPlane[i*3+1] = fH;  } // Top
-        if (side === 3) { target_FeedbackPlane[i*3] = (Math.random()-0.5)*fW*2; target_FeedbackPlane[i*3+1] = -fH; } // Bottom
+        if (side === 0) { target_FeedbackPlane[i*3] = fW;  target_FeedbackPlane[i*3+1] = (Math.random()-0.5)*fH*2; }
+        if (side === 1) { target_FeedbackPlane[i*3] = -fW; target_FeedbackPlane[i*3+1] = (Math.random()-0.5)*fH*2; }
+        if (side === 2) { target_FeedbackPlane[i*3] = (Math.random()-0.5)*fW*2; target_FeedbackPlane[i*3+1] = fH;  }
+        if (side === 3) { target_FeedbackPlane[i*3] = (Math.random()-0.5)*fW*2; target_FeedbackPlane[i*3+1] = -fH; }
         target_FeedbackPlane[i*3+2] = -5;
     } 
-    else if (i < vertexCount * 0.8) {
-        // THE INPUT LINES (40% of vertices)
-        // Two perfectly horizontal lines for the Email/ID fields
-        const lineY = (i % 2 === 0) ? 10 : -10; 
-        target_FeedbackPlane[i*3] = (Math.random() - 0.5) * fW * 1.6;
+    else if (i < vertexCount * 0.30) {
+        // THE EMAIL LINES: Two perfectly flat horizontal strokes
+        // This lines up with your "Project ID / Email" field
+        const lineY = (i % 2 === 0) ? 8 : -12; 
+        target_FeedbackPlane[i*3] = (Math.random() - 0.5) * fW * 1.5;
         target_FeedbackPlane[i*3+1] = lineY;
         target_FeedbackPlane[i*3+2] = -5;
     }
     else {
-        // THE REJECTS (20% of vertices)
-        // These are the "stupid lines" that cause the mess. 
-        // We move them to a single point at the bottom to make them invisible.
+        // THE "HIDDEN" TECHNIQUE: 
+        // We crush the remaining 70% of the mesh into a single point 
+        // at the very bottom edge. This makes the "stupid lines" vanish.
         target_FeedbackPlane[i*3] = 0;
-        target_FeedbackPlane[i*3+1] = -fH;
+        target_FeedbackPlane[i*3+1] = -fH; 
         target_FeedbackPlane[i*3+2] = -5;
     }
 }
