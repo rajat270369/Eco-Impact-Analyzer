@@ -69,28 +69,34 @@ camera.position.z = 35;
 
 function handleScroll() {
     const positions = geometry.attributes.position.array;
-    const cards = document.querySelectorAll('.reveal');
     let scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
     const clamp = (v) => Math.min(Math.max(v, 0), 1);
 
-    // This logic ensures: 
-    // 0.0 - 0.33: Sphere -> Core
-    // 0.33 - 0.66: Core -> Spike
-    // 0.66 - 1.0: Spike -> Star
-    if (scrollPercent <= 0.33) {
-        let f = clamp(scrollPercent * 3);
+    // Dividing scroll into 4 segments (0.25 each)
+    if (scrollPercent <= 0.25) {
+        // Section 1: Sphere (Explore Analysis) -> EIA Core
+        let f = clamp(scrollPercent * 4);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(originalPositions[i], target_EIACore[i], f);
         }
-    } else if (scrollPercent <= 0.66) {
-        let f = clamp((scrollPercent - 0.33) * 3);
+    } else if (scrollPercent <= 0.50) {
+        // Section 2: EIA Core -> Tech Stack
+        let f = clamp((scrollPercent - 0.25) * 4);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target_EIACore[i], target_SpikeTech[i], f);
         }
-    } else {
-        let f = clamp((scrollPercent - 0.66) * 3);
+    } else if (scrollPercent <= 0.75) {
+        // Section 3: Tech Stack -> Transition Phase
+        // Keeping it consistent or prepping for the final Star
+        let f = clamp((scrollPercent - 0.50) * 4);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target_SpikeTech[i], target_StarData[i], f);
+        }
+    } else {
+        // Section 4: Final Real-Time Data Figure (Hexagram Star)
+        // Stays as the Star for the remainder of the scroll
+        for (let i = 0; i < vertexCount * 3; i++) {
+            positions[i] = target_StarData[i];
         }
     }
     geometry.attributes.position.needsUpdate = true;
