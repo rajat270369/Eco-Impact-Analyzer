@@ -1,3 +1,6 @@
+// VERSION: 1.1.0 - Geometric Core Update
+console.log("Three.js Morph Logic v1.1.0 Loaded");
+
 // --- Section Reveal Logic ---
 window.addEventListener('scroll', () => {
     const reveals = document.querySelectorAll('.reveal');
@@ -16,7 +19,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
 // --- 2. Geometry & Mathematical Targets ---
-// Starting with the high-detail Icosahedron you like
+// Your favorite starting shape
 const geometry = new THREE.IcosahedronGeometry(8, 4); 
 const material = new THREE.MeshBasicMaterial({ 
     color: 0x00e676, 
@@ -36,23 +39,20 @@ for (let i = 0; i < vertexCount; i++) {
     let y = originalPositions[i * 3 + 1];
     let z = originalPositions[i * 3 + 2];
 
-    // --- STOP 2: EIA CORE (Sharp Octahedron) ---
-    // Forcing the vertices into the 8-plane diamond shape
+    // --- STOP 2: EIA CORE (Octahedron / Screenshot 181110) ---
     let octaFactor = 10.5 / (Math.abs(x) + Math.abs(y) + Math.abs(z));
     target_EIACore[i * 3] = x * octaFactor;
     target_EIACore[i * 3 + 1] = y * octaFactor;
     target_EIACore[i * 3 + 2] = z * octaFactor;
 
-    // --- STOP 3: TECH STACK (Mathematical Hexagram) ---
-    // Creating the 6-pointed star shard
+    // --- STOP 3: TECH STACK (Hexagram / Screenshot 181122) ---
     let angle = Math.atan2(y, x);
     let radius = Math.sqrt(x * x + y * y);
-    // Oscillation math for the star points
     let starFold = (Math.cos(angle * 6) * 3.5) + 7.5; 
     
     target_TechStack[i * 3] = Math.cos(angle) * starFold;
     target_TechStack[i * 3 + 1] = Math.sin(angle) * starFold;
-    target_TechStack[i * 3 + 2] = z * 0.15; // Sharpened depth
+    target_TechStack[i * 3 + 2] = z * 0.15; 
 }
 
 const mainMesh = new THREE.Mesh(geometry, material);
@@ -61,26 +61,26 @@ camera.position.z = 35;
 
 // --- 3. Geometric Scroll Transitions ---
 function handleScroll() {
-    const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    // Force a scroll update check
+    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollPercent = window.scrollY / scrollHeight;
     const positions = geometry.attributes.position.array;
     
-    // Linear step for mechanical precision
     const step = (t) => Math.max(0, Math.min(1, t));
 
     if (scrollPercent <= 0.33) {
-        // Stay in/Pulse the Icosahedron (Your favorite starting shape)
-        let factor = step(scrollPercent * 3);
+        // First part: Keep the Icosahedron static or subtle pulse
         for (let i = 0; i < vertexCount * 3; i++) {
-            positions[i] = THREE.MathUtils.lerp(originalPositions[i], originalPositions[i], factor);
+            positions[i] = originalPositions[i];
         }
     } else if (scrollPercent <= 0.66) {
-        // Morph to the EIA Core (Octahedron)
+        // Second part: Morph to Octahedron (EIA Core)
         let factor = step((scrollPercent - 0.33) * 3);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(originalPositions[i], target_EIACore[i], factor);
         }
     } else {
-        // Morph to the Tech Stack (Hexagram Star)
+        // Third part: Morph to Hexagram (Tech Stack)
         let factor = step((scrollPercent - 0.66) * 3);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target_EIACore[i], target_TechStack[i], factor);
