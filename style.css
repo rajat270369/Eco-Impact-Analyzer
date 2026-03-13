@@ -135,8 +135,50 @@ section, .hero, .snap-point {
     box-shadow: 0 0 40px var(--primary-green);
 }
 
-/* --- 6. THE STORY CARD SYSTEM --- */
+/* --- 6. THE STORY CARD SYSTEM (ENLARGED & OPTIMIZED) --- */
+.card.story-card {
+    pointer-events: auto; 
+    width: 320px;  
+    height: 460px; 
+    background: rgba(26, 26, 26, 0.85) !important; 
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 50px;
+    position: relative;
+    border: 1px solid rgba(0, 230, 118, 0.25) !important;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.6);
+    transition: var(--transition-smooth);
+}
 
+.card.story-card:hover {
+    transform: translateY(-20px) scale(1.02);
+    border-color: var(--primary-green) !important;
+    box-shadow: 0 0 60px rgba(0, 230, 118, 0.3);
+}
+
+.mascot-image-container.img {
+    height: 70% !important; 
+    width: 85% !important;
+    position: absolute;
+    top: 10%; 
+    left: 7.5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.3;
+    filter: blur(2px); 
+    transition: all 0.5s ease;
+}
+
+.card.story-card:hover .mascot-image-container.img {
+    opacity: 0.8;
+    filter: blur(0px);
+    transform: scale(1.1);
+}
 
 .textBox {
     z-index: 10;
@@ -165,127 +207,12 @@ section, .hero, .snap-point {
     font-size: 0.9rem;
     color: #fff;
     transition: var(--transition-smooth);
+    overflow: hidden; /* Added to ensure clean text reveal */
 }
 
 .card.story-card:hover .hover-info {
     max-height: 120px;
     opacity: 1;
-}
-
-/* --- 7. MASCOT VISUALS --- */
-
-/* --- 5. THE OPTIMIZED STORY CARD SYSTEM (ENLARGED) --- */
-.card.story-card {
-    pointer-events: auto; 
-    width: 320px;  /* Increased from 280px */
-    height: 460px; /* Increased from 400px */
-    background: rgba(26, 26, 26, 0.85) !important; 
-    backdrop-filter: blur(12px);
-    border-radius: 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding-bottom: 50px;
-    position: relative;
-    border: 1px solid rgba(0, 230, 118, 0.25) !important;
-    box-shadow: 0 15px 45px rgba(0,0,0,0.6);
-    transition: var(--transition-smooth);
-}
-
-.card.story-card:hover {
-    transform: translateY(-20px) scale(1.02); /* More pronounced lift */
-    border-color: var(--primary-green) !important;
-    box-shadow: 0 0 60px rgba(0, 230, 118, 0.3);
-}
-
-/* --- 7. THE MASCOT AESTHETIC (SCALED UP) --- */
-.mascot-image-container.img {
-    height: 70% !important; /* Increased from height/width auto */
-    width: 85% !important;
-    position: absolute;
-    top: 10%; /* Move it up slightly to give text more room */
-    left: 7.5%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0.3;
-    filter: blur(2px); /* Reduced blur for better clarity */
-    transition: all 0.5s ease;
-}
-
-.card.story-card:hover .mascot-image-container.img {
-    opacity: 0.8;
-    filter: blur(0px);
-    transform: scale(1.1); /* Subtle "pop" on hover */
-}
-
-/* --- 8. GHOST FORM (IMPACT REPORT) --- */
-.ghost-form-wrapper {
-    pointer-events: auto;
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    text-align: center;
-   background: rgba(18, 18, 18, 0.4); /* Subtle dark tint to improve contrast */
-    backdrop-filter: blur(4px); /* Softens the wires directly behind text */
-    padding: 60px;
-    border-radius: 20px;
-}
-
-.ghost-form-wrapper h2 {
-    font-size: 2.5rem;
-    color: var(--primary-green);
-    margin-bottom: 40px;
-    text-transform: uppercase;
-    letter-spacing: 0.3em;
-}
-
-.input-placeholder {
-    margin-bottom: 20px;
-}
-
-#feedback-form input, #feedback-form textarea {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(0, 230, 118, 0.2);
-    padding: 20px;
-    color: #fff;
-    font-family: inherit;
-    font-size: 1rem;
-    border-radius: 4px;
-    outline: none;
-    transition: 0.3s;
-}
-
-#feedback-form input:focus, #feedback-form textarea:focus {
-    border-color: var(--primary-green);
-    background: rgba(0, 230, 118, 0.05);
-    box-shadow: 0 0 20px rgba(0, 230, 118, 0.1);
-}
-
-#feedback-form textarea {
-    height: 150px;
-    resize: none;
-}
-
-.feedback-btn {
-    width: 100%;
-    background: transparent;
-    border: 2px solid var(--primary-green);
-    color: var(--primary-green);
-    padding: 20px;
-    font-weight: 900;
-    text-transform: uppercase;
-    cursor: pointer;
-    letter-spacing: 0.2em;
-    transition: 0.4s;
-}
-
-.feedback-btn:hover {
-    background: var(--primary-green);
-    color: #000;
-    box-shadow: 0 0 30px var(--primary-green);
 }
 
 /* --- 9. KEYFRAMES & ANIMATIONS --- */
@@ -343,6 +270,46 @@ section, .hero, .snap-point {
     .textBox {
         text-align: left;
     }
+}
+/* style.css - UPDATES */
+
+/* Ensure the final section has no background and is non-blocking */
+#form-phase.snap-point {
+    background: transparent !important;
+    pointer-events: none; /* Crucial: Allows the mouse to pass through to the canvas */
+}
+
+/* A simple wrapper to hold the title */
+.non-blocking-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%; 
+    text-align: center;
+    pointer-events: none;
+    z-index: 10; /* Added to ensure it stays above the 3D background */
+}
+
+/* The final text - large, centered, and glowing */
+.reveal-title-only {
+    color: var(--primary-green);
+    text-transform: uppercase;
+    font-size: 3rem;
+    letter-spacing: 0.3em;
+    font-weight: 900;
+    text-shadow: 0 0 25px var(--primary-green);
+    
+    /* Reveal animation similar to previous ones */
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Reveal when active */
+.reveal-title-only.active {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* --- 12. UTILITY CLASSES --- */

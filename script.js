@@ -1,178 +1,142 @@
-// VERSION: 1.3.0 - Industrial Stability & Morph Safety
-console.log("Three.js Morph Logic v1.3.0 Optimized");
-
-// --- 1. SCENE SETUP ---
+// --- 1. CORE SETUP ---
+const container = document.getElementById('canvas-container');
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
-camera.position.z = 50; 
-
-const renderer = new THREE.WebGLRenderer({ 
-    alpha: true, 
-    antialias: true,
-    powerPreference: "high-performance" 
-});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById('canvas-container').appendChild(renderer.domElement);
+container.appendChild(renderer.domElement);
 
-// Add Global Ambient Light (Backup for visibility)
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
-scene.add(ambientLight);
+// --- 2. GEOMETRY GENERATION ---
+const particleCount = 4500;
+const posArray = new Float32Array(particleCount * 3);
 
-// --- 2. GEOMETRY & MATERIALS ---
-const geometry = new THREE.IcosahedronGeometry(10, 4); // Slightly larger base
-const material = new THREE.MeshBasicMaterial({ 
-    color: 0x00e676, 
-    wireframe: true,
-    transparent: true,
-    opacity: 0.6,
-    depthTest: true,
-    blending: THREE.AdditiveBlending 
-});
+// Targets for morphing
+const target_EIACore = new Float32Array(particleCount * 3);
+const target_TorusStack = new Float32Array(particleCount * 3);
+const target_DataPrism = new Float32Array(particleCount * 3);
+const target_FeedbackForm = new Float32Array(particleCount * 3);
 
-const originalPositions = geometry.attributes.position.array.slice(); 
-const vertexCount = geometry.attributes.position.count;
+// Pre-calculating Knot for Tech Stack
+const knotGeometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+const knotPos = knotGeometry.attributes.position.array;
+const knotVertCount = knotPos.length / 3;
 
-// Prepare Morph Targets
-const target_EIACore = new Float32Array(vertexCount * 3);     
-const target_TorusStack = new Float32Array(vertexCount * 3); 
-const target_DataPrism = new Float32Array(vertexCount * 3);     
-const target_FeedbackPlane = new Float32Array(vertexCount * 3);
+for (let i = 0; i < particleCount; i++) {
+    const x = (Math.random() - 0.5) * 100;
+    const y = (Math.random() - 0.5) * 100;
+    const z = (Math.random() - 0.5) * 100;
 
-// --- 3. BAKE MORPH TARGETS ---
-const knotBake = new THREE.TorusKnotGeometry(7, 2.2, 100, 16); 
-const knotPos = knotBake.attributes.position.array;
-const knotVertCount = knotBake.attributes.position.count;
+    posArray[i * 3] = x;
+    posArray[i * 3 + 1] = y;
+    posArray[i * 3 + 2] = z;
 
-for (let i = 0; i < vertexCount; i++) {
-    let x = originalPositions[i * 3];
-    let y = originalPositions[i * 3 + 1];
-    let z = originalPositions[i * 3 + 2];
-
-
-    // 1. EIA CORE (Modified Octahedron) - SLIGHTLY ENLARGED
     const epsilon = 0.0001;
-    // Increased from 12 to 14.5 for a subtle but noticeable "size up"
+
+    // 1. EIA CORE (Modified Octahedron) - CALIBRATED
     let octaFactor = 14.5 / (Math.abs(x) + Math.abs(y) + Math.abs(z) + epsilon);
     target_EIACore[i * 3] = x * octaFactor;
     target_EIACore[i * 3 + 1] = y * octaFactor;
     target_EIACore[i * 3 + 2] = z * octaFactor;
 
-    // 2. TECH STACK (Knot Mapping) - ENLARGED
+    // 2. TECH STACK (Knot) - CALIBRATED
     let kIdx = (i % knotVertCount) * 3;
-    const knotScale = 1.8; // Increase this number to make the 2nd figure even larger
+    const knotScale = 2.4; 
     target_TorusStack[i * 3] = knotPos[kIdx] * knotScale;
     target_TorusStack[i * 3 + 1] = knotPos[kIdx + 1] * knotScale;
     target_TorusStack[i * 3 + 2] = knotPos[kIdx + 2] * knotScale;
 
-    // 3. DATA PRISM (Vertical Expansion) - SCALED DOWN
+    // 3. DATA PRISM (Pillar) - CALIBRATED
     let mag = Math.sqrt(x*x + y*y + z*z) + epsilon;
-    let prismRadius = 16; // Dropped from 22 to 16 for better fit
-    
-    // We keep it sleek but slightly wider than the original 1.2.8 version
+    let prismRadius = 16; 
     target_DataPrism[i * 3] = (x / mag) * (prismRadius * 0.5);   
     target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.4); 
-    target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
+    target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5); 
 
-   // 4. FEEDBACK PLANE (Structural Frame) - RECONSTRUCTED
-    if (i % 2 === 0) {
-        // Horizontal Support Lines (Stretched wide to clear the text center)
-        target_FeedbackPlane[i * 3] = (x / 10) * 65; // Much wider horizontal span
-        target_FeedbackPlane[i * 3 + 1] = Math.round(y / 5) * 22; // Organized vertical rows
-        target_FeedbackPlane[i * 3 + 2] = -10; // Push further back in Z-space
-    } else {
-        // Vertical Outer Brackets (Pushed to the far edges)
-        target_FeedbackPlane[i * 3] = x > 0 ? 55 : -55; // Solid left/right pillars
-        target_FeedbackPlane[i * 3 + 1] = (y / 10) * 45; // Tall vertical span
-        target_FeedbackPlane[i * 3 + 2] = -15; // Even deeper back
+    // 4. GHOST FORM BLUEPRINT - CALIBRATED
+    const fW = 55; const fH = 85;
+    if (i % 4 === 0) { // Top
+        target_FeedbackForm[i * 3] = (x / 8) * fW;
+        target_FeedbackForm[i * 3 + 1] = 25 + Math.round(y/15)*5;
+        target_FeedbackForm[i * 3 + 2] = -8;
+    } else if (i % 4 === 1) { // Inputs
+        target_FeedbackForm[i * 3] = (x / 10) * (fW * 0.8);
+        target_FeedbackForm[i * 3 + 1] = (i % 8 < 4) ? 8 : -8;
+        target_FeedbackForm[i * 3 + 2] = -12;
+    } else if (i % 4 === 2) { // Pillars
+        target_FeedbackForm[i * 3] = x > 0 ? fW : -fW;
+        target_FeedbackForm[i * 3 + 1] = (y / 10) * (fH * 0.5);
+        target_FeedbackForm[i * 3 + 2] = -5;
+    } else { // Bottom
+        target_FeedbackForm[i * 3] = x > 0 ? fW * 0.5 : -fW * 0.5;
+        target_FeedbackForm[i * 3 + 1] = -30;
+        target_FeedbackForm[i * 3 + 2] = -10;
     }
 }
-knotBake.dispose(); // Clean up memory
 
-// --- 4. MESH INSTANTIATION ---
-const mainMesh = new THREE.Mesh(geometry, material);
+// Geometry and Material Setup
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+const material = new THREE.PointsMaterial({
+    size: 0.12,
+    color: 0x00e676,
+    transparent: true,
+    opacity: 0.8,
+    blending: THREE.AdditiveBlending
+});
+const points = new THREE.Points(geometry, material);
+scene.add(points);
+camera.position.z = 50;
 
-// CRITICAL FIX: Forces the figure to stay visible even when vertices stretch
-mainMesh.frustumCulled = false; 
-geometry.computeBoundingSphere(); 
+// --- 3. MORPH LOGIC ---
+let scrollPercent = 0;
+document.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const b = document.body;
+    const st = 'scrollTop';
+    const sh = 'scrollHeight';
+    scrollPercent = (h[st] || b[st]) / ((h[sh] || b[sh]) - h.clientHeight);
+});
 
-scene.add(mainMesh);
-
-// --- 5. INTERACTION LOGIC ---
-function handleScroll() {
-    const positions = geometry.attributes.position.array;
-    
-    // Calculate scroll percentage
-    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const scrollPercent = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
-    
-    const clamp = (v) => Math.min(Math.max(v, 0), 1);
-
-    // Adjust camera depth based on scroll
-    camera.position.z = 40 + (scrollPercent * 15); 
-
-    // Multi-Stage Morphing
-    if (scrollPercent <= 0.25) {
-        let f = clamp(scrollPercent * 4);
-        for (let i = 0; i < vertexCount * 3; i++) {
-            positions[i] = THREE.MathUtils.lerp(originalPositions[i], target_EIACore[i], f);
-        }
-    } else if (scrollPercent <= 0.50) {
-        let f = clamp((scrollPercent - 0.25) * 4);
-        for (let i = 0; i < vertexCount * 3; i++) {
-            positions[i] = THREE.MathUtils.lerp(target_EIACore[i], target_TorusStack[i], f);
-        }
-    } else if (scrollPercent <= 0.75) {
-        let f = clamp((scrollPercent - 0.50) * 4);
-        for (let i = 0; i < vertexCount * 3; i++) {
-            positions[i] = THREE.MathUtils.lerp(target_TorusStack[i], target_DataPrism[i], f);
-        }
-    } else {
-        let f = clamp((scrollPercent - 0.75) * 4);
-        for (let i = 0; i < vertexCount * 3; i++) {
-            positions[i] = THREE.MathUtils.lerp(target_DataPrism[i], target_FeedbackPlane[i], f);
-        }
-    }
-    
-    geometry.attributes.position.needsUpdate = true;
-}
-
-// --- 6. ANIMATION LOOP ---
 function animate() {
     requestAnimationFrame(animate);
     
-    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const scroll = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
-
-    // Soft Rotation logic
-    if (scroll < 0.88) {
-        mainMesh.rotation.y += 0.005; 
-        mainMesh.rotation.x += 0.002;
-    } else {
-        // Smoothly stop rotation as we hit the form phase
-        mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.08);
-        mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.08);
-        mainMesh.rotation.z = THREE.MathUtils.lerp(mainMesh.rotation.z, 0, 0.08);
+    const positions = geometry.attributes.position.array;
+    
+    for (let i = 0; i < particleCount; i++) {
+        let tx, ty, tz;
         
-        // Scanline opacity effect
-        material.opacity = 0.45 + Math.sin(Date.now() * 0.0015) * 0.15;
+        // Linear Interpolation through the 4 states
+        if (scrollPercent < 0.33) {
+            let p = scrollPercent / 0.33;
+            tx = THREE.MathUtils.lerp(target_EIACore[i * 3], target_TorusStack[i * 3], p);
+            ty = THREE.MathUtils.lerp(target_EIACore[i * 3 + 1], target_TorusStack[i * 3 + 1], p);
+            tz = THREE.MathUtils.lerp(target_EIACore[i * 3 + 2], target_TorusStack[i * 3 + 2], p);
+        } else if (scrollPercent < 0.66) {
+            let p = (scrollPercent - 0.33) / 0.33;
+            tx = THREE.MathUtils.lerp(target_TorusStack[i * 3], target_DataPrism[i * 3], p);
+            ty = THREE.MathUtils.lerp(target_TorusStack[i * 3 + 1], target_DataPrism[i * 3 + 1], p);
+            tz = THREE.MathUtils.lerp(target_TorusStack[i * 3 + 2], target_DataPrism[i * 3 + 2], p);
+        } else {
+            let p = (scrollPercent - 0.66) / 0.34;
+            tx = THREE.MathUtils.lerp(target_DataPrism[i * 3], target_FeedbackForm[i * 3], p);
+            ty = THREE.MathUtils.lerp(target_DataPrism[i * 3 + 1], target_FeedbackForm[i * 3 + 1], p);
+            tz = THREE.MathUtils.lerp(target_DataPrism[i * 3 + 2], target_FeedbackForm[i * 3 + 2], p);
+        }
+
+        positions[i * 3] += (tx - positions[i * 3]) * 0.1;
+        positions[i * 3 + 1] += (ty - positions[i * 3 + 1]) * 0.1;
+        positions[i * 3 + 2] += (tz - positions[i * 3 + 2]) * 0.1;
     }
 
+    geometry.attributes.position.needsUpdate = true;
+    points.rotation.y += 0.002;
     renderer.render(scene, camera);
 }
 
-// --- 7. EVENT LISTENERS ---
-window.addEventListener('scroll', () => {
-    requestAnimationFrame(handleScroll);
-});
+animate();
 
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    handleScroll(); 
 });
-
-// INITIALIZE
-handleScroll(); 
-animate();
