@@ -1,14 +1,12 @@
-// VERSION: 1.2.1 - 5-Section Journey (Sphere -> Core -> Spike -> Star -> Star)
-console.log("Three.js Morph Logic v1.2.1 Loaded");
+// VERSION: 1.2.2 - 5-Section Journey with Torus Knot Integration
+console.log("Three.js Morph Logic v1.2.2 Loaded");
 
-// --- 1. Scene Setup ---
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-// --- 2. Geometry & Targets ---
 const geometry = new THREE.IcosahedronGeometry(8, 4); 
 const material = new THREE.MeshBasicMaterial({ 
     color: 0x00e676, 
@@ -20,30 +18,34 @@ const material = new THREE.MeshBasicMaterial({
 const originalPositions = geometry.attributes.position.array.slice(); // Section 1: Sphere
 const vertexCount = geometry.attributes.position.count;
 
+// --- Target Definitions ---
 const target_EIACore = new Float32Array(vertexCount * 3);    // Section 2: Diamond
-const target_SpikeTech = new Float32Array(vertexCount * 3);  // Section 3: Spike
-const target_HexStar = new Float32Array(vertexCount * 3);    // Section 4 & 5: Clean Star
+const target_TorusStack = new Float32Array(vertexCount * 3); // Section 3: Torus Knot
+const target_HexStar = new Float32Array(vertexCount * 3);    // Section 4 & 5: Star
+
+// Pre-bake the Torus Knot for Section 3
+const knotBake = new THREE.TorusKnotGeometry(7, 2.5, 100, 16); 
+const knotPos = knotBake.attributes.position.array;
+const knotVertCount = knotBake.attributes.position.count;
 
 for (let i = 0; i < vertexCount; i++) {
     let x = originalPositions[i * 3];
     let y = originalPositions[i * 3 + 1];
     let z = originalPositions[i * 3 + 2];
 
-    // --- EIA CORE (The Diamond) ---
+    // 1. EIA CORE (Diamond/Octahedron)
     let octaFactor = 10.5 / (Math.abs(x) + Math.abs(y) + Math.abs(z));
     target_EIACore[i * 3] = x * octaFactor;
     target_EIACore[i * 3 + 1] = y * octaFactor;
     target_EIACore[i * 3 + 2] = z * octaFactor;
 
-    // --- TECH STACK (The Spike) ---
-    let mag = Math.sqrt(x*x + y*y + z*z);
-    let spike = Math.sin(x * 3) * Math.cos(y * 3) * 4.5; 
-    let d = 8 + spike;
-    target_SpikeTech[i * 3] = (x / mag) * d;
-    target_SpikeTech[i * 3 + 1] = (y / mag) * d;
-    target_SpikeTech[i * 3 + 2] = (z / mag) * d;
+    // 2. TECH STACK (Torus Knot Mapping)
+    let knotIdx = (i % knotVertCount) * 3;
+    target_TorusStack[i * 3] = knotPos[knotIdx];
+    target_TorusStack[i * 3 + 1] = knotPos[knotIdx + 1];
+    target_TorusStack[i * 3 + 2] = knotPos[knotIdx + 2];
 
-    // --- REAL-TIME DATA / STAR (The Hexagram) ---
+    // 3. REAL-TIME DATA (Clean Hexagram Star)
     let angle = Math.atan2(y, x);
     let points = 6;
     let starCycle = (angle * points) / (Math.PI * 2);
@@ -52,45 +54,39 @@ for (let i = 0; i < vertexCount; i++) {
 
     target_HexStar[i * 3] = Math.cos(angle) * radius;
     target_HexStar[i * 3 + 1] = Math.sin(angle) * radius;
-    target_HexStar[i * 3 + 2] = (z > 0 ? 1.2 : -1.2); // Controls 3D thickness
+    target_HexStar[i * 3 + 2] = (z > 0 ? 1.2 : -1.2); 
 }
+knotBake.dispose(); // Free up memory
 
 const mainMesh = new THREE.Mesh(geometry, material);
 scene.add(mainMesh);
 camera.position.z = 35;
 
-// --- 3. Scroll Logic (5 Zones) ---
 function handleScroll() {
     const positions = geometry.attributes.position.array;
     const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
     const clamp = (v) => Math.min(Math.max(v, 0), 1);
 
-    // Each section is 20% (0.2) of the total scroll
     if (scrollPercent <= 0.2) {
-        // Section 1 to 2: Sphere -> Diamond
+        // Zone 1: Sphere -> Diamond
         let f = clamp(scrollPercent * 5);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(originalPositions[i], target_EIACore[i], f);
         }
     } else if (scrollPercent <= 0.4) {
-        // Section 2 to 3: Diamond -> Spike
+        // Zone 2: Diamond -> Torus Knot
         let f = clamp((scrollPercent - 0.2) * 5);
         for (let i = 0; i < vertexCount * 3; i++) {
-            positions[i] = THREE.MathUtils.lerp(target_EIACore[i], target_SpikeTech[i], f);
+            positions[i] = THREE.MathUtils.lerp(target_EIACore[i], target_TorusStack[i], f);
         }
     } else if (scrollPercent <= 0.6) {
-        // Section 3 to 4: Spike -> Hexagram Star
+        // Zone 3: Torus Knot -> Hexagram Star
         let f = clamp((scrollPercent - 0.4) * 5);
         for (let i = 0; i < vertexCount * 3; i++) {
-            positions[i] = THREE.MathUtils.lerp(target_SpikeTech[i], target_HexStar[i], f);
-        }
-    } else if (scrollPercent <= 0.8) {
-        // Section 4: Lock to Star
-        for (let i = 0; i < vertexCount * 3; i++) {
-            positions[i] = target_HexStar[i];
+            positions[i] = THREE.MathUtils.lerp(target_TorusStack[i], target_HexStar[i], f);
         }
     } else {
-        // Section 5: Final Star (Stay as Star)
+        // Zone 4 & 5: Lock into Star
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = target_HexStar[i];
         }
@@ -100,10 +96,9 @@ function handleScroll() {
 
 window.addEventListener('scroll', handleScroll);
 
-// --- 4. Animation & Resize ---
 function animate() {
     requestAnimationFrame(animate);
-    mainMesh.rotation.y += 0.004; // Gentle constant spin
+    mainMesh.rotation.y += 0.004;
     renderer.render(scene, camera);
 }
 animate();
