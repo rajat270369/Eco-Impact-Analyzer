@@ -74,40 +74,40 @@ for (let i = 0; i < vertexCount; i++) {
     target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.4); 
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
 
-   // 4. THE GHOST FORM "BLUEPRINT" MORPH
-    const formWidth = 55;   // The general width of our ghost form structure
-    const formHeight = 85;  // The total vertical span
-    const yTop = 25;        // Top border position
-    const yBottom = -30;    // Bottom border position
-    
-    // Divide vertices into four structural groups
+   // 4. GHOST FEEDBACK FORM "BLUEPRINT" (Reconstructed Structure)
+    // We strictly position particles to form a schematic blueprint.
+
+    const fW = 60;   // The general width of our ghost form
+    const fY = 85;   // The total vertical span of the schematic
+
+    // 1. Group 1: The ENCLOSING BORDER
     if (i % 4 === 0) {
-        // Group 1: The TOP BORDER
-        target_FeedbackPlane[i * 3] = (x / 8) * formWidth; // Wide span
-        target_FeedbackPlane[i * 3 + 1] = yTop + Math.round(y / 15) * 5; // A solid top line with some texture
-        target_FeedbackPlane[i * 3 + 2] = -8; // Deeper Z for separation
-    } else if (i % 4 === 1) {
-        // Group 2: The INPUT BOX placeholders (Two clean horizontal fields)
-        const inputY1 = 8; // Position of the first box
-        const inputY2 = -8; // Position of the second box
+        target_FeedbackPlane[i * 3] = x > 0 ? fW : -fW;   // Perfect left/right alignment
+        target_FeedbackPlane[i * 3 + 1] = (y / 10) * fY; // Full vertical span
+        target_FeedbackPlane[i * 3 + 2] = -5;            // Deeper Z for background context
+    } 
+    // 2. Group 2: The E-MAIL/INPUT LINES (Exactly two parallel lines)
+    else if (i % 4 === 1) {
+        // We only use points with specific Y coordinates for our lines
+        // We create two specific lines at Y=10 and Y=-5
+        const lineY = (i % 8 < 4) ? 10 : -5;
         
-        target_FeedbackPlane[i * 3] = (x / 10) * (formWidth * 0.8); // Slightly narrower span
-        
-        // Randomly assign points to the first or second box to avoid clumping
-        const choice = i % 8 < 4 ? inputY1 : inputY2;
-        target_FeedbackPlane[i * 3 + 1] = choice; 
-        
-        target_FeedbackPlane[i * 3 + 2] = -12; // Deeper for emphasis
-    } else if (i % 4 === 2) {
-        // Group 3: The VERTICAL FORM SUPPORT PILLARS (Pushed to the far edges)
-        target_FeedbackPlane[i * 3] = x > 0 ? formWidth : -formWidth; // Perfect left/right alignment
-        target_FeedbackPlane[i * 3 + 1] = (y / 10) * (formHeight * 0.5); // Very tall span
-        target_FeedbackPlane[i * 3 + 2] = -5; // Closest Z layer
-    } else {
-        // Group 4: The BOTTOM BUTTON blueprint and BORDER support
-        target_FeedbackPlane[i * 3] = x > 0 ? formWidth * 0.5 : -formWidth * 0.5; // Narrower like a button
-        target_FeedbackPlane[i * 3 + 1] = yBottom; // Solid bottom line
-        target_FeedbackPlane[i * 3 + 2] = -10; // Mid-range Z layer
+        target_FeedbackPlane[i * 3] = (x / 10) * (fW * 0.8); // Wider line span
+        target_FeedbackPlane[i * 3 + 1] = lineY;               // Solid y-position
+        target_FeedbackPlane[i * 3 + 2] = -12;                 // Furthest Z layer (the input surface)
+    } 
+    // 3. Group 3: The FORM HEADER blueprint
+    else if (i % 4 === 2) {
+        target_FeedbackPlane[i * 3] = (x / 10) * (fW * 0.6); // Slightly narrower
+        target_FeedbackPlane[i * 3 + 1] = 30 + Math.random() * 2; // High-level border line
+        target_FeedbackPlane[i * 3 + 2] = -8; 
+    } 
+    // 4. Group 4: The 'SUBMIT' BUTTON blueprint (Small, solid block)
+    else {
+        const btnW = 15; const btnY = -35; const btnH = 5;
+        target_FeedbackPlane[i * 3] = (x > 0 ? btnW : -btnW); // Button edges
+        target_FeedbackPlane[i * 3 + 1] = btnY + (y / 5) * btnH; // Button shape
+        target_FeedbackPlane[i * 3 + 2] = -10; 
     }
 }
 knotBake.dispose(); // Clean up memory

@@ -321,7 +321,12 @@ section, .hero, .snap-point {
 .hidden {
     display: none;
 }
-
+/* style.css - Add projection feeling to final text */
+.reveal.active, .mascot-wrapper.active {
+    opacity: 1;
+    transform: translateY(0);
+    text-shadow: 0 0 15px rgba(0, 230, 118, 0.6); /* Soft green glow projecting forward */
+}
 /* Ensure no scrollbars show on the body */
 ::-webkit-scrollbar {
     width: 0px;
