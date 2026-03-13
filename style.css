@@ -227,7 +227,10 @@ section, .hero, .snap-point {
     max-width: 600px;
     margin: 0 auto;
     text-align: center;
-    padding: 40px;
+    background: rgba(18, 18, 18, 0.4); /* Subtle dark tint to improve contrast */
+    backdrop-filter: blur(4px); /* Softens the wires directly behind text */
+    padding: 60px;
+    border-radius: 20px;
 }
 
 .ghost-form-wrapper h2 {

@@ -74,15 +74,17 @@ for (let i = 0; i < vertexCount; i++) {
     target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.4); 
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
 
-    // 4. FEEDBACK PLANE (UI Aligned Structure)
+   // 4. FEEDBACK PLANE (Structural Frame) - RECONSTRUCTED
     if (i % 2 === 0) {
-        target_FeedbackPlane[i * 3] = (x / 10) * 30; 
-        target_FeedbackPlane[i * 3 + 1] = Math.round(y / 6) * 15; 
-        target_FeedbackPlane[i * 3 + 2] = 0;
+        // Horizontal Support Lines (Stretched wide to clear the text center)
+        target_FeedbackPlane[i * 3] = (x / 10) * 65; // Much wider horizontal span
+        target_FeedbackPlane[i * 3 + 1] = Math.round(y / 5) * 22; // Organized vertical rows
+        target_FeedbackPlane[i * 3 + 2] = -10; // Push further back in Z-space
     } else {
-        target_FeedbackPlane[i * 3] = x > 0 ? 35 : -35; 
-        target_FeedbackPlane[i * 3 + 1] = (y / 10) * 25; 
-        target_FeedbackPlane[i * 3 + 2] = -5; 
+        // Vertical Outer Brackets (Pushed to the far edges)
+        target_FeedbackPlane[i * 3] = x > 0 ? 55 : -55; // Solid left/right pillars
+        target_FeedbackPlane[i * 3 + 1] = (y / 10) * 45; // Tall vertical span
+        target_FeedbackPlane[i * 3 + 2] = -15; // Even deeper back
     }
 }
 knotBake.dispose(); // Clean up memory
