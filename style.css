@@ -11,11 +11,8 @@ html {
 }
 
 body {
-    background-color: var(--dark-bg);
-    color: white;
-    font-family: 'Inter', sans-serif;
+    background-color: #121212; /* Keep the background here only */
     margin: 0;
-    overflow-x: hidden;
 }
 
 /* --- 2. THE THREE.JS STAGE --- */
@@ -42,13 +39,16 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: -1; /* Stays in the background */
-    background-color: var(--dark-bg);
+    z-index: -1; 
+    background: transparent !important; /* Change from var(--dark-bg) to transparent */
+    pointer-events: none;
+}
+canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
 }
 
-canvas {
-    display: block; /* Removes weird scrollbar gaps */
-}
 /* --- 3. SECTION WRAPPERS (SNAP POINTS) --- */
 .hero, .snap-point {
     scroll-snap-align: start;
