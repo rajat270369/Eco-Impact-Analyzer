@@ -50,6 +50,7 @@ camera.position.z = 35;
 
 // --- 3. Fixed Scroll Transitions ---
 // --- Precise Card-Based Scroll Transitions ---
+// --- Precise Card-Based Scroll Transitions ---
 function handleScroll() {
     const cards = document.querySelectorAll('.reveal'); // Assuming your cards have the 'reveal' class
     const positions = geometry.attributes.position.array;
@@ -103,7 +104,6 @@ function handleScroll() {
     const totalScroll = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
     mainMesh.rotation.y = totalScroll * 12;
 }
-
 window.addEventListener('scroll', handleScroll);
 
 // --- 4. Animation & Resize ---
