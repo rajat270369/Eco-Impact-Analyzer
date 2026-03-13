@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
+    
     <div id="canvas-container"></div>
 
     <section class="hero">
@@ -29,6 +29,7 @@
             Explore Analysis
         </button>
     </section>
+
     <div class="snap-point">
         <div class="card story-card">
             <div class="mascot-image-container img">
@@ -86,8 +87,20 @@
         </div> 
     </div>
 
-    <div class="snap-point"></div> 
-    <div class="snap-point"></div> 
+    <div class="snap-point">
+        <div class="feedback-container">
+            <form id="feedback-form">
+                <h2 class="form-title">Send Feedback</h2>
+                <div class="input-group">
+                    <input type="email" id="user-email" required placeholder="your@email.com">
+                </div>
+                <div class="input-group">
+                    <textarea id="user-message" required placeholder="Your message..."></textarea>
+                </div>
+                <button type="submit" class="feedback-btn">Submit Mail</button>
+            </form>
+        </div>
+    </div> 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="script.js"></script>
