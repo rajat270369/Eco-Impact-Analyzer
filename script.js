@@ -74,40 +74,32 @@ for (let i = 0; i < vertexCount; i++) {
     target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.4); 
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
 
-   // 4. GHOST FEEDBACK FORM "BLUEPRINT" (Reconstructed Structure)
-    // We strictly position particles to form a schematic blueprint.
-
-    const fW = 60;   // The general width of our ghost form
-    const fY = 85;   // The total vertical span of the schematic
-
-    // 1. Group 1: The ENCLOSING BORDER
-    if (i % 4 === 0) {
-        target_FeedbackPlane[i * 3] = x > 0 ? fW : -fW;   // Perfect left/right alignment
-        target_FeedbackPlane[i * 3 + 1] = (y / 10) * fY; // Full vertical span
-        target_FeedbackPlane[i * 3 + 2] = -5;            // Deeper Z for background context
+   // 4. THE GHOST FORM "BLUEPRINT" (High-Precision / Low-Density)
+    // We collapse the mesh into specific "structural rails" to stop the webbing.
+    
+    const fW = 45;   // Width of the box
+    const fH = 60;   // Height of the box
+    
+    if (i % 10 === 0) {
+        // THE OUTER FRAME: Force these points to the edges only
+        target_FeedbackPlane[i * 3] = x > 0 ? fW : -fW;
+        target_FeedbackPlane[i * 3 + 1] = (y / 10) * fH;
+        target_FeedbackPlane[i * 3 + 2] = -5;
     } 
-    // 2. Group 2: The E-MAIL/INPUT LINES (Exactly two parallel lines)
-    else if (i % 4 === 1) {
-        // We only use points with specific Y coordinates for our lines
-        // We create two specific lines at Y=10 and Y=-5
-        const lineY = (i % 8 < 4) ? 10 : -5;
-        
-        target_FeedbackPlane[i * 3] = (x / 10) * (fW * 0.8); // Wider line span
-        target_FeedbackPlane[i * 3 + 1] = lineY;               // Solid y-position
-        target_FeedbackPlane[i * 3 + 2] = -12;                 // Furthest Z layer (the input surface)
-    } 
-    // 3. Group 3: The FORM HEADER blueprint
-    else if (i % 4 === 2) {
-        target_FeedbackPlane[i * 3] = (x / 10) * (fW * 0.6); // Slightly narrower
-        target_FeedbackPlane[i * 3 + 1] = 30 + Math.random() * 2; // High-level border line
-        target_FeedbackPlane[i * 3 + 2] = -8; 
-    } 
-    // 4. Group 4: The 'SUBMIT' BUTTON blueprint (Small, solid block)
+    else if (i % 10 === 1 || i % 10 === 2) {
+        // THE EMAIL LINES: Two clean horizontal strokes
+        const lineY = (i % 10 === 1) ? 5 : -10; 
+        target_FeedbackPlane[i * 3] = (x / 10) * (fW * 0.7); // The width of the line
+        target_FeedbackPlane[i * 3 + 1] = lineY;
+        target_FeedbackPlane[i * 3 + 2] = -5;
+    }
     else {
-        const btnW = 15; const btnY = -35; const btnH = 5;
-        target_FeedbackPlane[i * 3] = (x > 0 ? btnW : -btnW); // Button edges
-        target_FeedbackPlane[i * 3 + 1] = btnY + (y / 5) * btnH; // Button shape
-        target_FeedbackPlane[i * 3 + 2] = -10; 
+        // HIDDEN POINTS: We "hide" the rest of the 5000 points 
+        // by collapsing them into a single tiny dot at the bottom center.
+        // This stops them from stretching lines across your form.
+        target_FeedbackPlane[i * 3] = 0;
+        target_FeedbackPlane[i * 3 + 1] = -fH - 10;
+        target_FeedbackPlane[i * 3 + 2] = -20;
     }
 }
 knotBake.dispose(); // Clean up memory
