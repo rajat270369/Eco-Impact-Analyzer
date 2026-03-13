@@ -2,7 +2,8 @@
 console.log("Three.js Morph Logic v1.2.8 Loaded");
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000); // Increased from 1000 to 2000
+camera.position.z = 50; 
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
@@ -67,8 +68,9 @@ for (let i = 0; i < vertexCount; i++) {
 knotBake.dispose();
 
 const mainMesh = new THREE.Mesh(geometry, material);
+// FIX: Prevents Three.js from "hiding" the mesh when vertices move far away
+mainMesh.frustumCulled = false; 
 scene.add(mainMesh);
-camera.position.z = 35;
 
 function handleScroll() {
     const positions = geometry.attributes.position.array;
