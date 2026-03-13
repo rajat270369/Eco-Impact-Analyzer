@@ -42,8 +42,9 @@ for (let i = 0; i < vertexCount; i++) {
     target_SpikeTech[i * 3 + 1] = (y / mag) * dist;
     target_SpikeTech[i * 3 + 2] = (z / mag) * dist;
 
-    // --- 3. REAL-TIME DATA (Clean Star Shape) ---
+   // --- 3. REAL-TIME DATA (Fixed Hexagram Star) ---
     let angle = Math.atan2(y, x);
+    
     let starFold = 7 + Math.abs(Math.cos(angle * 3)) * 5; 
     
     target_StarData[i * 3] = Math.cos(angle) * starFold;     // X
@@ -55,29 +56,23 @@ const mainMesh = new THREE.Mesh(geometry, material);
 scene.add(mainMesh);
 camera.position.z = 35;
 
-   function handleScroll() {
+function handleScroll() {
     const positions = geometry.attributes.position.array;
     const cards = document.querySelectorAll('.reveal');
     let scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
 
-    // This forces the transition to happen only between the 3 targets
-    const clamp = (v) => Math.min(Math.max(v, 0), 1);
+    if (cards.length >= 3) {
+        const getPoint = (el) => 1 - (el.getBoundingClientRect().top / window.innerHeight);
+        const p1 = getPoint(cards[0]);
+        const p2 = getPoint(cards[1]);
+        const p3 = getPoint(cards[2]);
 
-    if (scrollPercent <= 0.5) {
-        // Only Transition 1: Core -> Tech Stack
-        let f = clamp(scrollPercent * 2); 
-        for (let i = 0; i < vertexCount * 3; i++) {
-            positions[i] = THREE.MathUtils.lerp(target_EIACore[i], target_SpikeTech[i], f);
-        }
-    } else {
-        // Only Transition 2: Tech Stack -> Star Data
-        let f = clamp((scrollPercent - 0.5) * 2);
-        for (let i = 0; i < vertexCount * 3; i++) {
-            positions[i] = THREE.MathUtils.lerp(target_SpikeTech[i], target_StarData[i], f);
-        }
+        if (p1 < 0.5) scrollPercent = 0;
+        else if (p1 >= 0.5 && p2 < 0.5) scrollPercent = 0.33 * ((p1 - 0.5) * 2);
+        else if (p2 >= 0.5 && p3 < 0.5) scrollPercent = 0.33 + (0.33 * ((p2 - 0.5) * 2));
+        else if (p3 >= 0.5) scrollPercent = 0.66 + (0.33 * ((p3 - 0.5) * 2));
     }
-    geometry.attributes.position.needsUpdate = true;
-    }
+
     const clamp = (v) => Math.min(Math.max(v, 0), 1);
 
     if (scrollPercent <= 0.33) {
@@ -97,6 +92,7 @@ camera.position.z = 35;
         }
     }
     geometry.attributes.position.needsUpdate = true;
+}
 
 window.addEventListener('scroll', handleScroll);
 
