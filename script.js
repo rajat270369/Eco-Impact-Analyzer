@@ -65,31 +65,30 @@ const mainMesh = new THREE.Mesh(geometry, material);
 scene.add(mainMesh);
 camera.position.z = 35;
 
+// --- Updated handleScroll (v1.2.8) ---
 function handleScroll() {
     const positions = geometry.attributes.position.array;
     let scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
     const clamp = (v) => Math.min(Math.max(v, 0), 1);
 
     if (scrollPercent <= 0.25) {
-        // Sphere -> Core
         let f = clamp(scrollPercent * 4);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(originalPositions[i], target_EIACore[i], f);
         }
     } else if (scrollPercent <= 0.50) {
-        // Core -> Torus
         let f = clamp((scrollPercent - 0.25) * 4);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target_EIACore[i], target_TorusStack[i], f);
         }
     } else if (scrollPercent <= 0.75) {
-        // Torus -> Prism (Now spins)
+        // Transition to Prism: It will spin because the 'animate' loop is active
         let f = clamp((scrollPercent - 0.50) * 4);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target_TorusStack[i], target_DataPrism[i], f);
         }
     } else {
-        // Prism -> Feedback Plane
+        // Transition to Flat Plane
         let f = clamp((scrollPercent - 0.75) * 4);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target_DataPrism[i], target_FeedbackPlane[i], f);
@@ -98,24 +97,28 @@ function handleScroll() {
     geometry.attributes.position.needsUpdate = true;
 }
 
-window.addEventListener('scroll', handleScroll);
-
+// --- Updated animate (v1.2.8) ---
 function animate() {
     requestAnimationFrame(animate);
     let scroll = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
 
-    // Keep spinning until we start the morph to the flat plane (0.75)
-    if (scroll < 0.75) {
-        mainMesh.rotation.y += 0.004;
-        mainMesh.rotation.x += 0.001;
+    // Keep spinning at ALL times unless we are deep in the final section
+    if (scroll < 0.85) {
+        mainMesh.rotation.y += 0.006; // Slightly faster for a "real-time" feel
+        mainMesh.rotation.x += 0.002;
     } else {
-        // Dampen rotation to stop flatly at the end
-        let dampFactor = clamp(1 - (scroll - 0.75) * 4);
-        mainMesh.rotation.y *= 0.9;
-        mainMesh.rotation.x *= 0.9;
+        // Smoothly settle the rotation into a flat view for the form
+        // This ensures it faces the user perfectly when the form is visible
+        mainMesh.rotation.y *= 0.8; 
+        mainMesh.rotation.x *= 0.8;
+        mainMesh.rotation.z *= 0.8;
     }
+    
     renderer.render(scene, camera);
 }
+
+window.addEventListener('scroll', handleScroll);
+
 
 // Helper clamp for animation
 function clamp(v) { return Math.min(Math.max(v, 0), 1); }
