@@ -52,47 +52,45 @@ camera.position.z = 35;
 // --- Precise Card-Based Scroll Transitions ---
 // --- Precise Card-Based Scroll Transitions ---
 function handleScroll() {
-    const cards = document.querySelectorAll('.reveal'); // Assuming your cards have the 'reveal' class
     const positions = geometry.attributes.position.array;
+    
+    // 1. Grab your cards by their classes (adjust '.reveal' if your cards use a different class)
+    const cards = document.querySelectorAll('.reveal');
+    if (cards.length < 3) return; // Safety check
 
-    // 1. Get positions of your key sections
-    const eiaCoreCard = cards[0];   // The card for EIA Core
-    const techStackCard = cards[1]; // The card for Tech Stack
-    const realTimeCard = cards[2];  // The card for Real-time Data
+    const eiaCard = cards[0];   // EIA Core
+    const techCard = cards[1];  // Tech Stack
+    const realTimeCard = cards[2]; // Real-time Data
 
-    const windowCenter = window.innerHeight / 2;
-
-    // Helper to get card center relative to viewport
-    const getCardProgress = (el) => {
-        if (!el) return 0;
+    // 2. Helper function to see how "centered" a card is (0 to 1)
+    const getPoint = (el) => {
         const rect = el.getBoundingClientRect();
-        // Returns 0 when below screen, 0.5 at center, 1.0 when above
+        // Returns 0.5 when the card is perfectly in the middle of the screen
         return 1 - (rect.top / window.innerHeight);
     };
 
-    const p1 = getCardProgress(eiaCoreCard);
-    const p2 = getCardProgress(techStackCard);
-    const p3 = getCardProgress(realTimeCard);
+    const p1 = getPoint(eiaCard);
+    const p2 = getPoint(techCard);
 
-    // --- MORPH LOGIC ---
-
+    // 3. APPLY MORPHS
+    // Part 1: Default Icosahedron (Before EIA Core is centered)
     if (p1 < 0.5) {
-        // STAGE 0: Start (Icosahedron)
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = originalPositions[i];
         }
     } 
+    // Part 2: Morph to Octahedron (When moving from EIA Core to Tech Stack)
     else if (p1 >= 0.5 && p2 < 0.5) {
-        // STAGE 1: Transition to EIA Core (Octahedron)
-        // Normalizes the gap between card 1 and card 2
-        let factor = THREE.MathUtils.smoothstep(p1, 0.5, 1.0); 
+        let factor = (p1 - 0.5) * 2; // Normalizes 0.5-1.0 to 0-1
+        factor = Math.min(Math.max(factor, 0), 1);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(originalPositions[i], target_EIACore[i], factor);
         }
     } 
+    // Part 3: Morph to Hexagram (When Tech Stack card is centered)
     else if (p2 >= 0.5) {
-        // STAGE 2: Transition to Tech Stack (Hexagram)
-        let factor = THREE.MathUtils.smoothstep(p2, 0.5, 1.0);
+        let factor = (p2 - 0.5) * 2;
+        factor = Math.min(Math.max(factor, 0), 1);
         for (let i = 0; i < vertexCount * 3; i++) {
             positions[i] = THREE.MathUtils.lerp(target_EIACore[i], target_TechStack[i], factor);
         }
@@ -100,9 +98,9 @@ function handleScroll() {
 
     geometry.attributes.position.needsUpdate = true;
     
-    // Rotation speed based on overall scroll
-    const totalScroll = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-    mainMesh.rotation.y = totalScroll * 12;
+    // Constant slow rotation that gets slightly faster as you scroll down
+    const overallScroll = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    mainMesh.rotation.y += 0.01 + (overallScroll * 0.05);
 }
 window.addEventListener('scroll', handleScroll);
 
