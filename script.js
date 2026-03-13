@@ -72,9 +72,11 @@ camera.position.z = 35;
 
 function handleScroll() {
     const positions = geometry.attributes.position.array;
-    // Calculation of scroll height is now inside the function for accuracy
     let scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
     const clamp = (v) => Math.min(Math.max(v, 0), 1);
+
+    // Dynamic camera adjustment so the figure doesn't get "cut off" on small screens
+    camera.position.z = 35 + (scrollPercent * 10); 
 
     if (scrollPercent <= 0.25) {
         let f = clamp(scrollPercent * 4);
@@ -100,9 +102,14 @@ function animate() {
         mainMesh.rotation.y += 0.006; 
         mainMesh.rotation.x += 0.002;
     } else {
-        mainMesh.rotation.y *= 0.8; 
-        mainMesh.rotation.x *= 0.8;
-        mainMesh.rotation.z *= 0.8;
+        // Use LERP instead of multiplication to stop rotation 
+        // This is much more stable for the renderer
+        mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.1);
+        mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.1);
+        mainMesh.rotation.z = THREE.MathUtils.lerp(mainMesh.rotation.z, 0, 0.1);
+        
+        // Add a very subtle "scanline" pulse to the opacity
+        material.opacity = 0.4 + Math.sin(Date.now() * 0.002) * 0.1;
     }
     renderer.render(scene, camera);
 }
