@@ -42,13 +42,25 @@ for (let i = 0; i < vertexCount; i++) {
     target_SpikeTech[i * 3 + 1] = (y / mag) * dist;
     target_SpikeTech[i * 3 + 2] = (z / mag) * dist;
 
-   // --- 3. REAL-TIME DATA (Fixed Hexagram Star) ---
+    // --- 3. REAL-TIME DATA (Tech-Optimized Star) ---
     let angle = Math.atan2(y, x);
-    let starFold = 7 + Math.abs(Math.cos(angle * 3)) * 5; 
     
-    target_StarData[i * 3] = Math.cos(angle) * starFold;
-    target_StarData[i * 3 + 1] = Math.sin(angle) * starFold;
-    target_StarData[i * 3 + 2] = (z > 0 ? 0.5 : -0.5);
+    // We use a modular 6-point symmetry with a clean inner/outer transition
+    // This prevents the "tangled" wireframe look by keeping points distinct
+    let points = 6;
+    let innerRadius = 6.0;
+    let outerRadius = 13.0;
+    
+    // The "Star Factor" creates sharp peaks and flat valleys
+    let starFactor = Math.abs(Math.cos(angle * points / 2));
+    let radius = THREE.MathUtils.lerp(innerRadius, outerRadius, starFactor);
+    
+    target_StarData[i * 3] = Math.cos(angle) * radius;     // X
+    target_StarData[i * 3 + 1] = Math.sin(angle) * radius; // Y
+    
+    // We give it a tiny bit of thickness (0.8) so the wireframe 
+    // has some "3D depth" without looking like a messy sphere.
+    target_StarData[i * 3 + 2] = (z > 0 ? 0.8 : -0.8);
 }
 
 const mainMesh = new THREE.Mesh(geometry, material);
