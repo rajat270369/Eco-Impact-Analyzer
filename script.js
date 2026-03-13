@@ -74,32 +74,36 @@ for (let i = 0; i < vertexCount; i++) {
     target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.4); 
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
 
-   // 4. THE GHOST FORM "BLUEPRINT" (High-Precision / Low-Density)
-    // We collapse the mesh into specific "structural rails" to stop the webbing.
+    // 4. THE GHOST FORM "BLUEPRINT" (Schematic Reconstruction)
+    const fW = 40; // Box Width
+    const fH = 55; // Box Height
     
-    const fW = 45;   // Width of the box
-    const fH = 60;   // Height of the box
-    
-    if (i % 10 === 0) {
-        // THE OUTER FRAME: Force these points to the edges only
-        target_FeedbackPlane[i * 3] = x > 0 ? fW : -fW;
-        target_FeedbackPlane[i * 3 + 1] = (y / 10) * fH;
-        target_FeedbackPlane[i * 3 + 2] = -5;
+    // We strictly use the vertex index 'i' to build specific rails
+    if (i < vertexCount * 0.4) {
+        // THE OUTER SQUARE (40% of vertices)
+        // This creates a clean rectangular border
+        const side = i % 4;
+        if (side === 0) { target_FeedbackPlane[i*3] = fW;  target_FeedbackPlane[i*3+1] = (Math.random()-0.5)*fH*2; } // Right
+        if (side === 1) { target_FeedbackPlane[i*3] = -fW; target_FeedbackPlane[i*3+1] = (Math.random()-0.5)*fH*2; } // Left
+        if (side === 2) { target_FeedbackPlane[i*3] = (Math.random()-0.5)*fW*2; target_FeedbackPlane[i*3+1] = fH;  } // Top
+        if (side === 3) { target_FeedbackPlane[i*3] = (Math.random()-0.5)*fW*2; target_FeedbackPlane[i*3+1] = -fH; } // Bottom
+        target_FeedbackPlane[i*3+2] = -5;
     } 
-    else if (i % 10 === 1 || i % 10 === 2) {
-        // THE EMAIL LINES: Two clean horizontal strokes
-        const lineY = (i % 10 === 1) ? 5 : -10; 
-        target_FeedbackPlane[i * 3] = (x / 10) * (fW * 0.7); // The width of the line
-        target_FeedbackPlane[i * 3 + 1] = lineY;
-        target_FeedbackPlane[i * 3 + 2] = -5;
+    else if (i < vertexCount * 0.8) {
+        // THE INPUT LINES (40% of vertices)
+        // Two perfectly horizontal lines for the Email/ID fields
+        const lineY = (i % 2 === 0) ? 10 : -10; 
+        target_FeedbackPlane[i*3] = (Math.random() - 0.5) * fW * 1.6;
+        target_FeedbackPlane[i*3+1] = lineY;
+        target_FeedbackPlane[i*3+2] = -5;
     }
     else {
-        // HIDDEN POINTS: We "hide" the rest of the 5000 points 
-        // by collapsing them into a single tiny dot at the bottom center.
-        // This stops them from stretching lines across your form.
-        target_FeedbackPlane[i * 3] = 0;
-        target_FeedbackPlane[i * 3 + 1] = -fH - 10;
-        target_FeedbackPlane[i * 3 + 2] = -20;
+        // THE REJECTS (20% of vertices)
+        // These are the "stupid lines" that cause the mess. 
+        // We move them to a single point at the bottom to make them invisible.
+        target_FeedbackPlane[i*3] = 0;
+        target_FeedbackPlane[i*3+1] = -fH;
+        target_FeedbackPlane[i*3+2] = -5;
     }
 }
 knotBake.dispose(); // Clean up memory
