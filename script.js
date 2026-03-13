@@ -45,18 +45,14 @@ for (let i = 0; i < vertexCount; i++) {
     target_TorusStack[i * 3 + 1] = knotPos[knotIdx + 1];
     target_TorusStack[i * 3 + 2] = knotPos[knotIdx + 2];
 
-   // --- Option A: Digital Pulse (Replace Section 3 in the loop) ---
-  let angle = Math.atan2(y, x);
-  let segments = 8; // Number of "teeth"
-  let inner = 7;
-  let outer = 11;
+   // --- Option B: Data Prism (Replace Section 3 in the loop) ---
+  let mag = Math.sqrt(x*x + y*y + z*z);
+   let prismRadius = 12;
 
-// Creating a "sawtooth" wave for a gear-like look
-  let gearFactor = (Math.abs(Math.cos(angle * segments / 2)) > 0.5) ? outer : inner;
-
-  target_HexStar[i * 3] = Math.cos(angle) * gearFactor;
-  target_HexStar[i * 3 + 1] = Math.sin(angle) * gearFactor;
-  target_HexStar[i * 3 + 2] = z * 0.2; // Keep it thin like a disc
+   // We squash the shape into a vertical diamond/prism
+   target_HexStar[i * 3] = (x / mag) * (prismRadius * 0.5);   // Narrow X
+   target_HexStar[i * 3 + 1] = (y / mag) * (prismRadius * 1.2); // Tall Y
+   target_HexStar[i * 3 + 2] = (z / mag) * (prismRadius * 0.5); // Narrow Z
  }
  knotBake.dispose(); // Free up memory
 
