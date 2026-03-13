@@ -60,16 +60,20 @@ for (let i = 0; i < vertexCount; i++) {
 
     // 2. TECH STACK (Knot Mapping)
     let kIdx = (i % knotVertCount) * 3;
-    target_TorusStack[i * 3] = knotPos[kIdx];
-    target_TorusStack[i * 3 + 1] = knotPos[kIdx + 1];
-    target_TorusStack[i * 3 + 2] = knotPos[kIdx + 2];
+    const knotScale = 1.8; // Increase this number to make the 2nd figure even larger
+    target_TorusStack[i * 3] = knotPos[kIdx] * knotScale;
+    target_TorusStack[i * 3 + 1] = knotPos[kIdx + 1] * knotScale;
+    target_TorusStack[i * 3 + 2] = knotPos[kIdx + 2] * knotScale;
 
     // 3. DATA PRISM (Vertical Expansion)
     let mag = Math.sqrt(x*x + y*y + z*z) + epsilon;
-    let prismRadius = 14;
-    target_DataPrism[i * 3] = (x / mag) * (prismRadius * 0.4);   
-    target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.5); 
-    target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.4); 
+    let prismRadius = 22; // Increased from 14 to 22
+    
+    // We increase the width (x, z) to make it feel more "massive" 
+    // and keep the height (y) proportional.
+    target_DataPrism[i * 3] = (x / mag) * (prismRadius * 0.7);   // Increased from 0.4
+    target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.8); // Increased from 1.5
+    target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.7); // Increased from 0.4
 
     // 4. FEEDBACK PLANE (UI Aligned Structure)
     if (i % 2 === 0) {

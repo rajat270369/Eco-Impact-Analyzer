@@ -136,29 +136,7 @@ section, .hero, .snap-point {
 }
 
 /* --- 6. THE STORY CARD SYSTEM --- */
-.card.story-card {
-    pointer-events: auto; 
-    width: 280px;
-    height: 400px;
-    background: rgba(26, 26, 26, 0.8) !important; 
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding-bottom: 40px;
-    position: relative;
-    border: 1px solid rgba(0, 230, 118, 0.2) !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    transition: var(--transition-smooth);
-}
 
-.card.story-card:hover {
-    transform: translateY(-15px) rotateX(5deg);
-    border-color: var(--primary-green) !important;
-    box-shadow: 0 0 50px rgba(0, 230, 118, 0.3);
-}
 
 .textBox {
     z-index: 10;
@@ -195,23 +173,51 @@ section, .hero, .snap-point {
 }
 
 /* --- 7. MASCOT VISUALS --- */
+
+/* --- 5. THE OPTIMIZED STORY CARD SYSTEM (ENLARGED) --- */
+.card.story-card {
+    pointer-events: auto; 
+    width: 320px;  /* Increased from 280px */
+    height: 460px; /* Increased from 400px */
+    background: rgba(26, 26, 26, 0.85) !important; 
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 50px;
+    position: relative;
+    border: 1px solid rgba(0, 230, 118, 0.25) !important;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.6);
+    transition: var(--transition-smooth);
+}
+
+.card.story-card:hover {
+    transform: translateY(-20px) scale(1.02); /* More pronounced lift */
+    border-color: var(--primary-green) !important;
+    box-shadow: 0 0 60px rgba(0, 230, 118, 0.3);
+}
+
+/* --- 7. THE MASCOT AESTHETIC (SCALED UP) --- */
 .mascot-image-container.img {
-    height: 100%;
-    width: 100%;
+    height: 70% !important; /* Increased from height/width auto */
+    width: 85% !important;
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 10%; /* Move it up slightly to give text more room */
+    left: 7.5%;
     display: flex;
     justify-content: center;
     align-items: center;
-    opacity: 0.2;
-    filter: blur(4px);
-    transition: 0.5s ease;
+    opacity: 0.3;
+    filter: blur(2px); /* Reduced blur for better clarity */
+    transition: all 0.5s ease;
 }
 
 .card.story-card:hover .mascot-image-container.img {
-    opacity: 0.6;
+    opacity: 0.8;
     filter: blur(0px);
+    transform: scale(1.1); /* Subtle "pop" on hover */
 }
 
 /* --- 8. GHOST FORM (IMPACT REPORT) --- */
