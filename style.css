@@ -19,17 +19,36 @@ body {
 }
 
 /* --- 2. THE THREE.JS STAGE --- */
+/* --- Fix the Layout Mess --- */
+.snap-point {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* Pushes cards to edges */
+    align-items: center;
+    padding: 0 10%; /* Space from the screen edges */
+    position: relative;
+    z-index: 2; /* Sits above the canvas */
+    pointer-events: none; /* CRITICAL: Allows clicks to pass through to the 3D model */
+    box-sizing: border-box;
+}
+
+/* --- Fix Canvas Squashing --- */
 #canvas-container {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 100vw;
     height: 100vh;
-    z-index: -1;
-    pointer-events: none;
+    z-index: -1; /* Stays in the background */
     background-color: var(--dark-bg);
 }
 
+canvas {
+    display: block; /* Removes weird scrollbar gaps */
+}
 /* --- 3. SECTION WRAPPERS (SNAP POINTS) --- */
 .hero, .snap-point {
     scroll-snap-align: start;
@@ -48,13 +67,6 @@ body {
     text-align: center;
 }
 
-.snap-point {
-    display: flex;
-    justify-content: space-between; /* MIRROR EFFECT: One card left, one card right */
-    align-items: center;
-    padding: 0 8%;
-    pointer-events: none; /* Let user interact with 3D model in center */
-}
 
 /* --- 4. HERO COMPONENTS --- */
 .logo-container {
@@ -115,10 +127,10 @@ body {
 
 /* --- 5. THE OPTIMIZED STORY CARD SYSTEM --- */
 .card.story-card {
-    pointer-events: auto; /* Re-enable for the actual card */
+    pointer-events: auto; /* Re-enables mouse for the cards */
     width: 210px;
     height: 310px;
-    background: var(--card-bg) !important; 
+    background: #1a1a1a !important; 
     border-radius: 20px;
     display: flex;
     flex-direction: column;
@@ -129,6 +141,7 @@ body {
     border: 1px solid rgba(0, 230, 118, 0.4) !important;
     box-shadow: 0 0 20px rgba(0, 230, 118, 0.15);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    flex-shrink: 0; /* PREVENTS DISTORTION/SQUASHING */
 }
 
 .card.story-card:hover {
