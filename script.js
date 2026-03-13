@@ -52,24 +52,17 @@ for (let i = 0; i < vertexCount; i++) {
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5); 
 
     // 4. FEEDBACK FORM MORPH (Targeting the UI structure)
-for (let i = 0; i < vertexCount; i++) {
-    let x = originalPositions[i * 3];
-    let y = originalPositions[i * 3 + 1];
-    let z = originalPositions[i * 3 + 2];
-
-    // We divide vertices: some form the outer frame, some form the input lines
     if (i % 2 === 0) {
         // Horizontal Lines (Underlining the inputs)
         target_FeedbackPlane[i * 3] = (x / 8) * 22; 
-        target_FeedbackPlane[i * 3 + 1] = Math.round(y / 6) * 12; // Snaps to 3 horizontal levels
+        target_FeedbackPlane[i * 3 + 1] = Math.round(y / 6) * 12; 
         target_FeedbackPlane[i * 3 + 2] = 0;
     } else {
         // Vertical Frame "Brackets"
-        target_FeedbackPlane[i * 3] = x > 0 ? 25 : -25; // Pushes points to far left/right
+        target_FeedbackPlane[i * 3] = x > 0 ? 25 : -25; 
         target_FeedbackPlane[i * 3 + 1] = (y / 8) * 20; 
-        target_FeedbackPlane[i * 3 + 2] = -2; // Slightly behind text
+        target_FeedbackPlane[i * 3 + 2] = -2; 
     }
-}
 }
 knotBake.dispose();
 
