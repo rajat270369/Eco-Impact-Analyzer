@@ -47,13 +47,14 @@ for (let i = 0; i < vertexCount; i++) {
     target_TorusStack[i * 3 + 1] = knotPos[kIdx + 1];
     target_TorusStack[i * 3 + 2] = knotPos[kIdx + 2];
 
-    // 3. REAL-TIME DATA (Star)
-    let angle = Math.atan2(y, x);
-    let starFactor = Math.abs(((angle * 6 / (Math.PI * 2)) % 1) - 0.5) * 2;
-    let radius = 8 + (starFactor * 5); 
-    target_HexStar[i * 3] = Math.cos(angle) * radius;
-    target_HexStar[i * 3 + 1] = Math.sin(angle) * radius;
-    target_HexStar[i * 3 + 2] = (z > 0 ? 1 : -1);
+    // --- Option B: Data Prism (Replace Section 3 in the loop) ---
+    let mag = Math.sqrt(x*x + y*y + z*z);
+   let prismRadius = 12;
+
+  // We squash the shape into a vertical diamond/prism
+   target_HexStar[i * 3] = (x / mag) * (prismRadius * 0.5);   // Narrow X
+   target_HexStar[i * 3 + 1] = (y / mag) * (prismRadius * 1.2); // Tall Y
+   target_HexStar[i * 3 + 2] = (z / mag) * (prismRadius * 0.5); // Narrow Z
 
     // 4. FEEDBACK PLANE (Flattened Grid)
     target_FeedbackPlane[i * 3] = (x / 8) * 18;     
