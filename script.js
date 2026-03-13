@@ -47,19 +47,16 @@ for (let i = 0; i < vertexCount; i++) {
     target_TorusStack[i * 3 + 1] = knotPos[kIdx + 1];
     target_TorusStack[i * 3 + 2] = knotPos[kIdx + 2];
 
-    // --- Option B: Data Prism (Replace Section 3 in the loop) ---
     let mag = Math.sqrt(x*x + y*y + z*z);
-   let prismRadius = 12;
-
-  // We squash the shape into a vertical diamond/prism
-   target_HexStar[i * 3] = (x / mag) * (prismRadius * 0.5);   // Narrow X
-   target_HexStar[i * 3 + 1] = (y / mag) * (prismRadius * 1.2); // Tall Y
-   target_HexStar[i * 3 + 2] = (z / mag) * (prismRadius * 0.5); // Narrow Z
+    let prismRadius = 12;
+    target_DataPrism[i * 3] = (x / mag) * (prismRadius * 0.5);   // Narrow X
+    target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.2); // Tall Y
+    target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5); // Narrow Z
 
     // 4. FEEDBACK PLANE (Flattened Grid)
     target_FeedbackPlane[i * 3] = (x / 8) * 18;     
     target_FeedbackPlane[i * 3 + 1] = (y / 8) * 14; 
-    target_FeedbackPlane[i * 3 + 2] = 0;            
+    target_FeedbackPlane[i * 3 + 2] = 0; 
 }
 knotBake.dispose();
 
