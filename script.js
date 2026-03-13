@@ -47,8 +47,8 @@ for (let i = 0; i < vertexCount; i++) {
     let angle = Math.atan2(y, x);
     let starFold = (Math.cos(angle * 6) * 3.5) + 7.5; 
     target_StarData[i * 3] = Math.cos(angle) * starFold;
-    target_StarData[i * 3 + 1] = Math.sin(angle) * starFold;
-    target_StarData[i * 3 + 2] = z * 0.15; // Flattened for definition
+    target_StarData[i * 3 ] = Math.sin(angle) * starFold;
+    target_StarData[i * 3 ] = z * 0.15; // Flattened for definition
 }
 
 const mainMesh = new THREE.Mesh(geometry, material);
