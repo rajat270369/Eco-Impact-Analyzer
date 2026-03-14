@@ -1,5 +1,5 @@
-// VERSION: 1.3.0 - Industrial Stability & Morph Safety
-console.log("Three.js Morph Logic v1.3.0 Optimized");
+// VERSION: 1.3.4 - Full Logic Restoration & Variable Sync
+console.log("Three.js Morph Logic v1.3.4 - Restoration Active");
 
 // --- 1. SCENE SETUP ---
 const scene = new THREE.Scene();
@@ -15,12 +15,12 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-// Add Global Ambient Light (Backup for visibility)
+// Global Ambient Light for consistent visibility
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
 scene.add(ambientLight);
 
 // --- 2. GEOMETRY & MATERIALS ---
-const geometry = new THREE.IcosahedronGeometry(10, 6); // Slightly larger base
+const geometry = new THREE.IcosahedronGeometry(10, 6); 
 const material = new THREE.MeshBasicMaterial({ 
     color: 0x00e676, 
     wireframe: true,
@@ -49,38 +49,34 @@ for (let i = 0; i < vertexCount; i++) {
     let y = originalPositions[i * 3 + 1];
     let z = originalPositions[i * 3 + 2];
 
-
-    // 1. EIA CORE (Modified Octahedron) - SLIGHTLY ENLARGED
     const epsilon = 0.0001;
-    // Increased from 12 to 14.5 for a subtle but noticeable "size up"
+
+    // 1. EIA CORE (Modified Octahedron)
     let octaFactor = 14.5 / (Math.abs(x) + Math.abs(y) + Math.abs(z) + epsilon);
     target_EIACore[i * 3] = x * octaFactor;
     target_EIACore[i * 3 + 1] = y * octaFactor;
     target_EIACore[i * 3 + 2] = z * octaFactor;
 
-    // 2. TECH STACK (Knot Mapping) - ENLARGED
+    // 2. TECH STACK (Knot Mapping)
     let kIdx = (i % knotVertCount) * 3;
-    const knotScale = 1.8; // Increase this number to make the 2nd figure even larger
+    const knotScale = 1.8; 
     target_TorusStack[i * 3] = knotPos[kIdx] * knotScale;
     target_TorusStack[i * 3 + 1] = knotPos[kIdx + 1] * knotScale;
     target_TorusStack[i * 3 + 2] = knotPos[kIdx + 2] * knotScale;
 
-    // 3. DATA PRISM (Vertical Expansion) - SCALED DOWN
+    // 3. DATA PRISM (Vertical Expansion)
     let mag = Math.sqrt(x*x + y*y + z*z) + epsilon;
-    let prismRadius = 16; // Dropped from 22 to 16 for better fit
-    
-    // We keep it sleek but slightly wider than the original 1.2.8 version
+    let prismRadius = 16; 
     target_DataPrism[i * 3] = (x / mag) * (prismRadius * 0.5);   
     target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.4); 
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
 
-    // 4. THE GHOST FORM "BLUEPRINT" (Low-Density Technique)
-    const fW = 35; // Width of your square
-    const fH = 39; // Height of your square
+    // 4. THE GHOST FORM "BLUEPRINT" logic
+    const fW = 35; 
+    const fH = 39; 
     
     if (i < vertexCount * 0.4) {
         const side = i % 4;
-        // This ensures points are distributed evenly from -1 to 1
         const progress = ((i % 500) / 500) * 2 - 1; 
         
         if (side === 0) { // Right Rail
@@ -96,60 +92,52 @@ for (let i = 0; i < vertexCount; i++) {
             target_FeedbackPlane[i*3] = progress * fW; 
             target_FeedbackPlane[i*3+1] = -fH; 
         }
-        target_FeedbackPlane[i*3+2] = -5; // Keep it slightly behind the text
     } 
     else if (i < vertexCount * 0.6) {
-        // THE INPUT FIELD RAILS (Perfectly centered lines)
+        // THE INPUT FIELD RAILS
         const lineY = (i % 2 === 0) ? 8 : -14; 
         const lineProgress = ((i % 500) / 500) * 2 - 1;
-        target_FeedbackPlane[i*3] = lineProgress * (fW * 0.8); // Slightly shorter than box width
+        target_FeedbackPlane[i*3] = lineProgress * (fW * 0.8);
         target_FeedbackPlane[i*3+1] = lineY;
-        target_FeedbackPlane[i*3+2] = -5;
     }
     else {
         // CRUSH ALL OTHER PARTICLES
-        // We move them way off-screen so they don't create those "stray" lines
         target_FeedbackPlane[i*3] = 0;
         target_FeedbackPlane[i*3+1] = -500; 
         target_FeedbackPlane[i*3+2] = -100;
     }
-    
-target_FeedbackPlane[i*3+2] = -5;
+    // Shared depth for the blueprint form
+    if (i < vertexCount * 0.6) {
+        target_FeedbackPlane[i*3+2] = -5;
+    }
 }
-knotBake.dispose(); // Clean up memory
+knotBake.dispose();
 
-// --- 4. MESH INSTANTIATION ---
+// --- 4. MESH & PARTICLE INSTANTIATION ---
 const mainMesh = new THREE.Mesh(geometry, material);
-
-// CRITICAL FIX: Forces the figure to stay visible even when vertices stretch
 mainMesh.frustumCulled = false; 
-geometry.computeBoundingSphere(); 
-
 scene.add(mainMesh);
 
-// --- ADD THIS AFTER mainMesh CREATION ---
 const particleMaterial = new THREE.PointsMaterial({ 
     color: 0x00e676, 
-    size: 2.5,                // Increased from 0.15 to 2.0 for visibility
+    size: 2.5, 
     sizeAttenuation: false,
     transparent: true, 
-    opacity: 0, // Hidden at start
+    opacity: 0,
     blending: THREE.AdditiveBlending
 });
-const particleSystem = new THREE.Points(geometry, particleMaterial);
-scene.add(particleSystem);
+
+// Variable name 'particles' now matches the animate loop requirements
+const particles = new THREE.Points(geometry, particleMaterial);
+scene.add(particles);
 
 // --- 5. INTERACTION LOGIC ---
 function handleScroll() {
     const positions = geometry.attributes.position.array;
-    
-    // Calculate scroll percentage
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
     const scrollPercent = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
-    
     const clamp = (v) => Math.min(Math.max(v, 0), 1);
 
-    // Adjust camera depth based on scroll
     camera.position.z = 40 + (scrollPercent * 15); 
 
     // Multi-Stage Morphing
@@ -174,7 +162,6 @@ function handleScroll() {
             positions[i] = THREE.MathUtils.lerp(target_DataPrism[i], target_FeedbackPlane[i], f);
         }
     }
-    
     geometry.attributes.position.needsUpdate = true;
 }
 
@@ -182,33 +169,15 @@ function handleScroll() {
 function animate() {
     requestAnimationFrame(animate);
 
-    // 1. Calculate Scroll
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
     const scroll = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
 
-    // 2. Snap Speed (Higher value = faster hardening at the bottom)
-    const snapSpeed = scroll > 0.95 ? 0.25 : 0.05;
-
-    // 3. The Particle Movement (This makes the figure appear)
-    if (particles && particles.geometry && targetPositions) {
-        const posAttr = particles.geometry.attributes.position;
-        for (let i = 0; i < vertexCount; i++) {
-            const i3 = i * 3;
-            // This line physically moves the dots to the right spot
-            posAttr.array[i3]     += (targetPositions[i3] - posAttr.array[i3]) * snapSpeed;
-            posAttr.array[i3 + 1] += (targetPositions[i3 + 1] - posAttr.array[i3 + 1]) * snapSpeed;
-            posAttr.array[i3 + 2] += (targetPositions[i3 + 2] - posAttr.array[i3 + 2]) * snapSpeed;
-        }
-        posAttr.needsUpdate = true;
-    }
-
-    // 4. Phase Swap (Fading and Rotation)
+    // Phase Swap (Fading and Rotation)
     if (mainMesh && particleMaterial) {
         if (scroll > 0.82) {
             mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.12);
             particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.12);
             
-            // Stop rotation for the blueprint
             mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.05);
             mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.05);
         } else {
