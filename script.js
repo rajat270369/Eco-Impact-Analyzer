@@ -234,6 +234,9 @@ feedbackForm.addEventListener('submit', async (e) => {
             // 3. Handle Success
             feedbackForm.style.display = 'none';
             successMsg.style.display = 'block';
+
+            // 2. Clear all input fields (Email and Textarea)
+            feedbackForm.reset();
             
             // Set local storage so they can't submit again
             localStorage.setItem('form_submitted_' + emailValue, 'true');
