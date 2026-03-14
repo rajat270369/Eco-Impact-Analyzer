@@ -289,7 +289,8 @@ section, .hero, .snap-point {
     max-width: 450px;
     margin: 0 auto;
     padding: 40px 20px;
-    text-align: center;
+    position: relative;
+    z-index: 20;
 }
 
 .form-title {
@@ -335,6 +336,8 @@ section, .hero, .snap-point {
 .input-group {
     margin-bottom: 30px;
     text-align: left;
+    position: relative;
+    z-index: 30;
 }
 /* A simple wrapper to hold the title */
 .non-blocking-overlay {
@@ -392,17 +395,19 @@ section, .hero, .snap-point {
 /* --- FULL RESTORED UI-VERSE SUBMIT BUTTON (GREEN THEME) --- */
 .simple-label {
     display: block;
-    color: rgba(0, 230, 118, 0.6);
-    font-size: 10px;
+    color: rgba(0, 230, 118, 0.7);
+    font-size: 11px;
     letter-spacing: 2px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    font-weight: 700;
 }
+
 
 .theme-input {
     width: 100%;
     background: transparent;
     border: none;
-    border-bottom: 1px solid rgba(0, 230, 118, 0.3);
+    border-bottom: 1px solid rgba(0, 230, 118, 0.2);
     padding: 10px 0;
     color: #fff;
     font-family: 'Inter', sans-serif;
@@ -410,16 +415,16 @@ section, .hero, .snap-point {
     transition: all 0.3s ease;
     resize: none;
     cursor: text;
+    z-index: 31;
 }
 
 .theme-input:focus {
     outline: none;
     border-bottom: 2px solid #00e676;
-    box-shadow: 0 4px 10px -5px rgba(18, 40, 29, 0.4);
 }
 
 .theme-input::placeholder {
-    color: rgba(255, 255, 255, 0.2);
+    color: rgba(60, 27, 27, 0.3);
 }
 .grid {
   height: 800px;
@@ -470,6 +475,7 @@ section, .hero, .snap-point {
   position: relative;
   pointer-events: auto;
   margin-top: 50px;
+  z-index: 10;
 }
 
 #pink-mask {
