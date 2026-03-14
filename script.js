@@ -76,7 +76,7 @@ for (let i = 0; i < vertexCount; i++) {
 
     // 4. THE GHOST FORM "BLUEPRINT" (Low-Density Technique)
     const fW = 35; // Width of your square
-    const fH = 50; // Height of your square
+    const fH = 45; // Height of your square
     
     if (i < vertexCount * 0.4) {
         const side = i % 4;
