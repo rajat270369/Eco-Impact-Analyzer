@@ -308,6 +308,8 @@ section, .hero, .snap-point {
     margin-bottom: 30px;
     outline: none;
     font-family: 'Inter', sans-serif;
+    border: none !important;
+    border-bottom: none !important;
 }
 
 .ghost-input::placeholder {
@@ -323,6 +325,7 @@ section, .hero, .snap-point {
     text-transform: uppercase;
     font-size: 0.7rem;
     transition: 0.3s;
+    border: none !important;
 }
 
 .btn-submit:hover {
