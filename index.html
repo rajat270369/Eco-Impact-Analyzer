@@ -124,11 +124,10 @@
     <div class="feedback-container">
         <h2 class="form-title">FEEDBACK PROTOCOL</h2>
 
-        <form action="https://formspree.io/f/mvzwbgwa" method="POST">
-            
+        <form id="eia-feedback-form" action="https://formspree.io/f/your_endpoint_id" method="POST">
             <div class="input-group">
                 <label class="simple-label">GMAIL ADDRESS</label>
-                <input type="email" name="email" placeholder="student@gmail.com" class="theme-input" required>
+                <input type="email" name="email" id="email-input" placeholder="student@gmail.com" class="theme-input" required>
             </div>
             
             <div class="input-group">
@@ -143,11 +142,14 @@
                 <div class="white"></div>
                 <div class="border"></div>
                 <div id="main">
-                    <button class="input" type="submit"> SUBMIT </button>
+                    <button class="input" type="submit" id="submit-btn">TRANSMIT DATA</button>
                 </div>
             </div>
-            
         </form>
+
+        <div id="success-message" style="display: none; color: #00e676; margin-top: 20px; font-weight: 900; letter-spacing: 2px;">
+            UPLINK SUCCESSFUL: DATA TRANSMITTED
+        </div>
     </div>
 </section>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

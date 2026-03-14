@@ -201,3 +201,47 @@ window.addEventListener('resize', () => {
 // INITIALIZE
 handleScroll(); 
 animate();
+
+const feedbackForm = document.getElementById('eia-feedback-form');
+const successMsg = document.getElementById('success-message');
+const submitBtn = document.getElementById('submit-btn');
+
+feedbackForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const emailValue = document.getElementById('email-input').value;
+
+    // 1. Check if this email has already submitted (Device-based limit)
+    if (localStorage.getItem('form_submitted_' + emailValue)) {
+        alert("PROTOCOL ERROR: Multiple submissions detected from this address.");
+        return;
+    }
+
+    // Change button text to show progress
+    submitBtn.innerText = "TRANSMITTING...";
+
+    // 2. Submit via AJAX (Prevents Formspree window)
+    const formData = new FormData(feedbackForm);
+    
+    try {
+        const response = await fetch(feedbackForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+            // 3. Handle Success
+            feedbackForm.style.display = 'none';
+            successMsg.style.display = 'block';
+            
+            // Set local storage so they can't submit again
+            localStorage.setItem('form_submitted_' + emailValue, 'true');
+        } else {
+            alert("TRANSMISSION FAILED: Please check connection.");
+            submitBtn.innerText = "RETRY TRANSMISSION";
+        }
+    } catch (error) {
+        alert("SYSTEM ERROR: Uplink interrupted.");
+    }
+});
