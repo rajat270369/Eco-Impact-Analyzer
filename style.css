@@ -288,20 +288,7 @@ section, .hero, .snap-point {
 form {
     display: contents; /* Makes the form tag invisible to the layout logic */
 }
-.feedback-container {
-    max-width: 450px;
-    margin: 0 auto;
-    padding: 60px 40px;
-    position: relative;
-    z-index: 100;
-    background: rgba(10, 10, 12, 0.8); /* Dark background to pop the green */
-    border: 1px solid rgba(0, 230, 118, 0.4); /* Solid but faint green border */
-    border-radius: 4px; /* Slight roundness looks more professional */
-    
-    /* This creates the stable glow without pixel glitching */
-    box-shadow: 0 0 20px rgba(0, 230, 118, 0.1), 
-                inset 0 0 10px rgba(0, 230, 118, 0.05);
-}
+
 
 /* Optional: Add a scanline effect to make the box look intentional */
 .feedback-container::before {
@@ -315,14 +302,45 @@ form {
     opacity: 0.3;
 }
 
-.form-title {
-   color: #00e676;
-    font-size: 1.2rem;
-    letter-spacing: 3px;
-    margin-bottom: 40px;
-    font-weight: 900;
+.feedback-container {
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    position: relative;
+    z-index: 100;
+    background: rgba(10, 10, 12, 0.9); /* Solid dark back */
+    
+    /* THE ROLLBACK: Using the dotted style from your original vision */
+    border: 2px dotted #00e676; 
+    
+    /* Subtle glow that won't cause the 'shredded' look */
+    box-shadow: 0 0 15px rgba(0, 230, 118, 0.2);
 }
 
+/* Ensure the title stays sharp */
+.form-title {
+    color: #00e676;
+    font-weight: 900;
+    letter-spacing: 3px;
+    margin-bottom: 40px;
+    text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+}
+
+/* Fix for the input lines so they don't look 'broken' */
+.theme-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(0, 230, 118, 0.3);
+    padding: 10px 0;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+}
+
+.theme-input:focus {
+    border-bottom: 1px solid #00e676;
+}
 .ghost-input {
     background: transparent;
     color: #00e676;
@@ -426,27 +444,6 @@ form {
 }
 
 
-.theme-input {
-    width: 100%;
-    background: transparent;
-    border: none;
-    position: relative;
-    border-bottom: 1px solid rgba(0, 230, 118, 0.2);
-    padding: 10px 0;
-    color: #fff;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    resize: none;
-    cursor: text;
-    pointer-events: auto !important;
-    z-index: 120;
-}
-
-.theme-input:focus {
-    outline: none;
-    border-bottom: 2px solid #00e676;
-}
 
 .theme-input::placeholder {
     color: rgba(60, 27, 27, 0.3);
