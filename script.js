@@ -97,7 +97,7 @@ for (let i = 0; i < vertexCount; i++) {
     else {
         // CRUSH ALL OTHER PARTICLES
         target_FeedbackPlane[i*3] = 0;
-        target_FeedbackPlane[i*3+1] = -1000; 
+        target_FeedbackPlane[i*3+1] = -1500; 
         target_FeedbackPlane[i*3+2] = -100;
     }
     // Shared depth for the blueprint form
