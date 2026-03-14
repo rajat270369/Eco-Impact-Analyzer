@@ -385,3 +385,77 @@ section, .hero, .snap-point {
     width: 0px;
     background: transparent;
 }
+/* Restyled Submit Button for EIA */
+#poda {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px; /* Positions it at the bottom of the container */
+  position: relative;
+  pointer-events: auto; /* Ensures you can click it */
+}
+
+.input {
+  background-color: #010201;
+  border: none;
+  width: 301px;
+  height: 56px;
+  border-radius: 10px;
+  color: #00e676; /* Green Text */
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+/* Updated Conic Gradients to Green */
+.white::before {
+  background-image: conic-gradient(
+    rgba(0, 0, 0, 0) 0%,
+    #00e676, /* Primary Green */
+    rgba(0, 0, 0, 0) 8%,
+    rgba(0, 0, 0, 0) 50%,
+    #00e676,
+    rgba(0, 0, 0, 0) 58%
+  );
+}
+
+.border::before {
+  background-image: conic-gradient(
+    #1c191c,
+    #00e676 5%, /* Primary Green */
+    #1c191c 14%,
+    #1c191c 50%,
+    #00e676 60%,
+    #1c191c 64%
+  );
+}
+
+.glow:before {
+  background-image: conic-gradient(
+    #000,
+    #00e676 5%, /* Primary Green */
+    #000 38%,
+    #000 50%,
+    #00e676 60%,
+    #000 87%
+  );
+}
+
+.darkBorderBg::before {
+  background-image: conic-gradient(
+    rgba(0, 0, 0, 0),
+    #004d40, /* Dark Forest Green */
+    rgba(0, 0, 0, 0) 10%,
+    rgba(0, 0, 0, 0) 50%,
+    #004d40,
+    rgba(0, 0, 0, 0) 60%
+  );
+}
+
+/* Interaction Effects */
+#poda:hover .input {
+    color: #fff;
+    text-shadow: 0 0 10px #00e676;
+}
