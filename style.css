@@ -286,18 +286,18 @@ section, .hero, .snap-point {
 }
 
 .feedback-container {
-    width: 300px; /* Matches the 'fW' from your script */
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 40px 20px;
     text-align: center;
-    z-index: 10;
 }
 
 .form-title {
-    color: #00e676;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+   color: #00e676;
+    font-size: 1.2rem;
+    letter-spacing: 3px;
     margin-bottom: 40px;
-    opacity: 0.8;
+    font-weight: 900;
 }
 
 .ghost-input {
@@ -386,7 +386,36 @@ section, .hero, .snap-point {
     background: transparent;
 }
 /* --- FULL RESTORED UI-VERSE SUBMIT BUTTON (GREEN THEME) --- */
+.simple-label {
+    display: block;
+    color: rgba(0, 230, 118, 0.6);
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
 
+.theme-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 0;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    resize: none;
+}
+
+.theme-input:focus {
+    outline: none;
+    border-bottom: 1px solid #00e676;
+    box-shadow: 0 4px 10px -5px rgba(0, 230, 118, 0.3);
+}
+
+.theme-input::placeholder {
+    color: rgba(255, 255, 255, 0.2);
+}
 .grid {
   height: 800px;
   width: 800px;
