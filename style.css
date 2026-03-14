@@ -332,6 +332,10 @@ section, .hero, .snap-point {
     background: #00e676;
     color: #1a1a1a;
 }
+.input-group {
+    margin-bottom: 30px;
+    text-align: left;
+}
 /* A simple wrapper to hold the title */
 .non-blocking-overlay {
     position: absolute;
@@ -398,19 +402,20 @@ section, .hero, .snap-point {
     width: 100%;
     background: transparent;
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 230, 118, 0.3);
     padding: 10px 0;
     color: #fff;
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     transition: all 0.3s ease;
     resize: none;
+    cursor: text;
 }
 
 .theme-input:focus {
     outline: none;
-    border-bottom: 1px solid #00e676;
-    box-shadow: 0 4px 10px -5px rgba(0, 230, 118, 0.3);
+    border-bottom: 2px solid #00e676;
+    box-shadow: 0 4px 10px -5px rgba(18, 40, 29, 0.4);
 }
 
 .theme-input::placeholder {
@@ -426,6 +431,7 @@ section, .hero, .snap-point {
   position: absolute;
   z-index: -1;
   filter: blur(1px);
+  pointer-events: none;
 }
 
 .white, .border, .darkBorderBg, .glow {
