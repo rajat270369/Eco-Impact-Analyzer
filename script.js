@@ -169,6 +169,10 @@ function animate() {
     // Phase Swap (Fading and Rotation)
     if (mainMesh && particleMaterial) {
         if (scroll > 0.82) {
+            mainMesh.rotation.y = 0;
+           mainMesh.rotation.x = 0;
+          particles.rotation.y = 0; // Ensure particles stop too
+           particles.rotation.x = 0;
             mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.12);
             particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.12);
             
