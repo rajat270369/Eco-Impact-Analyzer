@@ -185,31 +185,29 @@ function animate() {
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
     const scroll = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
 
-    // --- DYNAMIC LERP SPEED ---
-    // High tension (0.25) at the bottom so the box "hardens" immediately
+    // 1. Dynamic Snap Speed
     const snapSpeed = scroll > 0.95 ? 0.25 : 0.05;
 
-    // --- PARTICLE MORPHING LOGIC ---
-    // Ensure 'particles' matches your variable name for the THREE.Points object
-    if (particles && particles.geometry.attributes.position) {
-        const positionsArray = particles.geometry.attributes.position.array;
+    // 2. PARTICLE UPDATE (Ensuring we use the right attribute names)
+    // Check if your object is named 'particles' or 'particleSystem'
+    if (particles && particles.geometry) {
+        const posAttr = particles.geometry.attributes.position;
         for (let i = 0; i < vertexCount; i++) {
             const i3 = i * 3;
-            // Morph X, Y, and Z toward the targetBlueprint coordinates
-            positionsArray[i3]     += (targetPositions[i3] - positionsArray[i3]) * snapSpeed;
-            positionsArray[i3 + 1] += (targetPositions[i3 + 1] - positionsArray[i3 + 1]) * snapSpeed;
-            positionsArray[i3 + 2] += (targetPositions[i3 + 2] - positionsArray[i3 + 2]) * snapSpeed;
+
+            // Using the current position from the attribute array
+            posAttr.array[i3]     += (targetPositions[i3] - posAttr.array[i3]) * snapSpeed;
+            posAttr.array[i3 + 1] += (targetPositions[i3 + 1] - posAttr.array[i3 + 1]) * snapSpeed;
+            posAttr.array[i3 + 2] += (targetPositions[i3 + 2] - posAttr.array[i3 + 2]) * snapSpeed;
         }
-        particles.geometry.attributes.position.needsUpdate = true;
+        posAttr.needsUpdate = true;
     }
 
-    // --- PHASE SWAP LOGIC ---
+    // 3. PHASE SWAP LOGIC
     if (scroll > 0.82) {
-        // Fade lines out, fade dots in
         mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.12);
         particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.12);
         
-        // Lock rotation so the blueprint stays flat
         mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.05);
         mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.05);
     } else {
