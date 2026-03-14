@@ -92,11 +92,12 @@ for (let i = 0; i < vertexCount; i++) {
             target_FeedbackPlane[i*3] = progress * fW; 
             target_FeedbackPlane[i*3+1] = -fH; 
         }
+        target_FeedbackPlane[i*3+2] = -5; // Shared depth for the box
     } 
     else {
         // CRUSH ALL OTHER PARTICLES
         target_FeedbackPlane[i*3] = 0;
-        target_FeedbackPlane[i*3+1] = -500; 
+        target_FeedbackPlane[i*3+1] = -1000; 
         target_FeedbackPlane[i*3+2] = -100;
     }
     // Shared depth for the blueprint form
