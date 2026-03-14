@@ -96,7 +96,7 @@ for (let i = 0; i < vertexCount; i++) {
     } else {
         // THE HIDDEN POINTS - Move them further back (Z) so they don't glow
         target_FeedbackPlane[i*3] = 0;
-        target_FeedbackPlane[i*3+1] = -200; 
+        target_FeedbackPlane[i*3+1] = -500; 
         target_FeedbackPlane[i*3+2] = -100; 
     }
     
