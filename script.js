@@ -20,7 +20,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
 scene.add(ambientLight);
 
 // --- 2. GEOMETRY & MATERIALS ---
-const geometry = new THREE.IcosahedronGeometry(10, 4); // Slightly larger base
+const geometry = new THREE.IcosahedronGeometry(10, 6); // Slightly larger base
 const material = new THREE.MeshBasicMaterial({ 
     color: 0x00e676, 
     wireframe: true,
@@ -75,29 +75,29 @@ for (let i = 0; i < vertexCount; i++) {
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
 
     // 4. THE GHOST FORM "BLUEPRINT" (Low-Density Technique)
-    const fW = 30; // Width of your square
-    const fH = 40; // Height of your square
+    const fW = 45; // Width of your square
+    const fH = 65; // Height of your square
     
-    if (i < vertexCount * 0.20) {
+    if (i < vertexCount * 0.4) {
         // THE OUTER BOX - Snapping to cleaner intervals
         const side = i % 4;
-        const progress = (i % 100) / 100; // Normalized progress along a side
+        const progress = (i % 500) / 500; // Normalized progress along a side
         
         if (side === 0) { target_FeedbackPlane[i*3] = fW;  target_FeedbackPlane[i*3+1] = (progress - 0.5) * fH * 2; }
         if (side === 1) { target_FeedbackPlane[i*3] = -fW; target_FeedbackPlane[i*3+1] = (progress - 0.5) * fH * 2; }
         if (side === 2) { target_FeedbackPlane[i*3] = (progress - 0.5) * fW * 2; target_FeedbackPlane[i*3+1] = fH;  }
         if (side === 3) { target_FeedbackPlane[i*3] = (progress - 0.5) * fW * 2; target_FeedbackPlane[i*3+1] = -fH; }
-    } else if (i < vertexCount * 0.40) {
+    } else if (i < vertexCount * 0.7) {
         // THE INPUT LINES - Perfectly straight, no random noise
-        const lineY = (i % 2 === 0) ? 6 : -10;
-        const lineProgress = (i % 100) / 100;
+        const lineY = (i % 2 === 0) ? 10 : -12;
+        const lineProgress = (i % 500) / 500;
         target_FeedbackPlane[i*3] = (lineProgress - 0.5) * fW * 1.8;
         target_FeedbackPlane[i*3+1] = lineY;
     } else {
         // THE HIDDEN POINTS - Move them further back (Z) so they don't glow
         target_FeedbackPlane[i*3] = 0;
-        target_FeedbackPlane[i*3+1] = -100; 
-        target_FeedbackPlane[i*3+2] = -50; 
+        target_FeedbackPlane[i*3+1] = -200; 
+        target_FeedbackPlane[i*3+2] = -100; 
     }
     
     // Ensure active points are pushed forward to be visible
@@ -121,7 +121,7 @@ scene.add(mainMesh);
 // --- ADD THIS AFTER mainMesh CREATION ---
 const particleMaterial = new THREE.PointsMaterial({ 
     color: 0x00e676, 
-    size: 2.0,                // Increased from 0.15 to 2.0 for visibility
+    size: 5.0,                // Increased from 0.15 to 2.0 for visibility
     sizeAttenuation: false,
     transparent: true, 
     opacity: 0, // Hidden at start
