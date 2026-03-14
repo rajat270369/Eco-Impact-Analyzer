@@ -317,7 +317,6 @@ section, .hero, .snap-point {
 
 .btn-submit {
     background: transparent;
-    border: 1px solid #00e676;
     color: #00e676;
     padding: 10px 20px;
     cursor: pointer;
