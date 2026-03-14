@@ -124,29 +124,32 @@
     <div class="feedback-container">
         <h2 class="form-title">FEEDBACK PROTOCOL</h2>
 
-        <div class="input-group">
-            <label class="simple-label">GMAIL ADDRESS</label>
-            <input type="email" placeholder="" class="theme-input">
-        </div>
-        
-        <div class="input-group">
-            <label class="simple-label">SYSTEM OBSERVATIONS</label>
-            <textarea placeholder="" class="theme-input" rows="3"></textarea>
-        </div>
-
-        <div id="poda">
-            <div id="pink-mask"></div>
-            <div class="glow"></div>
-            <div class="darkBorderBg"></div>
-            <div class="white"></div>
-            <div class="border"></div>
-            <div id="main">
-                <button class="input" type="submit">TRANSMIT DATA</button>
+        <form action="https://formspree.io/f/mvzwbgwa" method="POST">
+            
+            <div class="input-group">
+                <label class="simple-label">GMAIL ADDRESS</label>
+                <input type="email" name="email" placeholder="student@gmail.com" class="theme-input" required>
             </div>
-        </div>
+            
+            <div class="input-group">
+                <label class="simple-label">SYSTEM OBSERVATIONS</label>
+                <textarea name="message" placeholder="Enter your feedback here..." class="theme-input" rows="3" required></textarea>
+            </div>
+
+            <div id="poda">
+                <div id="pink-mask"></div>
+                <div class="glow"></div>
+                <div class="darkBorderBg"></div>
+                <div class="white"></div>
+                <div class="border"></div>
+                <div id="main">
+                    <button class="input" type="submit"> SUBMIT </button>
+                </div>
+            </div>
+            
+        </form>
     </div>
 </section>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <script src="script.js"></script>

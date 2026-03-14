@@ -284,7 +284,9 @@ section, .hero, .snap-point {
     align-items: center;
     height: 100vh;
 }
-
+form {
+    display: contents; /* Makes the form tag invisible to the layout logic */
+}
 .feedback-container {
     max-width: 450px;
     margin: 0 auto;
