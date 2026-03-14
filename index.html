@@ -1,299 +1,163 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Eco Impact Analyzer | EIA Project</title>
-
     <link rel="stylesheet" href="style.css">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-
 </head>
-
 <body>
-
-   
-
+    
     <div id="canvas-container"></div>
 
-
-
     <section class="hero">
-
         <div class="logo-container">
-
             <h1 class="text-expand-fwd">Eco Impact Analyzer</h1>
-
             <div class="mascot-wrapper">
-
                 <svg class="eco-fox" viewBox="0 0 100 100">
-
                     <path d="M70,70 Q90,50 70,30" fill="none" stroke="#00e676" stroke-width="4" stroke-linecap="round"/>
-
                     <path d="M30,80 Q50,90 70,80 L70,50 Q50,40 30,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-
                     <path d="M35,50 L50,20 L65,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-
                     <circle cx="45" cy="40" r="2" fill="#00e676" />
-
                     <circle cx="55" cy="40" r="2" fill="#00e676" />
-
                 </svg>
-
             </div>
-
         </div>
-
         <p class="reveal active">Quantifying the footprint of progress for a sustainable future.</p>
-
-       
-
+        
         <button class="btn-interactive" onclick="window.location.href='analysis.html'">
-
             Explore Analysis
-
         </button>
-
     </section>
 
-
-
     <div class="snap-point">
-
         <div class="card story-card">
-
             <div class="mascot-image-container img">
-
                 <svg viewBox="0 0 100 100" width="80%">
-
                     <path d="M70,70 Q90,50 70,30" fill="none" stroke="#00e676" stroke-width="4"/>
-
                     <path d="M30,80 Q50,90 70,80 L70,50 Q50,40 30,50 Z" fill="none" stroke="#00e676" stroke-width="2"/>
-
                 </svg>
-
             </div>
-
             <div class="textBox">
-
                 <p class="text head">Project Registry</p>
-
                 <span>Eia Core</span>
-
                 <div class="hover-info">Live tracking of global infrastructure, manufacturing, and energy projects.</div>
-
             </div>
-
         </div>
 
-
-
         <div class="card story-card">
-
             <div class="mascot-image-container img">
-
                 <svg viewBox="0 0 100 100" width="80%">
-
                     <circle cx="50" cy="50" r="30" fill="none" stroke="#00e676" stroke-width="2" stroke-dasharray="5,5"/>
-
                     <path d="M70,70 Q90,50 70,30" fill="none" stroke="#00e676" stroke-width="4"/>
-
                 </svg>
-
             </div>
-
             <div class="textBox">
-
                 <p class="text head">Carbon Ledger</p>
-
                 <span>Real-Time CO2 Flux</span>
-
                 <div class="hover-info">Quantifying the immediate atmospheric cost of ongoing industrial operations.</div>
-
             </div>
-
         </div>
-
     </div>
 
-
-
     <div class="snap-point">
-
         <div class="card story-card">
-
             <div class="mascot-image-container img">
-
                 <svg viewBox="0 0 100 100" width="80%">
-
                     <path d="M35,50 L50,20 L65,50 Z" fill="none" stroke="#00e676" stroke-width="2"/>
-
                     <rect x="30" y="60" width="40" height="5" fill="#00e676"/>
-
                 </svg>
-
             </div>
-
             <div class="textBox">
-
                 <p class="text head">Analysis Engine</p>
-
                 <span>Pattern Recognition</span>
-
                 <div class="hover-info">Identifying high-emission anomalies across global supply chains.</div>
-
             </div>
-
         </div>
-
-
 
         <div class="card story-card">
-
             <div class="mascot-image-container img">
-
                 <svg viewBox="0 0 100 100" width="80%">
-
                     <path d="M70,50 Q50,40 30,50 Z" fill="none" stroke="#00e676" stroke-width="2"/>
-
                     <path d="M30,80 Q50,90 70,80" fill="none" stroke="#00e676" stroke-width="2"/>
-
                 </svg>
-
             </div>
-
             <div class="textBox">
-
                 <p class="text head">Mitigation Strategy</p>
-
                 <span>Alternative protocols</span>
-
                 <div class="hover-info">Generating optimized roadmaps to reduce footprint without halting progress.</div>
-
             </div>
-
         </div>
-
     </div>
-
-
 
     <div class="snap-point">
-
         <div class="card story-card">
-
             <div class="mascot-image-container img">
-
                 <svg viewBox="0 0 100 100" width="80%">
-
                     <circle cx="50" cy="50" r="10" fill="#00e676" opacity="0.5"/>
-
                     <circle cx="50" cy="50" r="30" fill="none" stroke="#00e676" stroke-width="1"/>
-
                 </svg>
-
             </div>
-
             <div class="textBox">
-
                 <p class="text head">Impact Forecast</p>
-
                 <span>10-Year Projections</span>
-
                 <div class="hover-info">Visualizing the long-term environmental shift if current projects remain unoptimized.</div>
-
             </div>
-
         </div>
-
-
 
         <div class="card story-card">
-
             <div class="mascot-image-container img">
-
                 <svg viewBox="0 0 100 100" width="80%">
-
                     <path d="M30,50 L70,50 M50,30 L50,70" stroke="#00e676" stroke-width="2"/>
-
                     <circle cx="50" cy="50" r="20" fill="none" stroke="#00e676" stroke-width="2"/>
-
                 </svg>
-
             </div>
-
             <div class="textBox">
-
                 <p class="text head">Advisory Node</p>
-
                 <span>System Interaction</span>
-
                 <div class="hover-info">Actionable, site-specific prevention steps for global project leads.</div>
-
             </div>
-
         </div>
-
     </div>
 
- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <section class="snap-point feedback-section">
+        <div class="feedback-container">
+            <h2 class="form-title">Submit Impact Report</h2>
+            <div class="input-group">
+                <input type="email" placeholder="Project Lead Email" class="ghost-input">
+            </div>
+            <div class="input-group">
+                <input type="text" placeholder="Global Project ID" class="ghost-input">
+            </div>
+            <button class="btn-submit">Initialize Submission</button>
+        </div>
+    </section>
 
-   
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
     <script src="script.js"></script>
 
-
-
     <script>
-
         const observerOptions = { threshold: 0.2 };
-
-       
-
-        // General reveal for cards and hero text
-
+        
         const generalObserver = new IntersectionObserver((entries) => {
-
             entries.forEach(entry => {
-
                 if (entry.isIntersecting) {
-
                     entry.target.classList.add('active');
-
                 }
-
             });
-
         }, observerOptions);
 
-
-
         document.querySelectorAll('.reveal, .reveal-title-only').forEach(el => {
-
             generalObserver.observe(el);
-
         });
 
+        // Initialize 3D loop only after window is fully loaded to prevent 404/Reference errors
+        window.onload = () => {
+            if (typeof init === "function") init();
+            if (typeof animate === "function") animate();
+        };
     </script>
-    <section class="snap-point feedback-section">
-    <div class="feedback-container">
-        <h2 class="form-title">Submit Impact Report</h2>
-        <div class="input-group">
-            <input type="email" placeholder="Project Lead Email" class="ghost-input">
-        </div>
-        <div class="input-group">
-            <input type="text" placeholder="Global Project ID" class="ghost-input">
-        </div>
-        <button class="btn-submit">Initialize Submission</button>
-    </div>
-</section>
-
 </body>
-
 </html>
