@@ -291,40 +291,34 @@ form {
 
 
 /* Optional: Add a scanline effect to make the box look intentional */
-.feedback-container::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-    background-size: 100% 2px, 3px 100%;
-    pointer-events: none;
-    opacity: 0.3;
-}
-
 .feedback-container {
     max-width: 450px;
     margin: 0 auto;
     padding: 60px 40px;
     position: relative;
     z-index: 100;
-    background: rgba(10, 10, 12, 0.9); /* Solid dark back */
-    
-    /* THE ROLLBACK: Using the dotted style from your original vision */
-    border: 2px dotted #00e676; 
-    
-    /* Subtle glow that won't cause the 'shredded' look */
-    box-shadow: 0 0 15px rgba(0, 230, 118, 0.2);
+    /* REMOVED: Background and Border */
+    background: transparent; 
+    border: none;
+    box-shadow: none;
 }
 
-/* Ensure the title stays sharp */
+/* Remove the scanline effect if it's interfering with the 3D look */
+.feedback-container::before {
+    display: none;
+}
+
+/* Ensure the title is perfectly centered in your 3D frame */
 .form-title {
     color: #00e676;
     font-weight: 900;
-    letter-spacing: 3px;
-    margin-bottom: 40px;
-    text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+    letter-spacing: 5px; /* Increased for a more 'tech' feel */
+    margin-bottom: 50px;
+    text-align: center;
+    text-shadow: 0 0 15px rgba(0, 230, 118, 0.7);
 }
+
+
 
 /* Fix for the input lines so they don't look 'broken' */
 .theme-input {
