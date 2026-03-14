@@ -302,8 +302,6 @@ section, .hero, .snap-point {
 
 .ghost-input {
     background: transparent;
-    border: none;
-    border-bottom: 1px solid rgba(0, 230, 118, 0.3);
     color: #00e676;
     width: 100%;
     padding: 10px;
