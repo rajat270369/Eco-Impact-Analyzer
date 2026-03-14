@@ -185,12 +185,10 @@ function animate() {
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
     const scroll = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
 
-    // 1. DYNAMIC SNAP SPEED
-    // Increases tension at the bottom (>0.95) to "harden" the blueprint instantly
+    // --- PARTICLE MORPHING LOGIC (The part that makes the figure appear) ---
+    // High tension (0.25) at the bottom so the box "hardens" immediately
     const snapSpeed = scroll > 0.95 ? 0.25 : 0.05;
 
-    // 2. PARTICLE MORPHING
-    // Ensures particles move toward the target positions
     if (particles && particles.geometry && targetPositions) {
         const posAttr = particles.geometry.attributes.position;
         for (let i = 0; i < vertexCount; i++) {
@@ -202,25 +200,23 @@ function animate() {
         posAttr.needsUpdate = true;
     }
 
-    // 3. PHASE SWAP LOGIC
-    if (mainMesh && particleMaterial) {
-        if (scroll > 0.82) {
-            // FADE OUT MESH, FADE IN PARTICLES
-            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.12);
-            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.12);
-
-            // STOP ROTATION FOR STABILITY
-            mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.05);
-            mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.05);
-        } else {
-            // RESTORE ORIGINAL MESH
-            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.12);
-            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.12);
-
-            // RESUME ROTATION
-            mainMesh.rotation.y += 0.005;
-            mainMesh.rotation.x += 0.002;
-        }
+    // --- PHASE SWAP LOGIC ---
+    if (scroll > 0.82) {
+        // FADE OUT MESH (Lines), FADE IN PARTICLES (Dots)
+        mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.12);
+        particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.12);
+        
+        // Stop rotation for the blueprint
+        mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.05);
+        mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.05);
+    } else {
+        // RESTORE ORIGINAL STABLE MESH
+        mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.12);
+        particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.12);
+        
+        // Keep the stable rotation
+        mainMesh.rotation.y += 0.005;
+        mainMesh.rotation.x += 0.002;
     }
 
     renderer.render(scene, camera);
