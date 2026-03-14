@@ -93,13 +93,6 @@ for (let i = 0; i < vertexCount; i++) {
             target_FeedbackPlane[i*3+1] = -fH; 
         }
     } 
-    else if (i < vertexCount * 0.6) {
-        // THE INPUT FIELD RAILS
-        const lineY = (i % 2 === 0) ? 8 : -14; 
-        const lineProgress = ((i % 500) / 500) * 2 - 1;
-        target_FeedbackPlane[i*3] = lineProgress * (fW * 0.8);
-        target_FeedbackPlane[i*3+1] = lineY;
-    }
     else {
         // CRUSH ALL OTHER PARTICLES
         target_FeedbackPlane[i*3] = 0;
@@ -107,7 +100,7 @@ for (let i = 0; i < vertexCount; i++) {
         target_FeedbackPlane[i*3+2] = -100;
     }
     // Shared depth for the blueprint form
-    if (i < vertexCount * 0.6) {
+    if (i < vertexCount * 0.4) {
         target_FeedbackPlane[i*3+2] = -5;
     }
 }
