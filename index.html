@@ -177,5 +177,16 @@
             if (typeof animate === "function") animate();
         };
     </script>
+    <input 
+    type="email" 
+    name="email" 
+    id="email-input" 
+    class="theme-input" 
+    placeholder="username@gmail.com"
+    /* Pattern: requires lowercase letters/numbers, 6+ chars, and @gmail.com */
+    pattern="[a-z0-9.]{6,}@gmail\.com" 
+    title="Please provide a valid Gmail address (minimum 6 characters)."
+    required>
+    
 </body>
 </html>
