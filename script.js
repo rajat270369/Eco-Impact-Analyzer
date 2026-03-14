@@ -179,53 +179,58 @@ function handleScroll() {
 }
 
 // --- 6. ANIMATION LOOP ---
+animate() {
 
-function animate() {
     requestAnimationFrame(animate);
-    
-    // 1. SCROLL CALCULATION
+
+   
+
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+
     const scroll = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
 
-    // 2. DYNAMIC SPEED (Instantly hardens at the bottom)
-    const snapSpeed = scroll > 0.95 ? 0.25 : 0.05;
 
-    // 3. PARTICLE SAFETY CHECK
-    // This prevents the "disappearing" bug by only running if particles exist
-    if (particles && particles.geometry && targetPositions) {
-        const posAttr = particles.geometry.attributes.position;
-        
-        for (let i = 0; i < vertexCount; i++) {
-            const i3 = i * 3;
-            // Linear Interpolation (lerp) toward the blueprint
-            posAttr.array[i3]     += (targetPositions[i3] - posAttr.array[i3]) * snapSpeed;
-            posAttr.array[i3 + 1] += (targetPositions[i3 + 1] - posAttr.array[i3 + 1]) * snapSpeed;
-            posAttr.array[i3 + 2] += (targetPositions[i3 + 2] - posAttr.array[i3 + 2]) * snapSpeed;
-        }
-        posAttr.needsUpdate = true;
+
+    // --- PHASE SWAP LOGIC ---
+
+    if (scroll > 0.82) {
+
+        // FADE OUT MESH (Lines), FADE IN PARTICLES (Dots)
+
+        mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.12);
+
+        particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.12);
+
+       
+
+        // Stop rotation for the blueprint
+
+        mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.05);
+
+        mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.05);
+
+    } else {
+
+        // RESTORE ORIGINAL STABLE MESH
+
+        mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.12);
+
+        particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.12);
+
+       
+
+        // Keep the stable rotation
+
+        mainMesh.rotation.y += 0.005;
+
+        mainMesh.rotation.x += 0.002;
+
     }
 
-    // 4. TRANSITION LOGIC
-    if (mainMesh && particleMaterial) {
-        if (scroll > 0.82) {
-            // Fade out the solid mesh, fade in the blueprint dots
-            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.12);
-            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.12);
-            
-            // Stabilize rotation for the form
-            mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.05);
-            mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.05);
-        } else {
-            // Restore original spinning figure
-            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.12);
-            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.12);
-            
-            mainMesh.rotation.y += 0.005;
-            mainMesh.rotation.x += 0.002;
-        }
-    }
+
 
     renderer.render(scene, camera);
+
 }
 
 // --- 7. EVENT LISTENERS ---
