@@ -185,13 +185,30 @@ function animate() {
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
     const scroll = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
 
+    // --- DYNAMIC LERP SPEED ---
+    // Standard speed is 0.05. When near the bottom (>0.95), it jumps to 0.25 for a "hardened" snap.
+    const snapSpeed = scroll > 0.95 ? 0.25 : 0.05;
+
+    // --- PARTICLE MORPHING LOGIC ---
+    // Smoothly moves particles toward target positions based on the dynamic speed
+    for (let i = 0; i < vertexCount; i++) {
+        const i3 = i * 3;
+        particles.geometry.attributes.position.array[i3] += 
+            (targetPositions[i3] - particles.geometry.attributes.position.array[i3]) * snapSpeed;
+        particles.geometry.attributes.position.array[i3 + 1] += 
+            (targetPositions[i3 + 1] - particles.geometry.attributes.position.array[i3 + 1]) * snapSpeed;
+        particles.geometry.attributes.position.array[i3 + 2] += 
+            (targetPositions[i3 + 2] - particles.geometry.attributes.position.array[i3 + 2]) * snapSpeed;
+    }
+    particles.geometry.attributes.position.needsUpdate = true;
+
     // --- PHASE SWAP LOGIC ---
     if (scroll > 0.82) {
         // FADE OUT MESH (Lines), FADE IN PARTICLES (Dots)
         mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.12);
         particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.12);
         
-        // Stop rotation for the blueprint
+        // Stop rotation for the blueprint to keep UI stable
         mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.05);
         mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.05);
     } else {
