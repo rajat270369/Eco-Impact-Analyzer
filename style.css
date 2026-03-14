@@ -283,6 +283,7 @@ section, .hero, .snap-point {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    overflow: hidden;
 }
 form {
     display: contents; /* Makes the form tag invisible to the layout logic */
@@ -290,9 +291,28 @@ form {
 .feedback-container {
     max-width: 450px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 60px 40px;
     position: relative;
     z-index: 100;
+    background: rgba(10, 10, 12, 0.8); /* Dark background to pop the green */
+    border: 1px solid rgba(0, 230, 118, 0.4); /* Solid but faint green border */
+    border-radius: 4px; /* Slight roundness looks more professional */
+    
+    /* This creates the stable glow without pixel glitching */
+    box-shadow: 0 0 20px rgba(0, 230, 118, 0.1), 
+                inset 0 0 10px rgba(0, 230, 118, 0.05);
+}
+
+/* Optional: Add a scanline effect to make the box look intentional */
+.feedback-container::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    opacity: 0.3;
 }
 
 .form-title {
