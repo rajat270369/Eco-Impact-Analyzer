@@ -76,12 +76,12 @@ for (let i = 0; i < vertexCount; i++) {
 
     // 4. THE GHOST FORM "BLUEPRINT" (Low-Density Technique)
     const fW = 32; // Width of your square
-    const fH = 50; // Height of your square
+    const fH = 40; // Height of your square
     
     if (i < vertexCount * 0.4) {
         // THE OUTER BOX - Snapping to cleaner intervals
         const side = i % 4;
-        const progress = (i % 500) / 500; // Normalized progress along a side
+        const progress = ((i % 500) / 500) - 0.5; // Normalized progress along a side
         
         if (side === 0) { target_FeedbackPlane[i*3] = fW;  target_FeedbackPlane[i*3+1] = (progress - 0.5) * fH * 2; }
         if (side === 1) { target_FeedbackPlane[i*3] = -fW; target_FeedbackPlane[i*3+1] = (progress - 0.5) * fH * 2; }
