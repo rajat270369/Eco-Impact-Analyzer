@@ -75,8 +75,8 @@ for (let i = 0; i < vertexCount; i++) {
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
 
     // 4. THE GHOST FORM "BLUEPRINT" (Low-Density Technique)
-    const fW = 45; // Width of your square
-    const fH = 65; // Height of your square
+    const fW = 32; // Width of your square
+    const fH = 50; // Height of your square
     
     if (i < vertexCount * 0.4) {
         // THE OUTER BOX - Snapping to cleaner intervals
@@ -89,7 +89,7 @@ for (let i = 0; i < vertexCount; i++) {
         if (side === 3) { target_FeedbackPlane[i*3] = (progress - 0.5) * fW * 2; target_FeedbackPlane[i*3+1] = -fH; }
     } else if (i < vertexCount * 0.7) {
         // THE INPUT LINES - Perfectly straight, no random noise
-        const lineY = (i % 2 === 0) ? 10 : -12;
+        const lineY = (i % 2 === 0) ? 8 : -14;
         const lineProgress = (i % 500) / 500;
         target_FeedbackPlane[i*3] = (lineProgress - 0.5) * fW * 1.8;
         target_FeedbackPlane[i*3+1] = lineY;
