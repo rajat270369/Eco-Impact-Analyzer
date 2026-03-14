@@ -290,7 +290,7 @@ section, .hero, .snap-point {
     margin: 0 auto;
     padding: 40px 20px;
     position: relative;
-    z-index: 20;
+    z-index: 100;
 }
 
 .form-title {
@@ -337,7 +337,7 @@ section, .hero, .snap-point {
     margin-bottom: 30px;
     text-align: left;
     position: relative;
-    z-index: 30;
+    z-index: 110;
 }
 /* A simple wrapper to hold the title */
 .non-blocking-overlay {
@@ -400,6 +400,7 @@ section, .hero, .snap-point {
     letter-spacing: 2px;
     margin-bottom: 8px;
     font-weight: 700;
+    pointer-events: none;
 }
 
 
@@ -407,6 +408,7 @@ section, .hero, .snap-point {
     width: 100%;
     background: transparent;
     border: none;
+    position: relative;
     border-bottom: 1px solid rgba(0, 230, 118, 0.2);
     padding: 10px 0;
     color: #fff;
@@ -415,7 +417,8 @@ section, .hero, .snap-point {
     transition: all 0.3s ease;
     resize: none;
     cursor: text;
-    z-index: 31;
+    pointer-events: auto !important;
+    z-index: 120;
 }
 
 .theme-input:focus {
@@ -437,6 +440,12 @@ section, .hero, .snap-point {
   z-index: -1;
   filter: blur(1px);
   pointer-events: none;
+}
+.grid, .feedback-section::before {
+    pointer-events: none !important;
+}
+#poda .input {
+    pointer-events: auto; /* Only the button itself is clickable */
 }
 
 .white, .border, .darkBorderBg, .glow {
@@ -474,7 +483,8 @@ section, .hero, .snap-point {
   justify-content: center;
   position: relative;
   pointer-events: auto;
-  margin-top: 50px;
+  margin-top: 40px;
+  pointer-events: none;
   z-index: 10;
 }
 
