@@ -181,12 +181,13 @@
     type="email" 
     name="email" 
     id="email-input" 
+    placeholder="username@gmail.com" 
     class="theme-input" 
-    placeholder="username@gmail.com"
-    /* Pattern: requires lowercase letters/numbers, 6+ chars, and @gmail.com */
-    pattern="[a-z0-9.]{6,}@gmail\.com" 
-    title="Please provide a valid Gmail address (minimum 6 characters)."
+    /* Pattern: requires 6 to 30 characters before @gmail.com */
+    pattern="[a-z0-9.]{6,30}@gmail\.com" 
+    oninvalid="this.setCustomValidity('Access Denied: Gmail handle must be 6-30 characters.')"
+    oninput="this.setCustomValidity('')"
     required>
-    
+
 </body>
 </html>

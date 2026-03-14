@@ -209,18 +209,38 @@ const submitBtn = document.getElementById('submit-btn');
 feedbackForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const emailValue = document.getElementById('email-input').value;
+    const emailInput = document.getElementById('email-input');
+    const emailValue = emailInput.value.toLowerCase().trim();
+    const handle = emailValue.split('@')[0];
 
-    // 1. Check if this email has already submitted (Device-based limit)
+    // --- 1. STRICT PROTOCOL VALIDATION ---
+    
+    // Check if this email has already submitted (Device-based limit)
     if (localStorage.getItem('form_submitted_' + emailValue)) {
-        alert("PROTOCOL ERROR: Multiple submissions detected from this address.");
+        alert("PROTOCOL ERROR: Data already logged for this address.");
         return;
     }
 
-    // Change button text to show progress
-    submitBtn.innerText = "TRANSMITTING...";
+    // Gmail-specific length check (Google requires 6-30 chars)
+    if (handle.length < 6) {
+        alert("SYSTEM ERROR: Gmail handle must be at least 6 characters.");
+        return;
+    }
 
-    // 2. Submit via AJAX (Prevents Formspree window)
+    // Gibberish Filter (Blocks 3 same chars in a row or common keyboard slides)
+    const repetitive = /(.)\1{2,}/; 
+    const keyboardSlide = /asdfgh|qwerty|123456|zxcvbn/;
+    
+    if (repetitive.test(handle) || keyboardSlide.test(handle)) {
+        alert("SYSTEM ERROR: High entropy/invalid character sequence detected.");
+        return;
+    }
+
+    // --- 2. TRANSMISSION START ---
+
+    submitBtn.innerText = "TRANSMITTING...";
+    submitBtn.disabled = true; // Prevent double-clicking
+
     const formData = new FormData(feedbackForm);
     
     try {
@@ -231,20 +251,36 @@ feedbackForm.addEventListener('submit', async (e) => {
         });
 
         if (response.ok) {
-            // 3. Handle Success
-            feedbackForm.style.display = 'none';
-            successMsg.style.display = 'block';
-
-            // 2. Clear all input fields (Email and Textarea)
+            // --- 3. UPLINK SUCCESSFUL ---
+            
+            // Clear the form data immediately
             feedbackForm.reset();
             
-            // Set local storage so they can't submit again
+            // UI Feedback
+            feedbackForm.style.display = 'none';
+            successMsg.innerText = "UPLINK SUCCESSFUL: DATA TRANSMITTED";
+            successMsg.style.display = 'block';
+
+            // Lock submission for this email
             localStorage.setItem('form_submitted_' + emailValue, 'true');
+
+            // Restore form after 5 seconds
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+                feedbackForm.style.display = 'block';
+                submitBtn.innerText = "TRANSMIT DATA";
+                submitBtn.disabled = false;
+            }, 5000);
+
         } else {
-            alert("TRANSMISSION FAILED: Please check connection.");
+            const result = await response.json();
+            alert("TRANSMISSION ERROR: " + (result.error || "Uplink Denied"));
             submitBtn.innerText = "RETRY TRANSMISSION";
+            submitBtn.disabled = false;
         }
     } catch (error) {
-        alert("SYSTEM ERROR: Uplink interrupted.");
+        alert("SYSTEM ERROR: Network Uplink Interrupted.");
+        submitBtn.innerText = "RETRY TRANSMISSION";
+        submitBtn.disabled = false;
     }
 });
