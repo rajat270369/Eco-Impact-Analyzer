@@ -186,37 +186,36 @@ function animate() {
     const scroll = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
 
     // --- DYNAMIC LERP SPEED ---
-    // Standard speed is 0.05. When near the bottom (>0.95), it jumps to 0.25 for a "hardened" snap.
+    // High tension (0.25) at the bottom so the box "hardens" immediately
     const snapSpeed = scroll > 0.95 ? 0.25 : 0.05;
 
     // --- PARTICLE MORPHING LOGIC ---
-    // Smoothly moves particles toward target positions based on the dynamic speed
-    for (let i = 0; i < vertexCount; i++) {
-        const i3 = i * 3;
-        particles.geometry.attributes.position.array[i3] += 
-            (targetPositions[i3] - particles.geometry.attributes.position.array[i3]) * snapSpeed;
-        particles.geometry.attributes.position.array[i3 + 1] += 
-            (targetPositions[i3 + 1] - particles.geometry.attributes.position.array[i3 + 1]) * snapSpeed;
-        particles.geometry.attributes.position.array[i3 + 2] += 
-            (targetPositions[i3 + 2] - particles.geometry.attributes.position.array[i3 + 2]) * snapSpeed;
+    // Ensure 'particles' matches your variable name for the THREE.Points object
+    if (particles && particles.geometry.attributes.position) {
+        const positionsArray = particles.geometry.attributes.position.array;
+        for (let i = 0; i < vertexCount; i++) {
+            const i3 = i * 3;
+            // Morph X, Y, and Z toward the targetBlueprint coordinates
+            positionsArray[i3]     += (targetPositions[i3] - positionsArray[i3]) * snapSpeed;
+            positionsArray[i3 + 1] += (targetPositions[i3 + 1] - positionsArray[i3 + 1]) * snapSpeed;
+            positionsArray[i3 + 2] += (targetPositions[i3 + 2] - positionsArray[i3 + 2]) * snapSpeed;
+        }
+        particles.geometry.attributes.position.needsUpdate = true;
     }
-    particles.geometry.attributes.position.needsUpdate = true;
 
     // --- PHASE SWAP LOGIC ---
     if (scroll > 0.82) {
-        // FADE OUT MESH (Lines), FADE IN PARTICLES (Dots)
+        // Fade lines out, fade dots in
         mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.12);
         particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.12);
         
-        // Stop rotation for the blueprint to keep UI stable
+        // Lock rotation so the blueprint stays flat
         mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.05);
         mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.05);
     } else {
-        // RESTORE ORIGINAL STABLE MESH
         mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.12);
         particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.12);
         
-        // Keep the stable rotation
         mainMesh.rotation.y += 0.005;
         mainMesh.rotation.x += 0.002;
     }
