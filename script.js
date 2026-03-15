@@ -1,6 +1,6 @@
-//* ================================================================
+/* ================================================================
     ECO IMPACT ANALYZER - CORE ENGINE
-    VERSION: 1.4.9 - PRODUCTION DEPLOYMENT
+    VERSION: 1.4.5 - PRODUCTION DEPLOYMENT
     COMPONENTS: Morph Engine, Vertex Pipeline, UI Uplink, State Manager
     ================================================================
 */
@@ -175,28 +175,29 @@ const EIACore = (function() {
      * @description Calculates lerp percentages based on scroll depth.
      */
     function updateInterface() {
+        const currentPositions = geometry.attributes.position.array;
         const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const rawPercent = window.scrollY / (scrollHeight || 1); // Logic fix: prevent division by 0
+        const rawPercent = window.scrollY / scrollHeight;
         const scrollPercent = Math.min(Math.max(rawPercent, 0), 1);
         
         STATE.lastScrollPercent = scrollPercent;
 
         // Camera Dolly
-        camera.position.z = CONFIG.CAMERA_Z_START + (scrollPercent * (CONFIG.CAMERA_Z_END - CONFIG.CAMERA_Z_START)); 
+        camera.position.z = CONFIG.CAMERA_Z_START + (scrollPercent * 15); 
 
         // Lerp Logic Controller
         if (scrollPercent <= 0.25) {
-            STATE.activeMorph = 'CORE';
-            lerpVertices(originalPositions, targets.core, (scrollPercent * 4));
+            let f = (scrollPercent * 4);
+            lerpVertices(originalPositions, targets.core, f);
         } else if (scrollPercent <= 0.50) {
-            STATE.activeMorph = 'TORUS';
-            lerpVertices(targets.core, targets.torus, ((scrollPercent - 0.25) * 4));
+            let f = ((scrollPercent - 0.25) * 4);
+            lerpVertices(targets.core, targets.torus, f);
         } else if (scrollPercent <= 0.75) {
-            STATE.activeMorph = 'PRISM';
-            lerpVertices(targets.torus, targets.prism, ((scrollPercent - 0.50) * 4));
+            let f = ((scrollPercent - 0.50) * 4);
+            lerpVertices(targets.torus, targets.prism, f);
         } else {
-            STATE.activeMorph = 'FRAME';
-            lerpVertices(targets.prism, targets.frame, ((scrollPercent - 0.75) * 4));
+            let f = ((scrollPercent - 0.75) * 4);
+            lerpVertices(targets.prism, targets.frame, f);
         }
         
         geometry.attributes.position.needsUpdate = true;
@@ -205,8 +206,7 @@ const EIACore = (function() {
     function lerpVertices(startArr, endArr, factor) {
         const positions = geometry.attributes.position.array;
         for (let i = 0; i < STATE.vertexCount * 3; i++) {
-            // Optimized manual interpolation
-            positions[i] = startArr[i] + (endArr[i] - startArr[i]) * factor;
+            positions[i] = THREE.MathUtils.lerp(startArr[i], endArr[i], factor);
         }
     }
 
@@ -223,7 +223,7 @@ const EIACore = (function() {
                 particles.rotation.set(0, 0, 0);
                 
                 mainMesh.material.opacity = THREE.MathUtils.lerp(
-                    mainMesh.material.opacity, 0.1, CONFIG.LERP_FACTOR_FAST
+                    mainMesh.material.opacity, 0, CONFIG.LERP_FACTOR_FAST
                 );
                 particleMaterial.opacity = THREE.MathUtils.lerp(
                     particleMaterial.opacity, 0.8, CONFIG.LERP_FACTOR_FAST
@@ -240,7 +240,8 @@ const EIACore = (function() {
                 
                 mainMesh.rotation.y += CONFIG.ANIMATION_SPEED;
                 mainMesh.rotation.x += CONFIG.ANIMATION_SPEED * 0.4;
-                particles.rotation.copy(mainMesh.rotation);
+                particles.rotation.y = mainMesh.rotation.y;
+                particles.rotation.x = mainMesh.rotation.x;
             }
         }
         renderer.render(scene, camera);
@@ -262,7 +263,7 @@ const EIACore = (function() {
             e.preventDefault();
             
             const emailInput = document.getElementById('email-input');
-            const emailValue = emailInput ? emailInput.value.toLowerCase().trim() : 'anonymous';
+            const emailValue = emailInput.value.toLowerCase().trim();
             
             // Security Check
             if (localStorage.getItem('eia_lock_' + emailValue)) {
@@ -272,10 +273,8 @@ const EIACore = (function() {
 
             // Transmission UI State
             STATE.isTransmitting = true;
-            if (submitBtn) {
-                submitBtn.innerText = "TRANSMITTING...";
-                submitBtn.disabled = true;
-            }
+            submitBtn.innerText = "TRANSMITTING...";
+            submitBtn.disabled = true;
 
             try {
                 const response = await fetch(form.action, {
@@ -291,10 +290,8 @@ const EIACore = (function() {
                 }
             } catch (err) {
                 triggerError("SYSTEM ERROR: UPLINK INTERRUPTED.");
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "RETRY TRANSMISSION";
-                }
+                submitBtn.disabled = false;
+                submitBtn.innerText = "RETRY TRANSMISSION";
             }
         });
     }
@@ -302,21 +299,17 @@ const EIACore = (function() {
     function handleSuccess(form, msg, email) {
         form.reset();
         form.style.display = 'none';
-        if (msg) {
-            msg.innerText = "UPLINK SUCCESSFUL: DATA STORED";
-            msg.style.display = 'block';
-        }
+        msg.innerText = "UPLINK SUCCESSFUL: DATA STORED";
+        msg.style.display = 'block';
         
         localStorage.setItem('eia_lock_' + email, 'true');
 
         setTimeout(() => {
-            if (msg) msg.style.display = 'none';
+            msg.style.display = 'none';
             form.style.display = 'block';
             const btn = document.getElementById('submit-btn');
-            if (btn) {
-                btn.innerText = "TRANSMIT DATA";
-                btn.disabled = false;
-            }
+            btn.innerText = "TRANSMIT DATA";
+            btn.disabled = false;
             STATE.isTransmitting = false;
         }, CONFIG.SUBMIT_TIMEOUT);
     }
