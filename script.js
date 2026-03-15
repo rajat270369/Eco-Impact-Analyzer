@@ -160,7 +160,6 @@ function handleScroll() {
 }
 
 // --- 6. ANIMATION LOOP ---
-// --- 6. ANIMATION LOOP (STABILIZED) ---
 function animate() {
     requestAnimationFrame(animate);
 
@@ -169,25 +168,24 @@ function animate() {
 
     if (mainMesh && particleMaterial) {
         if (scroll > 0.85) {
-            // 1. HARD LOCK ROTATION: Prevents the "jagged" double-lines
+            // PHASE 2: FEEDBACK (STABLE)
+            // Hard lock at 0. No lerping to 0.6, no "fighting" logic.
             mainMesh.rotation.y = 0;
             mainMesh.rotation.x = 0;
             particles.rotation.y = 0;
             particles.rotation.x = 0;
 
-            // 2. FAST FADE: Use 0.4 for a snappy transition
             mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.4);
             particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.4);
-            
-            // REMOVED the conflicting lerp(0.6) lines that were causing the jitter
         } else {
+            // PHASE 1: ROTATING MORPH
             mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.12);
             particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.12);
             
             mainMesh.rotation.y += 0.005;
             mainMesh.rotation.x += 0.002;
-            
-            // Sync particles with mesh rotation during transition
+
+            // Keep particles synced with the mesh until the final snap
             particles.rotation.y = mainMesh.rotation.y;
             particles.rotation.x = mainMesh.rotation.x;
         }
