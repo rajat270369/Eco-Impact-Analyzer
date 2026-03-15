@@ -1,4 +1,5 @@
 // VERSION: 1.3.7 - Full Architectural Restoration
+// STATUS: STABLE | FIXED MORPH | RESTORED UPLINK
 console.log("Three.js Morph Logic v1.3.7 - Stable Restoration");
 
 // --- 1. SCENE SETUP ---
@@ -38,8 +39,9 @@ const knotBake = new THREE.TorusKnotGeometry(7, 2.2, 100, 16);
 const knotPos = knotBake.attributes.position.array;
 const knotVertCount = knotBake.attributes.position.count;
 
-const fW = 28; 
-const fH = 40; 
+// FIXED FRAME DIMENSIONS
+const fW = 35; 
+const fH = 45; 
 
 for (let i = 0; i < vertexCount; i++) {
     let x = originalPositions[i * 3];
@@ -47,25 +49,25 @@ for (let i = 0; i < vertexCount; i++) {
     let z = originalPositions[i * 3 + 2];
     const epsilon = 0.0001;
 
-    // 1. EIA CORE
+    // 1. EIA CORE (OCTAHEDRON)
     let octaFactor = 14.5 / (Math.abs(x) + Math.abs(y) + Math.abs(z) + epsilon);
     target_EIACore[i * 3] = x * octaFactor;
     target_EIACore[i * 3 + 1] = y * octaFactor;
     target_EIACore[i * 3 + 2] = z * octaFactor;
 
-    // 2. TECH STACK
+    // 2. TECH STACK (TORUS KNOT)
     let kIdx = (i % knotVertCount) * 3;
     target_TorusStack[i * 3] = knotPos[kIdx] * 1.8;
     target_TorusStack[i * 3 + 1] = knotPos[kIdx + 1] * 1.8;
     target_TorusStack[i * 3 + 2] = knotPos[kIdx + 2] * 1.8;
 
-    // 3. DATA PRISM
+    // 3. DATA PRISM (STRETCHED)
     let mag = Math.sqrt(x*x + y*y + z*z) + epsilon;
     target_DataPrism[i * 3] = (x / mag) * 8;   
     target_DataPrism[i * 3 + 1] = (y / mag) * 22.4; 
     target_DataPrism[i * 3 + 2] = (z / mag) * 8;
 
-    // 4. CLEAN FEEDBACK FRAME logic
+    // 4. CLEAN FEEDBACK FRAME LOGIC
     if (i < vertexCount * 0.4) {
         const side = i % 4;
         const segmentProgress = ((i / 4) / (vertexCount * 0.1)) * 2 - 1; 
@@ -83,7 +85,7 @@ for (let i = 0; i < vertexCount; i++) {
             target_FeedbackPlane[i*3] = segmentProgress * fW; 
             target_FeedbackPlane[i*3+1] = -fH; 
         }
-        target_FeedbackPlane[i*3+2] = -2;
+        target_FeedbackPlane[i*3+2] = -5;
     } else {
         // KILL BLUE SYMBOL: Move unused 60% of points to Z=5000
         target_FeedbackPlane[i*3] = 0;
@@ -194,6 +196,7 @@ feedbackForm.addEventListener('submit', async (e) => {
     const emailValue = emailInput.value.toLowerCase().trim();
     const handle = emailValue.split('@')[0];
 
+    // Validation
     if (localStorage.getItem('form_submitted_' + emailValue)) {
         alert("PROTOCOL ERROR: Data already logged for this address.");
         return;
@@ -203,6 +206,7 @@ feedbackForm.addEventListener('submit', async (e) => {
         return;
     }
 
+    // UI Feedback: Start Animation
     submitBtn.innerText = "TRANSMITTING...";
     submitBtn.disabled = true;
 
@@ -214,17 +218,23 @@ feedbackForm.addEventListener('submit', async (e) => {
         });
 
         if (response.ok) {
+            // Success Sequence
             feedbackForm.reset();
             feedbackForm.style.display = 'none';
             successMsg.innerText = "UPLINK SUCCESSFUL: DATA TRANSMITTED";
             successMsg.style.display = 'block';
+            
             localStorage.setItem('form_submitted_' + emailValue, 'true');
+
+            // Auto-reset UI after 5 seconds
             setTimeout(() => {
                 successMsg.style.display = 'none';
                 feedbackForm.style.display = 'block';
                 submitBtn.innerText = "TRANSMIT DATA";
                 submitBtn.disabled = false;
             }, 5000);
+        } else {
+            throw new Error("Uplink Denied");
         }
     } catch (error) {
         alert("SYSTEM ERROR: Network Uplink Interrupted.");

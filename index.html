@@ -120,35 +120,50 @@
             </div>
         </div>
     </div>
-    <section class="feedback-section">
-    <div class="feedback-container">
-        <h2 class="form-title">FEEDBACK PROTOCOL</h2>
 
-        <form id="eia-feedback-form" action="https://formspree.io/f/mvzwbgwa" method="POST">
-            <div class="input-group">
-                <label class="simple-label">GMAIL ADDRESS</label>
-                <input type="email" name="email" id="email-input" placeholder="student@gmail.com" class="theme-input" required>
-            </div>
-            
-            <div class="input-group">
-                <label class="simple-label">SYSTEM OBSERVATIONS</label>
-                <textarea name="message" placeholder="Enter your feedback here..." class="theme-input" rows="3" required></textarea>
-            </div>
+    <section class="feedback-section snap-point" id="form-phase">
+        <div class="feedback-container">
+            <h2 class="form-title">FEEDBACK PROTOCOL</h2>
 
-            <div id="poda">
-                <div id="main">
-                    <button class="input" type="submit" id="submit-btn">TRANSMIT DATA</button>
+            <form id="eia-feedback-form" action="https://formspree.io/f/mvzwbgwa" method="POST">
+                <div class="input-group">
+                    <label class="simple-label">GMAIL ADDRESS</label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        id="email-input" 
+                        placeholder="student@gmail.com" 
+                        class="theme-input" 
+                        pattern="[a-z0-9.]{6,30}@gmail\.com" 
+                        oninvalid="this.setCustomValidity('Access Denied: Gmail handle must be at least 6 characters.')"
+                        oninput="this.setCustomValidity('')"
+                        required>
                 </div>
-            </div>
-        </form>
+                
+                <div class="input-group">
+                    <label class="simple-label">SYSTEM OBSERVATIONS</label>
+                    <textarea 
+                        name="message" 
+                        placeholder="Enter your feedback here..." 
+                        class="theme-input" 
+                        rows="3" 
+                        required></textarea>
+                </div>
 
-        <div id="success-message" style="display: none; color: #00e676; text-align: center; margin-top: 20px; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);">
-            UPLINK SUCCESSFUL: DATA TRANSMITTED
+                <div id="poda">
+                    <div id="main">
+                        <button class="input" type="submit" id="submit-btn">TRANSMIT DATA</button>
+                    </div>
+                </div>
+            </form>
+
+            <div id="success-message" style="display: none; color: #00e676; text-align: center; margin-top: 20px; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);">
+                UPLINK SUCCESSFUL: DATA TRANSMITTED
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
     <script src="script.js"></script>
 
     <script>
@@ -162,26 +177,16 @@
             });
         }, observerOptions);
 
-        document.querySelectorAll('.reveal, .reveal-title-only').forEach(el => {
+        document.querySelectorAll('.reveal, .story-card').forEach(el => {
             generalObserver.observe(el);
         });
 
-        // Initialize 3D loop only after window is fully loaded to prevent 404/Reference errors
+        // Initialize 3D loop safely
         window.onload = () => {
             if (typeof init === "function") init();
-            if (typeof animate === "function") animate();
+            // Start the scroll handler once to set initial positions
+            if (typeof handleScroll === "function") handleScroll();
         };
     </script>
-    <input 
-    type="email" 
-    name="email" 
-    id="email-input" 
-    placeholder="username@gmail.com" 
-    class="theme-input" 
-    pattern="[a-z0-9.]{6,30}@gmail\.com" 
-    oninvalid="this.setCustomValidity('Access Denied: Gmail handle must be valid.')"
-    oninput="this.setCustomValidity('')"
-    required>
-
 </body>
 </html>
