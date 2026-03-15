@@ -1,5 +1,5 @@
-// VERSION: 1.3.4 - Full Logic Restoration & Variable Sync
-console.log("Three.js Morph Logic v1.3.4 - Restoration Active");
+// VERSION: 1.3.6 - Full Restoration & Stability Patch
+console.log("Three.js Morph Logic v1.3.6 - Restoration Active");
 
 // --- 1. SCENE SETUP ---
 const scene = new THREE.Scene();
@@ -44,11 +44,13 @@ const knotBake = new THREE.TorusKnotGeometry(7, 2.2, 100, 16);
 const knotPos = knotBake.attributes.position.array;
 const knotVertCount = knotBake.attributes.position.count;
 
+const fW = 35; 
+const fH = 45; 
+
 for (let i = 0; i < vertexCount; i++) {
     let x = originalPositions[i * 3];
     let y = originalPositions[i * 3 + 1];
     let z = originalPositions[i * 3 + 2];
-
     const epsilon = 0.0001;
 
     // 1. EIA CORE (Modified Octahedron)
@@ -71,41 +73,31 @@ for (let i = 0; i < vertexCount; i++) {
     target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.4); 
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
 
-    // 4. THE GHOST FORM "BLUEPRINT" logic
-    // --- 3. BAKE MORPH TARGETS (CLEAN FRAME RESTORATION) ---
-const fW = 35; 
-const fH = 45; // Adjusted to match your last screenshot's proportions
-
-for (let i = 0; i < vertexCount; i++) {
-    // ... EIA CORE, TECH STACK, and DATA PRISM logic remains the same ...
-
+    // 4. THE GHOST FORM "BLUEPRINT" (Linear Frame Reconstruction)
     if (i < vertexCount * 0.4) {
         const side = i % 4;
-        // This math creates the clean "dotted line" look from image_a77e22.png
         const segmentProgress = ((i / 4) / (vertexCount * 0.1)) * 2 - 1; 
         
-        if (side === 0) { // Right
+        if (side === 0) { // Right Rail
             target_FeedbackPlane[i*3] = fW;  
             target_FeedbackPlane[i*3+1] = segmentProgress * fH; 
-        } else if (side === 1) { // Left
+        } else if (side === 1) { // Left Rail
             target_FeedbackPlane[i*3] = -fW; 
             target_FeedbackPlane[i*3+1] = segmentProgress * fH; 
-        } else if (side === 2) { // Top
+        } else if (side === 2) { // Top Rail
             target_FeedbackPlane[i*3] = segmentProgress * fW; 
             target_FeedbackPlane[i*3+1] = fH;  
-        } else if (side === 3) { // Bottom
+        } else if (side === 3) { // Bottom Rail
             target_FeedbackPlane[i*3] = segmentProgress * fW; 
             target_FeedbackPlane[i*3+1] = -fH; 
         }
-        target_FeedbackPlane[i*3+2] = -5;
-    } 
-    else {
+        target_FeedbackPlane[i*3+2] = -5; // Shared depth
+    } else {
         // ABSOLUTE REMOVAL: Send the "noise" particles way out of bounds
         target_FeedbackPlane[i*3] = 0;
         target_FeedbackPlane[i*3+1] = 0; 
         target_FeedbackPlane[i*3+2] = 5000; 
     }
-}
 }
 knotBake.dispose();
 
@@ -123,7 +115,6 @@ const particleMaterial = new THREE.PointsMaterial({
     blending: THREE.AdditiveBlending
 });
 
-// Variable name 'particles' now matches the animate loop requirements
 const particles = new THREE.Points(geometry, particleMaterial);
 scene.add(particles);
 
@@ -170,13 +161,10 @@ function animate() {
 
     if (mainMesh && particleMaterial) {
         if (scroll > 0.85) {
-            // PHASE 2: FEEDBACK (STABLE)
-            // Hard lock at 0. No lerping to 0.6, no "fighting" logic.
-            mainMesh.rotation.y = 0;
-            mainMesh.rotation.x = 0;
-            particles.rotation.y = 0;
-            particles.rotation.x = 0;
-
+            // PHASE 2: FEEDBACK (STABLE LOCK)
+            mainMesh.rotation.set(0,0,0);
+            particles.rotation.set(0,0,0);
+            
             mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.4);
             particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.4);
         } else {
@@ -186,13 +174,10 @@ function animate() {
             
             mainMesh.rotation.y += 0.005;
             mainMesh.rotation.x += 0.002;
-
-            // Keep particles synced with the mesh until the final snap
             particles.rotation.y = mainMesh.rotation.y;
             particles.rotation.x = mainMesh.rotation.x;
         }
     }
-
     renderer.render(scene, camera);
 }
 
@@ -212,6 +197,7 @@ window.addEventListener('resize', () => {
 handleScroll(); 
 animate();
 
+// --- 8. FORM & TRANSMISSION LOGIC ---
 const feedbackForm = document.getElementById('eia-feedback-form');
 const successMsg = document.getElementById('success-message');
 const submitBtn = document.getElementById('submit-btn');
@@ -223,33 +209,27 @@ feedbackForm.addEventListener('submit', async (e) => {
     const emailValue = emailInput.value.toLowerCase().trim();
     const handle = emailValue.split('@')[0];
 
-    // --- 1. STRICT PROTOCOL VALIDATION ---
-    
-    // Check if this email has already submitted (Device-based limit)
+    // 1. STRICT PROTOCOL VALIDATION
     if (localStorage.getItem('form_submitted_' + emailValue)) {
         alert("PROTOCOL ERROR: Data already logged for this address.");
         return;
     }
 
-    // Gmail-specific length check (Google requires 6-30 chars)
     if (handle.length < 6) {
         alert("SYSTEM ERROR: Gmail handle must be at least 6 characters.");
         return;
     }
 
-    // Gibberish Filter (Blocks 3 same chars in a row or common keyboard slides)
     const repetitive = /(.)\1{2,}/; 
     const keyboardSlide = /asdfgh|qwerty|123456|zxcvbn/;
-    
     if (repetitive.test(handle) || keyboardSlide.test(handle)) {
         alert("SYSTEM ERROR: High entropy/invalid character sequence detected.");
         return;
     }
 
-    // --- 2. TRANSMISSION START ---
-
+    // 2. TRANSMISSION START
     submitBtn.innerText = "TRANSMITTING...";
-    submitBtn.disabled = true; // Prevent double-clicking
+    submitBtn.disabled = true;
 
     const formData = new FormData(feedbackForm);
     
@@ -261,20 +241,13 @@ feedbackForm.addEventListener('submit', async (e) => {
         });
 
         if (response.ok) {
-            // --- 3. UPLINK SUCCESSFUL ---
-            
-            // Clear the form data immediately
             feedbackForm.reset();
-            
-            // UI Feedback
             feedbackForm.style.display = 'none';
             successMsg.innerText = "UPLINK SUCCESSFUL: DATA TRANSMITTED";
             successMsg.style.display = 'block';
 
-            // Lock submission for this email
             localStorage.setItem('form_submitted_' + emailValue, 'true');
 
-            // Restore form after 5 seconds
             setTimeout(() => {
                 successMsg.style.display = 'none';
                 feedbackForm.style.display = 'block';
