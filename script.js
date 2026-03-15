@@ -98,7 +98,7 @@ for (let i = 0; i < vertexCount; i++) {
         // CRUSH ALL OTHER PARTICLES
         target_FeedbackPlane[i*3] = 0;
         target_FeedbackPlane[i*3+1] = 0; 
-        target_FeedbackPlane[i*3+2] = 0;
+        target_FeedbackPlane[i*3+2] = 5000;
     }
     // Shared depth for the blueprint form
     if (i < vertexCount * 0.4) {
@@ -160,35 +160,43 @@ function handleScroll() {
 }
 
 // --- 6. ANIMATION LOOP ---
+// --- 6. ANIMATION LOOP (STABILIZED) ---
 function animate() {
     requestAnimationFrame(animate);
 
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
     const scroll = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
 
-    // Phase Swap (Fading and Rotation)
     if (mainMesh && particleMaterial) {
-        if (scroll > 0.82) {
+        if (scroll > 0.85) {
+            // 1. HARD LOCK ROTATION: Prevents the "jagged" double-lines
             mainMesh.rotation.y = 0;
-           mainMesh.rotation.x = 0;
-          particles.rotation.y = 0; // Ensure particles stop too
-           particles.rotation.x = 0;
-            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.12);
-            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.12);
+            mainMesh.rotation.x = 0;
+            particles.rotation.y = 0;
+            particles.rotation.x = 0;
+
+            // 2. FAST FADE: Use 0.4 for a snappy transition
+            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.4);
+            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.4);
             
-            mainMesh.rotation.y = THREE.MathUtils.lerp(mainMesh.rotation.y, 0, 0.05);
-            mainMesh.rotation.x = THREE.MathUtils.lerp(mainMesh.rotation.x, 0, 0.05);
+            // REMOVED the conflicting lerp(0.6) lines that were causing the jitter
         } else {
             mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.12);
             particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.12);
             
             mainMesh.rotation.y += 0.005;
             mainMesh.rotation.x += 0.002;
+            
+            // Sync particles with mesh rotation during transition
+            particles.rotation.y = mainMesh.rotation.y;
+            particles.rotation.x = mainMesh.rotation.x;
         }
     }
 
     renderer.render(scene, camera);
 }
+
+    renderer.render(scene, camera);
 
 // --- 7. EVENT LISTENERS ---
 window.addEventListener('scroll', () => {
