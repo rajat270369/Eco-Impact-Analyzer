@@ -1,21 +1,16 @@
-// VERSION: 1.3.6 - Full Restoration & Stability Patch
-console.log("Three.js Morph Logic v1.3.6 - Restoration Active");
+// VERSION: 1.3.7 - Full Architectural Restoration
+console.log("Three.js Morph Logic v1.3.7 - Stable Restoration");
 
 // --- 1. SCENE SETUP ---
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
 camera.position.z = 50; 
 
-const renderer = new THREE.WebGLRenderer({ 
-    alpha: true, 
-    antialias: true,
-    powerPreference: "high-performance" 
-});
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-// Global Ambient Light for consistent visibility
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
 scene.add(ambientLight);
 
@@ -33,7 +28,6 @@ const material = new THREE.MeshBasicMaterial({
 const originalPositions = geometry.attributes.position.array.slice(); 
 const vertexCount = geometry.attributes.position.count;
 
-// Prepare Morph Targets
 const target_EIACore = new Float32Array(vertexCount * 3);     
 const target_TorusStack = new Float32Array(vertexCount * 3); 
 const target_DataPrism = new Float32Array(vertexCount * 3);     
@@ -53,47 +47,45 @@ for (let i = 0; i < vertexCount; i++) {
     let z = originalPositions[i * 3 + 2];
     const epsilon = 0.0001;
 
-    // 1. EIA CORE (Modified Octahedron)
+    // 1. EIA CORE
     let octaFactor = 14.5 / (Math.abs(x) + Math.abs(y) + Math.abs(z) + epsilon);
     target_EIACore[i * 3] = x * octaFactor;
     target_EIACore[i * 3 + 1] = y * octaFactor;
     target_EIACore[i * 3 + 2] = z * octaFactor;
 
-    // 2. TECH STACK (Knot Mapping)
+    // 2. TECH STACK
     let kIdx = (i % knotVertCount) * 3;
-    const knotScale = 1.8; 
-    target_TorusStack[i * 3] = knotPos[kIdx] * knotScale;
-    target_TorusStack[i * 3 + 1] = knotPos[kIdx + 1] * knotScale;
-    target_TorusStack[i * 3 + 2] = knotPos[kIdx + 2] * knotScale;
+    target_TorusStack[i * 3] = knotPos[kIdx] * 1.8;
+    target_TorusStack[i * 3 + 1] = knotPos[kIdx + 1] * 1.8;
+    target_TorusStack[i * 3 + 2] = knotPos[kIdx + 2] * 1.8;
 
-    // 3. DATA PRISM (Vertical Expansion)
+    // 3. DATA PRISM
     let mag = Math.sqrt(x*x + y*y + z*z) + epsilon;
-    let prismRadius = 16; 
-    target_DataPrism[i * 3] = (x / mag) * (prismRadius * 0.5);   
-    target_DataPrism[i * 3 + 1] = (y / mag) * (prismRadius * 1.4); 
-    target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
+    target_DataPrism[i * 3] = (x / mag) * 8;   
+    target_DataPrism[i * 3 + 1] = (y / mag) * 22.4; 
+    target_DataPrism[i * 3 + 2] = (z / mag) * 8;
 
-    // 4. THE GHOST FORM "BLUEPRINT" (Linear Frame Reconstruction)
+    // 4. CLEAN FEEDBACK FRAME logic
     if (i < vertexCount * 0.4) {
         const side = i % 4;
         const segmentProgress = ((i / 4) / (vertexCount * 0.1)) * 2 - 1; 
         
-        if (side === 0) { // Right Rail
+        if (side === 0) { // Right
             target_FeedbackPlane[i*3] = fW;  
             target_FeedbackPlane[i*3+1] = segmentProgress * fH; 
-        } else if (side === 1) { // Left Rail
+        } else if (side === 1) { // Left
             target_FeedbackPlane[i*3] = -fW; 
             target_FeedbackPlane[i*3+1] = segmentProgress * fH; 
-        } else if (side === 2) { // Top Rail
+        } else if (side === 2) { // Top
             target_FeedbackPlane[i*3] = segmentProgress * fW; 
             target_FeedbackPlane[i*3+1] = fH;  
-        } else if (side === 3) { // Bottom Rail
+        } else if (side === 3) { // Bottom
             target_FeedbackPlane[i*3] = segmentProgress * fW; 
             target_FeedbackPlane[i*3+1] = -fH; 
         }
-        target_FeedbackPlane[i*3+2] = -5; // Shared depth
+        target_FeedbackPlane[i*3+2] = -5;
     } else {
-        // ABSOLUTE REMOVAL: Send the "noise" particles way out of bounds
+        // KILL BLUE SYMBOL: Move unused 60% of points to Z=5000
         target_FeedbackPlane[i*3] = 0;
         target_FeedbackPlane[i*3+1] = 0; 
         target_FeedbackPlane[i*3+2] = 5000; 
@@ -127,7 +119,6 @@ function handleScroll() {
 
     camera.position.z = 40 + (scrollPercent * 15); 
 
-    // Multi-Stage Morphing
     if (scrollPercent <= 0.25) {
         let f = clamp(scrollPercent * 4);
         for (let i = 0; i < vertexCount * 3; i++) {
@@ -161,14 +152,13 @@ function animate() {
 
     if (mainMesh && particleMaterial) {
         if (scroll > 0.85) {
-            // PHASE 2: FEEDBACK (STABLE LOCK)
-            mainMesh.rotation.set(0,0,0);
-            particles.rotation.set(0,0,0);
+            // SNAP TO ZERO: Hard lock for clean rectangular frame
+            mainMesh.rotation.set(0, 0, 0);
+            particles.rotation.set(0, 0, 0);
             
             mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.4);
             particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.4);
         } else {
-            // PHASE 1: ROTATING MORPH
             mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.12);
             particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.12);
             
@@ -182,10 +172,7 @@ function animate() {
 }
 
 // --- 7. EVENT LISTENERS ---
-window.addEventListener('scroll', () => {
-    requestAnimationFrame(handleScroll);
-});
-
+window.addEventListener('scroll', () => { requestAnimationFrame(handleScroll); });
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -193,50 +180,36 @@ window.addEventListener('resize', () => {
     handleScroll(); 
 });
 
-// INITIALIZE
 handleScroll(); 
 animate();
 
-// --- 8. FORM & TRANSMISSION LOGIC ---
+// --- 8. FULL FORM & UPLINK LOGIC ---
 const feedbackForm = document.getElementById('eia-feedback-form');
 const successMsg = document.getElementById('success-message');
 const submitBtn = document.getElementById('submit-btn');
 
 feedbackForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const emailInput = document.getElementById('email-input');
     const emailValue = emailInput.value.toLowerCase().trim();
     const handle = emailValue.split('@')[0];
 
-    // 1. STRICT PROTOCOL VALIDATION
     if (localStorage.getItem('form_submitted_' + emailValue)) {
         alert("PROTOCOL ERROR: Data already logged for this address.");
         return;
     }
-
     if (handle.length < 6) {
         alert("SYSTEM ERROR: Gmail handle must be at least 6 characters.");
         return;
     }
 
-    const repetitive = /(.)\1{2,}/; 
-    const keyboardSlide = /asdfgh|qwerty|123456|zxcvbn/;
-    if (repetitive.test(handle) || keyboardSlide.test(handle)) {
-        alert("SYSTEM ERROR: High entropy/invalid character sequence detected.");
-        return;
-    }
-
-    // 2. TRANSMISSION START
     submitBtn.innerText = "TRANSMITTING...";
     submitBtn.disabled = true;
 
-    const formData = new FormData(feedbackForm);
-    
     try {
         const response = await fetch(feedbackForm.action, {
             method: 'POST',
-            body: formData,
+            body: new FormData(feedbackForm),
             headers: { 'Accept': 'application/json' }
         });
 
@@ -245,25 +218,17 @@ feedbackForm.addEventListener('submit', async (e) => {
             feedbackForm.style.display = 'none';
             successMsg.innerText = "UPLINK SUCCESSFUL: DATA TRANSMITTED";
             successMsg.style.display = 'block';
-
             localStorage.setItem('form_submitted_' + emailValue, 'true');
-
             setTimeout(() => {
                 successMsg.style.display = 'none';
                 feedbackForm.style.display = 'block';
                 submitBtn.innerText = "TRANSMIT DATA";
                 submitBtn.disabled = false;
             }, 5000);
-
-        } else {
-            const result = await response.json();
-            alert("TRANSMISSION ERROR: " + (result.error || "Uplink Denied"));
-            submitBtn.innerText = "RETRY TRANSMISSION";
-            submitBtn.disabled = false;
         }
     } catch (error) {
         alert("SYSTEM ERROR: Network Uplink Interrupted.");
-        submitBtn.innerText = "RETRY TRANSMISSION";
         submitBtn.disabled = false;
+        submitBtn.innerText = "RETRY TRANSMISSION";
     }
 });
