@@ -537,7 +537,7 @@ form {
   filter: brightness(1.4);
   background-image: conic-gradient(
     rgba(0, 0, 0, 0) 0%,
-    #00e676, /* Green */
+    #00e676 12%, /* Green */
     rgba(0, 0, 0, 0) 8%,
     rgba(0, 0, 0, 0) 50%,
     #00ff88, /* Alt Green */
