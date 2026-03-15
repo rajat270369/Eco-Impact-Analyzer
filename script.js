@@ -196,8 +196,6 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-    renderer.render(scene, camera);
-
 // --- 7. EVENT LISTENERS ---
 window.addEventListener('scroll', () => {
     requestAnimationFrame(handleScroll);
