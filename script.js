@@ -152,29 +152,22 @@ function animate() {
 
     if (mainMesh && particleMaterial) {
         if (scroll > 0.85) {
-            // HARD SNAP: No rotation, no movement. Pure alignment with the UI.
+            // SNAP TO ZERO: Hard lock for clean rectangular frame
             mainMesh.rotation.set(0, 0, 0);
             particles.rotation.set(0, 0, 0);
             
-            // OPACITY LOCK: Wireframe vanishes, particles remain sharp.
-            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.15);
-            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 1.0, 0.15);
-            
-            mainMesh.visible = mainMesh.material.opacity > 0.01;
+            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.4);
+            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.4);
         } else {
-            // ACTIVE STATE: Standard rotation and wireframe visibility.
-            mainMesh.visible = true;
+            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.12);
+            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.12);
+            
             mainMesh.rotation.y += 0.005;
             mainMesh.rotation.x += 0.002;
-            
             particles.rotation.y = mainMesh.rotation.y;
             particles.rotation.x = mainMesh.rotation.x;
-            
-            mainMesh.material.opacity = 0.6;
-            particleMaterial.opacity = 0;
         }
     }
-
     renderer.render(scene, camera);
 }
 
