@@ -248,3 +248,23 @@ feedbackForm.addEventListener('submit', async (e) => {
         alert("SYSTEM ERROR: Uplink interrupted.");
     }
 })
+const observerOptions = { threshold: 0.2 };
+        
+        const generalObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal, .story-card').forEach(el => {
+            generalObserver.observe(el);
+        });
+
+        // Initialize 3D loop safely
+        window.onload = () => {
+            if (typeof init === "function") init();
+            // Start the scroll handler once to set initial positions
+            if (typeof handleScroll === "function") handleScroll();
+        };
