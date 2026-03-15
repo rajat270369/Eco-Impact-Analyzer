@@ -38,8 +38,8 @@ const knotBake = new THREE.TorusKnotGeometry(7, 2.2, 100, 16);
 const knotPos = knotBake.attributes.position.array;
 const knotVertCount = knotBake.attributes.position.count;
 
-const fW = 35; 
-const fH = 45; 
+const fW = 32; 
+const fH = 48; 
 
 for (let i = 0; i < vertexCount; i++) {
     let x = originalPositions[i * 3];
@@ -83,7 +83,7 @@ for (let i = 0; i < vertexCount; i++) {
             target_FeedbackPlane[i*3] = segmentProgress * fW; 
             target_FeedbackPlane[i*3+1] = -fH; 
         }
-        target_FeedbackPlane[i*3+2] = -5;
+        target_FeedbackPlane[i*3+2] = -2;
     } else {
         // KILL BLUE SYMBOL: Move unused 60% of points to Z=5000
         target_FeedbackPlane[i*3] = 0;

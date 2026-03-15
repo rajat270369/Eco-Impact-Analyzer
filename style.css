@@ -274,10 +274,6 @@ section, .hero, .snap-point {
 /* style.css - UPDATES */
 
 /* Ensure the final section has no background and is non-blocking */
-#form-phase.snap-point {
-    background: transparent !important;
-    pointer-events: none; /* Crucial: Allows the mouse to pass through to the canvas */
-}
 .feedback-section {
     display: flex;
     justify-content: center;
@@ -289,53 +285,12 @@ form {
     display: contents; /* Makes the form tag invisible to the layout logic */
 }
 
-
-/* Optional: Add a scanline effect to make the box look intentional */
-.feedback-container {
-    max-width: 450px;
-    margin: 0 auto;
-    padding: 60px 40px;
-    position: relative;
-    z-index: 100;
-    /* REMOVED: Background and Border */
-    background: transparent; 
-    border: none;
-    box-shadow: none;
-}
-
 /* Remove the scanline effect if it's interfering with the 3D look */
 .feedback-container::before {
     display: none;
 }
 
 /* Ensure the title is perfectly centered in your 3D frame */
-.form-title {
-    color: #00e676;
-    font-weight: 900;
-    letter-spacing: 5px; /* Increased for a more 'tech' feel */
-    margin-bottom: 50px;
-    text-align: center;
-    text-shadow: 0 0 15px rgba(0, 230, 118, 0.7);
-}
-
-
-
-/* Fix for the input lines so they don't look 'broken' */
-.theme-input {
-    width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid rgba(0, 230, 118, 0.3);
-    padding: 10px 0;
-    color: #fff;
-    font-size: 15px;
-    outline: none;
-    resize: none; /* THIS REMOVES THE USER'S ABILITY TO CHANGE THE SIZE */
-}
-
-.theme-input:focus {
-    border-bottom: 1px solid #00e676;
-}
 .ghost-input {
     background: transparent;
     color: #00e676;
@@ -368,11 +323,59 @@ form {
     background: #00e676;
     color: #1a1a1a;
 }
+/* --- SYNCHRONIZED FEEDBACK UI --- */
+#form-phase.snap-point {
+    background: transparent !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.feedback-container {
+    /* No width/height here - let the inputs define it */
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    z-index: 100;
+    pointer-events: auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .input-group {
-    margin-bottom: 30px;
-    text-align: left;
+    width: 300px; /* Matches the 3D Box width math */
+    margin-bottom: 25px;
     position: relative;
-    z-index: 110;
+}
+
+.form-title {
+    color: var(--primary-green);
+    font-weight: 900;
+    font-size: 1.8rem;
+    letter-spacing: 6px;
+    margin-bottom: 40px;
+    text-shadow: 0 0 15px rgba(0, 230, 118, 0.6);
+}
+
+.theme-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(0, 230, 118, 0.4);
+    padding: 12px 5px;
+    color: #fff;
+    font-family: 'Inter', monospace;
+    text-align: center; /* Center text to match 3D box alignment */
+    outline: none;
+    transition: 0.3s;
+}
+
+.theme-input:focus {
+    border-bottom: 1px solid var(--primary-green);
+    box-shadow: 0 5px 15px -5px rgba(0, 230, 118, 0.3);
 }
 /* A simple wrapper to hold the title */
 .non-blocking-overlay {
