@@ -152,32 +152,26 @@ function animate() {
 
     if (mainMesh && particleMaterial) {
         if (scroll > 0.85) {
-            // --- 1. THE SNAP PROTOCOL ---
-            // Force rotation to absolute zero to align with the CSS form
+            // HARD SNAP: No rotation, no movement. Pure alignment with the UI.
             mainMesh.rotation.set(0, 0, 0);
             particles.rotation.set(0, 0, 0);
             
-            // --- 2. THE VISIBILITY SHIFT ---
-            // Fade the wireframe mesh out and the particle frame in
+            // OPACITY LOCK: Wireframe vanishes, particles remain sharp.
             mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.15);
             particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 1.0, 0.15);
             
-            // Prevent the mesh from blocking clicks on the form
             mainMesh.visible = mainMesh.material.opacity > 0.01;
         } else {
-            // --- 3. THE ACTIVE PHASE ---
-            // Standard rotation logic while scrolling through the site
+            // ACTIVE STATE: Standard rotation and wireframe visibility.
             mainMesh.visible = true;
             mainMesh.rotation.y += 0.005;
             mainMesh.rotation.x += 0.002;
             
-            // Sync particles to mesh rotation
             particles.rotation.y = mainMesh.rotation.y;
             particles.rotation.x = mainMesh.rotation.x;
             
-            // Fade wireframe back in and hide the particle frame
-            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.1);
-            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.1);
+            mainMesh.material.opacity = 0.6;
+            particleMaterial.opacity = 0;
         }
     }
 
