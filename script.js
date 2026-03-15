@@ -1,6 +1,6 @@
 /* ================================================================
     ECO IMPACT ANALYZER - CORE ENGINE
-    VERSION: 1.4.8 - STABILIZED PRODUCTION
+    VERSION: 1.4.8 - STABILIZED PRODUCTION DEPLOYMENT
     COMPONENTS: Morph Engine, Vertex Pipeline, UI Uplink, State Manager
     ================================================================
 */
@@ -60,6 +60,7 @@ const EIACore = (function() {
         container.appendChild(renderer.domElement);
     }
 
+    // Lighting Pipeline
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
     const pointLight = new THREE.PointLight(CONFIG.COLOR_PRIMARY, 2);
     pointLight.position.set(0, 100, 50);
@@ -79,6 +80,7 @@ const EIACore = (function() {
     const originalPositions = geometry.attributes.position.array.slice(); 
     STATE.vertexCount = geometry.attributes.position.count;
 
+    // Buffer Attributes for Morph Targets
     const targets = {
         core: new Float32Array(STATE.vertexCount * 3),
         torus: new Float32Array(STATE.vertexCount * 3),
@@ -98,19 +100,19 @@ const EIACore = (function() {
             let z = originalPositions[i * 3 + 2];
             const epsilon = 0.0001;
 
-            // Target 1: EIA CORE
+            // Target 1: EIA CORE (Optimized Octahedron)
             let octaFactor = 14.5 / (Math.abs(x) + Math.abs(y) + Math.abs(z) + epsilon);
             targets.core[i * 3] = x * octaFactor;
             targets.core[i * 3 + 1] = y * octaFactor;
             targets.core[i * 3 + 2] = z * octaFactor;
 
-            // Target 2: TECH STACK
+            // Target 2: TECH STACK (Torus Knot Mapping)
             let kIdx = (i % knotVertCount) * 3;
             targets.torus[i * 3] = knotPos[kIdx] * 1.8;
             targets.torus[i * 3 + 1] = knotPos[kIdx + 1] * 1.8;
             targets.torus[i * 3 + 2] = knotPos[kIdx + 2] * 1.8;
 
-            // Target 3: DATA PRISM
+            // Target 3: DATA PRISM (Anisotropic Stretch)
             let mag = Math.sqrt(x*x + y*y + z*z) + epsilon;
             targets.prism[i * 3] = (x / mag) * 8;   
             targets.prism[i * 3 + 1] = (y / mag) * 22.4; 
@@ -121,20 +123,20 @@ const EIACore = (function() {
                 const side = i % 4;
                 const progress = ((i / 4) / (STATE.vertexCount * 0.1)) * 2 - 1; 
                 
-                if (side === 0) { // Right
+                if (side === 0) { // Right Vertical
                     targets.frame[i*3] = CONFIG.FRAME_WIDTH;  
                     targets.frame[i*3+1] = progress * CONFIG.FRAME_HEIGHT; 
-                } else if (side === 1) { // Left
+                } else if (side === 1) { // Left Vertical
                     targets.frame[i*3] = -CONFIG.FRAME_WIDTH; 
                     targets.frame[i*3+1] = progress * CONFIG.FRAME_HEIGHT; 
-                } else if (side === 2) { // Top
+                } else if (side === 2) { // Top Horizontal
                     targets.frame[i*3] = progress * CONFIG.FRAME_WIDTH; 
                     targets.frame[i*3+1] = CONFIG.FRAME_HEIGHT;  
-                } else if (side === 3) { // Bottom
+                } else if (side === 3) { // Bottom Horizontal
                     targets.frame[i*3] = progress * CONFIG.FRAME_WIDTH; 
                     targets.frame[i*3+1] = -CONFIG.FRAME_HEIGHT; 
                 }
-                targets.frame[i*3+2] = -5;
+                targets.frame[i*3+2] = -5; // Recessed depth
             } else {
                 targets.frame[i*3] = 0;
                 targets.frame[i*3+1] = 0; 
@@ -161,16 +163,18 @@ const EIACore = (function() {
     const particles = new THREE.Points(geometry, particleMaterial);
     scene.add(particles);
 
-    // --- 6. INTERFACE ENGINE (RECALIBRATED SCROLL) ---
+    // --- 6. INTERFACE ENGINE (SCROLL LOGIC) ---
     function updateInterface() {
         const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
         const rawPercent = window.scrollY / scrollHeight;
         const scrollPercent = Math.min(Math.max(rawPercent, 0), 1);
         
         STATE.lastScrollPercent = scrollPercent;
+
+        // Camera Dolly
         camera.position.z = CONFIG.CAMERA_Z_START + (scrollPercent * 15); 
 
-        // UPDATED: Stabilized Morph Windows
+        // UPDATED: Lerp Logic Controller with stabilized windows
         if (scrollPercent <= 0.20) {
             let f = (scrollPercent / 0.20);
             lerpVertices(originalPositions, targets.core, f);
@@ -191,6 +195,7 @@ const EIACore = (function() {
     function lerpVertices(startArr, endArr, factor) {
         const positions = geometry.attributes.position.array;
         for (let i = 0; i < STATE.vertexCount * 3; i++) {
+            // Linear interpolation for exact vertex placement
             positions[i] = startArr[i] + (endArr[i] - startArr[i]) * factor;
         }
     }
@@ -198,20 +203,30 @@ const EIACore = (function() {
     // --- 7. RENDERING PIPELINE ---
     function render() {
         requestAnimationFrame(render);
+
         const scroll = STATE.lastScrollPercent;
 
         if (mainMesh && particleMaterial) {
-            // UPDATED: Robust Rotation Lock for Feedback Section
+            // High-Scroll Phase (Frame Lock) - Activated slightly earlier for stability
             if (scroll > 0.85) {
                 mainMesh.rotation.set(0, 0, 0);
                 particles.rotation.set(0, 0, 0);
                 
-                mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.4, CONFIG.LERP_FACTOR_FAST);
-                particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, CONFIG.LERP_FACTOR_FAST);
+                mainMesh.material.opacity = THREE.MathUtils.lerp(
+                    mainMesh.material.opacity, 0.4, CONFIG.LERP_FACTOR_FAST
+                );
+                particleMaterial.opacity = THREE.MathUtils.lerp(
+                    particleMaterial.opacity, 0.8, CONFIG.LERP_FACTOR_FAST
+                );
             } 
+            // Exploration Phase (Rotation)
             else {
-                mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, CONFIG.LERP_FACTOR_SMOOTH);
-                particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, CONFIG.LERP_FACTOR_SMOOTH);
+                mainMesh.material.opacity = THREE.MathUtils.lerp(
+                    mainMesh.material.opacity, 0.6, CONFIG.LERP_FACTOR_SMOOTH
+                );
+                particleMaterial.opacity = THREE.MathUtils.lerp(
+                    particleMaterial.opacity, 0, CONFIG.LERP_FACTOR_SMOOTH
+                );
                 
                 mainMesh.rotation.y += CONFIG.ANIMATION_SPEED;
                 mainMesh.rotation.x += CONFIG.ANIMATION_SPEED * 0.4;
@@ -222,7 +237,7 @@ const EIACore = (function() {
         renderer.render(scene, camera);
     }
 
-    // --- 8. UPLINK PROTOCOL ---
+    // --- 8. UPLINK PROTOCOL (FORM HANDLING) ---
     function initUplink() {
         const form = document.getElementById('eia-feedback-form');
         const submitBtn = document.getElementById('submit-btn');
@@ -232,6 +247,7 @@ const EIACore = (function() {
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const emailInput = document.getElementById('email-input');
             const emailValue = emailInput.value.toLowerCase().trim();
             
@@ -269,6 +285,7 @@ const EIACore = (function() {
         form.style.display = 'none';
         msg.innerText = "UPLINK SUCCESSFUL: DATA STORED";
         msg.style.display = 'block';
+        
         localStorage.setItem('eia_lock_' + email, 'true');
 
         setTimeout(() => {
@@ -288,28 +305,36 @@ const EIACore = (function() {
 
     // --- 9. EVENT REGISTRATION ---
     function registerEvents() {
-        window.addEventListener('scroll', () => { requestAnimationFrame(updateInterface); });
+        window.addEventListener('scroll', () => {
+            requestAnimationFrame(updateInterface);
+        });
+
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
             updateInterface();
         });
+
+        console.log("Interface Uplink Active. Diagnostic sequence complete.");
     }
 
     // --- 10. PUBLIC BOOT SEQUENCE ---
     return {
         init: function() {
             if (STATE.isInitialized) return;
+            
             bakeTargets();
             registerEvents();
             initUplink();
             updateInterface();
             render();
+            
             STATE.isInitialized = true;
-            console.log("Interface Uplink Active. Diagnostic sequence complete.");
         }
     };
+
 })();
 
+// START ENGINE
 document.addEventListener('DOMContentLoaded', EIACore.init);
