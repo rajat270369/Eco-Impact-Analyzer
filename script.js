@@ -1,6 +1,6 @@
-/* ================================================================
+//* ================================================================
     ECO IMPACT ANALYZER - CORE ENGINE
-    VERSION: 1.4.8 - STABILIZED PRODUCTION DEPLOYMENT
+    VERSION: 1.4.9 - PRODUCTION DEPLOYMENT
     COMPONENTS: Morph Engine, Vertex Pipeline, UI Uplink, State Manager
     ================================================================
 */
@@ -89,6 +89,10 @@ const EIACore = (function() {
     };
 
     // --- 4. THE BAKE PIPELINE (VERTEX MATH) ---
+    /**
+     * @function bakeTargets
+     * @description Pre-calculates vertex positions for all interface states to avoid runtime CPU spikes.
+     */
     function bakeTargets() {
         const knotBake = new THREE.TorusKnotGeometry(7, 2.2, 100, 16); 
         const knotPos = knotBake.attributes.position.array;
@@ -119,6 +123,7 @@ const EIACore = (function() {
             targets.prism[i * 3 + 2] = (z / mag) * 8;
 
             // Target 4: STABILIZED FEEDBACK FRAME
+            // Moves vertices to form a 1px-thin bounding box
             if (i < STATE.vertexCount * 0.4) {
                 const side = i % 4;
                 const progress = ((i / 4) / (STATE.vertexCount * 0.1)) * 2 - 1; 
@@ -138,6 +143,7 @@ const EIACore = (function() {
                 }
                 targets.frame[i*3+2] = -5; // Recessed depth
             } else {
+                // Garbage Collection: Move extra vertices out of frustum
                 targets.frame[i*3] = 0;
                 targets.frame[i*3+1] = 0; 
                 targets.frame[i*3+2] = 5000; 
@@ -164,29 +170,33 @@ const EIACore = (function() {
     scene.add(particles);
 
     // --- 6. INTERFACE ENGINE (SCROLL LOGIC) ---
+    /**
+     * @function updateInterface
+     * @description Calculates lerp percentages based on scroll depth.
+     */
     function updateInterface() {
         const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const rawPercent = window.scrollY / scrollHeight;
+        const rawPercent = window.scrollY / (scrollHeight || 1); // Logic fix: prevent division by 0
         const scrollPercent = Math.min(Math.max(rawPercent, 0), 1);
         
         STATE.lastScrollPercent = scrollPercent;
 
         // Camera Dolly
-        camera.position.z = CONFIG.CAMERA_Z_START + (scrollPercent * 15); 
+        camera.position.z = CONFIG.CAMERA_Z_START + (scrollPercent * (CONFIG.CAMERA_Z_END - CONFIG.CAMERA_Z_START)); 
 
-        // UPDATED: Lerp Logic Controller with stabilized windows
-        if (scrollPercent <= 0.20) {
-            let f = (scrollPercent / 0.20);
-            lerpVertices(originalPositions, targets.core, f);
-        } else if (scrollPercent <= 0.45) {
-            let f = ((scrollPercent - 0.20) / 0.25);
-            lerpVertices(targets.core, targets.torus, f);
-        } else if (scrollPercent <= 0.70) {
-            let f = ((scrollPercent - 0.45) / 0.25);
-            lerpVertices(targets.torus, targets.prism, f);
+        // Lerp Logic Controller
+        if (scrollPercent <= 0.25) {
+            STATE.activeMorph = 'CORE';
+            lerpVertices(originalPositions, targets.core, (scrollPercent * 4));
+        } else if (scrollPercent <= 0.50) {
+            STATE.activeMorph = 'TORUS';
+            lerpVertices(targets.core, targets.torus, ((scrollPercent - 0.25) * 4));
+        } else if (scrollPercent <= 0.75) {
+            STATE.activeMorph = 'PRISM';
+            lerpVertices(targets.torus, targets.prism, ((scrollPercent - 0.50) * 4));
         } else {
-            let f = ((scrollPercent - 0.70) / 0.30);
-            lerpVertices(targets.prism, targets.frame, f);
+            STATE.activeMorph = 'FRAME';
+            lerpVertices(targets.prism, targets.frame, ((scrollPercent - 0.75) * 4));
         }
         
         geometry.attributes.position.needsUpdate = true;
@@ -195,7 +205,7 @@ const EIACore = (function() {
     function lerpVertices(startArr, endArr, factor) {
         const positions = geometry.attributes.position.array;
         for (let i = 0; i < STATE.vertexCount * 3; i++) {
-            // Linear interpolation for exact vertex placement
+            // Optimized manual interpolation
             positions[i] = startArr[i] + (endArr[i] - startArr[i]) * factor;
         }
     }
@@ -207,13 +217,13 @@ const EIACore = (function() {
         const scroll = STATE.lastScrollPercent;
 
         if (mainMesh && particleMaterial) {
-            // High-Scroll Phase (Frame Lock) - Activated slightly earlier for stability
-            if (scroll > 0.85) {
+            // High-Scroll Phase (Frame Lock)
+            if (scroll > 0.88) {
                 mainMesh.rotation.set(0, 0, 0);
                 particles.rotation.set(0, 0, 0);
                 
                 mainMesh.material.opacity = THREE.MathUtils.lerp(
-                    mainMesh.material.opacity, 0.4, CONFIG.LERP_FACTOR_FAST
+                    mainMesh.material.opacity, 0.1, CONFIG.LERP_FACTOR_FAST
                 );
                 particleMaterial.opacity = THREE.MathUtils.lerp(
                     particleMaterial.opacity, 0.8, CONFIG.LERP_FACTOR_FAST
@@ -230,14 +240,17 @@ const EIACore = (function() {
                 
                 mainMesh.rotation.y += CONFIG.ANIMATION_SPEED;
                 mainMesh.rotation.x += CONFIG.ANIMATION_SPEED * 0.4;
-                particles.rotation.y = mainMesh.rotation.y;
-                particles.rotation.x = mainMesh.rotation.x;
+                particles.rotation.copy(mainMesh.rotation);
             }
         }
         renderer.render(scene, camera);
     }
 
     // --- 8. UPLINK PROTOCOL (FORM HANDLING) ---
+    /**
+     * @function initUplink
+     * @description Handles the secure transmission of feedback data to the backend.
+     */
     function initUplink() {
         const form = document.getElementById('eia-feedback-form');
         const submitBtn = document.getElementById('submit-btn');
@@ -249,16 +262,20 @@ const EIACore = (function() {
             e.preventDefault();
             
             const emailInput = document.getElementById('email-input');
-            const emailValue = emailInput.value.toLowerCase().trim();
+            const emailValue = emailInput ? emailInput.value.toLowerCase().trim() : 'anonymous';
             
+            // Security Check
             if (localStorage.getItem('eia_lock_' + emailValue)) {
                 triggerError("UPLINK DENIED: ADDRESS PREVIOUSLY LOGGED.");
                 return;
             }
 
+            // Transmission UI State
             STATE.isTransmitting = true;
-            submitBtn.innerText = "TRANSMITTING...";
-            submitBtn.disabled = true;
+            if (submitBtn) {
+                submitBtn.innerText = "TRANSMITTING...";
+                submitBtn.disabled = true;
+            }
 
             try {
                 const response = await fetch(form.action, {
@@ -274,8 +291,10 @@ const EIACore = (function() {
                 }
             } catch (err) {
                 triggerError("SYSTEM ERROR: UPLINK INTERRUPTED.");
-                submitBtn.disabled = false;
-                submitBtn.innerText = "RETRY TRANSMISSION";
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "RETRY TRANSMISSION";
+                }
             }
         });
     }
@@ -283,17 +302,21 @@ const EIACore = (function() {
     function handleSuccess(form, msg, email) {
         form.reset();
         form.style.display = 'none';
-        msg.innerText = "UPLINK SUCCESSFUL: DATA STORED";
-        msg.style.display = 'block';
+        if (msg) {
+            msg.innerText = "UPLINK SUCCESSFUL: DATA STORED";
+            msg.style.display = 'block';
+        }
         
         localStorage.setItem('eia_lock_' + email, 'true');
 
         setTimeout(() => {
-            msg.style.display = 'none';
+            if (msg) msg.style.display = 'none';
             form.style.display = 'block';
             const btn = document.getElementById('submit-btn');
-            btn.innerText = "TRANSMIT DATA";
-            btn.disabled = false;
+            if (btn) {
+                btn.innerText = "TRANSMIT DATA";
+                btn.disabled = false;
+            }
             STATE.isTransmitting = false;
         }, CONFIG.SUBMIT_TIMEOUT);
     }
@@ -316,6 +339,7 @@ const EIACore = (function() {
             updateInterface();
         });
 
+        // Diagnostic Init Log
         console.log("Interface Uplink Active. Diagnostic sequence complete.");
     }
 
