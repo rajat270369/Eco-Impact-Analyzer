@@ -274,10 +274,7 @@ section, .hero, .snap-point {
 /* style.css - UPDATES */
 
 /* Ensure the final section has no background and is non-blocking */
-#form-phase.snap-point {
-    background: transparent !important;
-    pointer-events: none; /* Crucial: Allows the mouse to pass through to the canvas */
-}
+
 .feedback-section {
     display: flex;
     justify-content: center;
@@ -287,12 +284,48 @@ section, .hero, .snap-point {
 form {
     display: contents; /* Makes the form tag invisible to the layout logic */
 }
+/* 1. Fix the Button Container */
+#poda {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-top: 40px;
+  z-index: 1000;          /* Bring it to the very front */
+  pointer-events: auto;   /* CHANGE THIS: Must be auto to allow glow/clicks */
+  cursor: pointer;
+}
+
+/* 2. Fix the Input/Button itself */
+.input {
+  background-color: #010201;
+  border: none;
+  width: 301px;
+  height: 56px;
+  border-radius: 10px;
+  color: #00e676; 
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;        /* Ensure cursor shows up */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 1001;
+  pointer-events: auto;   /* Force clickability */
+}
+
+/* 3. Fix the Form blocking */
+#form-phase.snap-point {
+    background: transparent !important;
+    pointer-events: none; /* Keeps the section transparent to scroll */
+}
+
 .feedback-container {
-    max-width: 450px;
-    margin: 0 auto;
-    padding: 40px 20px;
+    pointer-events: auto; /* Allows the form inside to be used */
     position: relative;
-    z-index: 100;
+    z-index: 500;
 }
 
 .form-title {
@@ -462,33 +495,6 @@ form {
   filter: blur(3px);
 }
 
-.input {
-  background-color: #010201;
-  border: none;
-  width: 301px;
-  height: 56px;
-  border-radius: 10px;
-  color: #00e676; /* Swapped to Green */
-  padding-inline: 0px; /* Centered text */
-  font-size: 16px;
-  font-weight: 900;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  letter-spacing: 1px;
-}
-
-#poda {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  pointer-events: auto;
-  margin-top: 40px;
-  pointer-events: none;
-  z-index: 10;
-}
 
 #pink-mask {
   pointer-events: none;
