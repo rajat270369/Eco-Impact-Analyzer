@@ -38,8 +38,8 @@ const knotBake = new THREE.TorusKnotGeometry(7, 2.2, 100, 16);
 const knotPos = knotBake.attributes.position.array;
 const knotVertCount = knotBake.attributes.position.count;
 
-const fW = 32; 
-const fH = 48; 
+const fW = 28; 
+const fH = 40; 
 
 for (let i = 0; i < vertexCount; i++) {
     let x = originalPositions[i * 3];
@@ -152,22 +152,35 @@ function animate() {
 
     if (mainMesh && particleMaterial) {
         if (scroll > 0.85) {
-            // SNAP TO ZERO: Hard lock for clean rectangular frame
+            // --- 1. THE SNAP PROTOCOL ---
+            // Force rotation to absolute zero to align with the CSS form
             mainMesh.rotation.set(0, 0, 0);
             particles.rotation.set(0, 0, 0);
             
-            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.4);
-            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0.8, 0.4);
-        } else {
-            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.12);
-            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.12);
+            // --- 2. THE VISIBILITY SHIFT ---
+            // Fade the wireframe mesh out and the particle frame in
+            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0, 0.15);
+            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 1.0, 0.15);
             
+            // Prevent the mesh from blocking clicks on the form
+            mainMesh.visible = mainMesh.material.opacity > 0.01;
+        } else {
+            // --- 3. THE ACTIVE PHASE ---
+            // Standard rotation logic while scrolling through the site
+            mainMesh.visible = true;
             mainMesh.rotation.y += 0.005;
             mainMesh.rotation.x += 0.002;
+            
+            // Sync particles to mesh rotation
             particles.rotation.y = mainMesh.rotation.y;
             particles.rotation.x = mainMesh.rotation.x;
+            
+            // Fade wireframe back in and hide the particle frame
+            mainMesh.material.opacity = THREE.MathUtils.lerp(mainMesh.material.opacity, 0.6, 0.1);
+            particleMaterial.opacity = THREE.MathUtils.lerp(particleMaterial.opacity, 0, 0.1);
         }
     }
+
     renderer.render(scene, camera);
 }
 
