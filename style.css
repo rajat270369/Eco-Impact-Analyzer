@@ -291,11 +291,14 @@ form {
   justify-content: center;
   position: relative;
   margin-top: 40px;
-  z-index: 1000;          /* Bring it to the very front */
+  z-index: 1001;          /* Bring it to the very front */
   pointer-events: auto;   /* CHANGE THIS: Must be auto to allow glow/clicks */
   cursor: pointer;
+  pointer-events: auto !important;
 }
-
+.white, .border, .darkBorderBg, .glow {
+    pointer-events: none !important; /* Let clicks pass THROUGH the glow to the button */
+}
 /* 2. Fix the Input/Button itself */
 .input {
   background-color: #010201;
@@ -315,7 +318,9 @@ form {
   z-index: 1001;
   pointer-events: auto;   /* Force clickability */
 }
-
+#form-phase {
+    pointer-events: auto !important; /* Allow the section to be clicked */
+}
 /* 3. Fix the Form blocking */
 #form-phase.snap-point {
     background: transparent !important;
@@ -325,7 +330,8 @@ form {
 .feedback-container {
     pointer-events: auto; /* Allows the form inside to be used */
     position: relative;
-    z-index: 500;
+    z-index: 1000 !important; /* Bring form to the front */
+    pointer-events: auto !important;
 }
 
 .form-title {
@@ -604,6 +610,14 @@ form {
 #poda:hover > .glow::before { transform: translate(-50%, -50%) rotate(-120deg); }
 #poda:hover > .white::before { transform: translate(-50%, -50%) rotate(-97deg); }
 #poda:hover > .border::before { transform: translate(-50%, -50%) rotate(-110deg); }
+
+#poda:hover .darkBorderBg::before,
+#poda:hover .glow::before,
+#poda:hover .white::before,
+#poda:hover .border::before {
+    /* This ensures the animation plays on hover */
+    transition: transform 1s ease-in-out;
+}
 
 .glow {
   overflow: hidden;
