@@ -330,6 +330,7 @@ form {
     color: #fff;
     font-size: 15px;
     outline: none;
+    resize: none; /* THIS REMOVES THE USER'S ABILITY TO CHANGE THE SIZE */
 }
 
 .theme-input:focus {

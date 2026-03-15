@@ -98,7 +98,7 @@ for (let i = 0; i < vertexCount; i++) {
         // CRUSH ALL OTHER PARTICLES
         target_FeedbackPlane[i*3] = 0;
         target_FeedbackPlane[i*3+1] = 0; 
-        target_FeedbackPlane[i*3+2] = 100;
+        target_FeedbackPlane[i*3+2] = 0;
     }
     // Shared depth for the blueprint form
     if (i < vertexCount * 0.4) {
@@ -114,8 +114,8 @@ scene.add(mainMesh);
 
 const particleMaterial = new THREE.PointsMaterial({ 
     color: 0x00e676, 
-    size: 0.15, 
-    sizeAttenuation: true,
+    size: 2.5, 
+    sizeAttenuation: false,
     transparent: true, 
     opacity: 0,
     blending: THREE.AdditiveBlending
