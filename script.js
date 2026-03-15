@@ -72,38 +72,40 @@ for (let i = 0; i < vertexCount; i++) {
     target_DataPrism[i * 3 + 2] = (z / mag) * (prismRadius * 0.5);
 
     // 4. THE GHOST FORM "BLUEPRINT" logic
-    const fW = 35; 
-    const fH = 39; 
-    
+    // --- 3. BAKE MORPH TARGETS (CLEAN FRAME RESTORATION) ---
+const fW = 35; 
+const fH = 45; // Adjusted to match your last screenshot's proportions
+
+for (let i = 0; i < vertexCount; i++) {
+    // ... EIA CORE, TECH STACK, and DATA PRISM logic remains the same ...
+
     if (i < vertexCount * 0.4) {
         const side = i % 4;
-        const progress = ((i % 500) / 500) * 2 - 1; 
+        // This math creates the clean "dotted line" look from image_a77e22.png
+        const segmentProgress = ((i / 4) / (vertexCount * 0.1)) * 2 - 1; 
         
-        if (side === 0) { // Right Rail
+        if (side === 0) { // Right
             target_FeedbackPlane[i*3] = fW;  
-            target_FeedbackPlane[i*3+1] = progress * fH; 
-        } else if (side === 1) { // Left Rail
+            target_FeedbackPlane[i*3+1] = segmentProgress * fH; 
+        } else if (side === 1) { // Left
             target_FeedbackPlane[i*3] = -fW; 
-            target_FeedbackPlane[i*3+1] = progress * fH; 
-        } else if (side === 2) { // Top Rail
-            target_FeedbackPlane[i*3] = progress * fW; 
+            target_FeedbackPlane[i*3+1] = segmentProgress * fH; 
+        } else if (side === 2) { // Top
+            target_FeedbackPlane[i*3] = segmentProgress * fW; 
             target_FeedbackPlane[i*3+1] = fH;  
-        } else if (side === 3) { // Bottom Rail
-            target_FeedbackPlane[i*3] = progress * fW; 
+        } else if (side === 3) { // Bottom
+            target_FeedbackPlane[i*3] = segmentProgress * fW; 
             target_FeedbackPlane[i*3+1] = -fH; 
         }
-        target_FeedbackPlane[i*3+2] = -5; // Shared depth for the box
+        target_FeedbackPlane[i*3+2] = -5;
     } 
     else {
-        // CRUSH ALL OTHER PARTICLES
+        // ABSOLUTE REMOVAL: Send the "noise" particles way out of bounds
         target_FeedbackPlane[i*3] = 0;
         target_FeedbackPlane[i*3+1] = 0; 
-        target_FeedbackPlane[i*3+2] = 5000;
+        target_FeedbackPlane[i*3+2] = 5000; 
     }
-    // Shared depth for the blueprint form
-    if (i < vertexCount * 0.4) {
-        target_FeedbackPlane[i*3+2] = -5;
-    }
+}
 }
 knotBake.dispose();
 
@@ -114,7 +116,7 @@ scene.add(mainMesh);
 
 const particleMaterial = new THREE.PointsMaterial({ 
     color: 0x00e676, 
-    size: 2.5, 
+    size: 1.5, 
     sizeAttenuation: false,
     transparent: true, 
     opacity: 0,
