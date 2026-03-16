@@ -61,17 +61,6 @@ section, .hero, .snap-point {
     overflow: hidden;
     background: transparent !important;
 }
-.hero, 
-.snap-point, 
-.feedback-section {
-    scroll-snap-align: start;
-    scroll-snap-stop: always; /* This prevents the user from skipping sections */
-    height: 100vh; /* Ensure sections are full screen for the snap to feel right */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
 .hero {
     height: 100vh;
     width: 100vw;
