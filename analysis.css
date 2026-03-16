@@ -285,22 +285,21 @@
   --progress: -102%;
 }
 /* Loading Overlay Container */
-/* THE LOADING CONTAINER */
 .analysis-page #loading-screen {
     position: fixed;
     inset: 0;
-    background-color: #000; /* Black background instead of #17afbd */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: #000;
     z-index: 10000;
-    transition: opacity 0.8s ease, visibility 0.8s ease;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.8s ease, visibility 0.8s ease; /* The "fade" effect */
 }
 
-/* FADE OUT STATE */
+/* This is the class the JS adds after 2 seconds */
 .analysis-page #loading-screen.fade-out {
-    opacity: 0;
-    visibility: hidden;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 /* YOUR UI-VERSE ANIMATIONS (EIA GREEN THEME) */
