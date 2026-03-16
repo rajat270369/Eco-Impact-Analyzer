@@ -351,3 +351,22 @@
   animation-delay: 0.5s;
   stroke: #00e676;
 }
+/* Force black background and hide scrollbars */
+html, body.analysis-page {
+    background-color: #000 !important;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; 
+    width: 100%;
+    height: 100%;
+}
+
+/* Fix the canvas to the background */
+#rainCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* Sits behind everything */
+}
