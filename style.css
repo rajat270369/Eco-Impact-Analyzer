@@ -24,21 +24,13 @@ body {
     background-color: #000;
 }
 html {
+    /* 1. This is the master switch for snapping */
     scroll-snap-type: y mandatory;
     scroll-behavior: smooth;
-    background-color: var(--dark-bg);
+    overflow-y: scroll; /* Keep scroll on HTML level */
+    height: 100%;
 }
 
-body {
-    background-color: var(--dark-bg);
-    color: var(--text-main);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    overflow-x: hidden;
-    line-height: 1.6;
-    height: 100vh;
-    overflow-y: scroll;
-    margin: 0;
-}
 
 /* --- 2. THREE.JS RENDERING STAGE --- */
 
@@ -49,6 +41,17 @@ canvas {
 }
 
 /* --- 3. LAYOUT & SNAP CONTAINERS --- */
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    /* 2. REMOVE height: 100vh and overflow-y: scroll from here */
+    height: auto; 
+    overflow-y: visible; 
+}
+
+/* 3. Ensure every section is exactly one screen tall */
 section, .hero, .snap-point {
     scroll-snap-align: start;
     scroll-snap-stop: always;
@@ -56,9 +59,7 @@ section, .hero, .snap-point {
     width: 100vw;
     display: flex;
     position: relative;
-    z-index: 5; /* Ensures UI is above canvas */
-    padding: 0 10%;
-    overflow: hidden;
+    z-index: 5;
     background: transparent !important;
 }
 .hero {
