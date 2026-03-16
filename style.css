@@ -1,10 +1,8 @@
-html, body {
-    background-color: transparent !important; 
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-}
+/* ECO IMPACT ANALYZER - GLOBAL STYLESHEET
+    VERSION: 1.3.0 - Optimized for 3D Rendering & Visibility
+*/
 
+/* --- 1. GLOBAL ROOT & RESET --- */
 :root {
     --primary-green: #00e676;
     --dark-bg: #121212;
@@ -20,19 +18,32 @@ html, body {
     padding: 0;
     box-sizing: border-box;
 }
-body {
-    background-color: #000;
-}
+
 html {
-    /* 1. This is the master switch for snapping */
     scroll-snap-type: y mandatory;
     scroll-behavior: smooth;
-    overflow-y: scroll; /* Keep scroll on HTML level */
-    height: 100%;
+    background-color: var(--dark-bg);
 }
 
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+}
 
 /* --- 2. THREE.JS RENDERING STAGE --- */
+#canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1; /* Sits behind UI but above backgrounds */
+    background: transparent !important;
+    pointer-events: none;
+}
 
 canvas {
     display: block;
@@ -41,17 +52,6 @@ canvas {
 }
 
 /* --- 3. LAYOUT & SNAP CONTAINERS --- */
-body {
-    background-color: var(--dark-bg);
-    color: var(--text-main);
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    /* 2. REMOVE height: 100vh and overflow-y: scroll from here */
-    height: auto; 
-    overflow-y: visible; 
-}
-
-/* 3. Ensure every section is exactly one screen tall */
 section, .hero, .snap-point {
     scroll-snap-align: start;
     scroll-snap-stop: always;
@@ -59,24 +59,16 @@ section, .hero, .snap-point {
     width: 100vw;
     display: flex;
     position: relative;
-    z-index: 5;
-    background: transparent !important;
+    z-index: 5; /* Ensures UI is above canvas */
+    padding: 0 10%;
+    overflow: hidden;
 }
+
 .hero {
-    height: 100vh;
-    width: 100vw;
-    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    position: relative;
-    z-index: 10; /* Ensures text is above the globe */
-    background: transparent !important; /* MUST be transparent to see globe */
-    scroll-snap-align: start;
-}
-.analysis-page {
-    background-color: #000;
 }
 
 .snap-point {
@@ -659,24 +651,3 @@ form {
 }
 
 #main { position: relative; }
-#canvas-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1; /* Move it BEHIND everything */
-    background-color: #000 !important; /* This is now your primary background */
-    pointer-events: none;
-}
-section, .hero, .snap-point {
-    background: transparent !important;
-}
-canvas {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
-}
