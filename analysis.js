@@ -1,14 +1,14 @@
-if (document.body.classList.contains('analysis-page')) {
-    
-    // We create a function to handle the exit
-    const systemBootComplete = () => {
-        const loader = document.getElementById('loading-screen');
-        if (loader) {
-            console.log("EIA System: Analysis Ready. Fading out...");
-            loader.classList.add('fade-out');
-        }
-    };
+// --- analysis.js ---
+console.log("EIA Analysis System: Initializing...");
 
-    // FORCE the exit after 2 seconds no matter what
-    setTimeout(systemBootComplete, 2000);
-}
+window.addEventListener('DOMContentLoaded', () => {
+    const loader = document.getElementById('loading-screen');
+    
+    if (loader) {
+        // This forces the screen to fade away after 2 seconds
+        setTimeout(() => {
+            loader.classList.add('fade-out');
+            console.log("EIA Analysis System: Online.");
+        }, 2000);
+    }
+});

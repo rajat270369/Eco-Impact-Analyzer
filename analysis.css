@@ -285,27 +285,28 @@
   --progress: -102%;
 }
 /* This forces the loader to fill the whole window */
-.analysis-page #loading-screen {
-    position: fixed;    /* Crucial: Pulls it out of the corner */
+/* --- analysis.css --- */
+#loading-screen {
+    position: fixed;    /* Fixes it to the window, not the page content */
     top: 0;
     left: 0;
     width: 100vw;       /* Full viewport width */
     height: 100vh;      /* Full viewport height */
     background-color: #000;
-    display: flex;
+    display: flex;      /* Centers the SVG icon */
     justify-content: center;
     align-items: center;
-    z-index: 99999;     /* Sits on top of everything */
-    transition: opacity 0.8s ease;
+    z-index: 10000;     /* Ensures it stays on top of the green rain */
+    transition: opacity 0.8s ease, visibility 0.8s ease;
     opacity: 1;
     visibility: visible;
 }
 
-/* The class that JS will add to make it vanish */
-.analysis-page #loading-screen.fade-out {
+/* This is what the analysis.js triggers */
+#loading-screen.fade-out {
     opacity: 0 !important;
     visibility: hidden !important;
-    pointer-events: none !important;
+    pointer-events: none;
 }
 
 /* YOUR UI-VERSE ANIMATIONS (EIA GREEN THEME) */
