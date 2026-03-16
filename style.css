@@ -34,11 +34,11 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1; /* Sits behind UI but above backgrounds */
-    background: transparent !important;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* Globe sits at the very back */
     pointer-events: none;
+    background: transparent !important;
 }
 
 canvas {
@@ -61,10 +61,20 @@ section, .hero, .snap-point {
 }
 
 .hero {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
+    position: relative;
+    z-index: 10; /* Ensures text is above the globe */
+    background: transparent !important; /* MUST be transparent to see globe */
+    scroll-snap-align: start;
+}
+.analysis-page {
+    background-color: #000;
 }
 
 .snap-point {
