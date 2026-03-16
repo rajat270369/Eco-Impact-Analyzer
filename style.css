@@ -1,5 +1,7 @@
 html, body {
-    background-color: transparent !important; /* Allow the canvas behind to be visible */
+    background-color: transparent !important; 
+    margin: 0;
+    padding: 0;
 }
 
 :root {
@@ -51,6 +53,7 @@ section, .hero, .snap-point {
     z-index: 5; /* Ensures UI is above canvas */
     padding: 0 10%;
     overflow: hidden;
+    background: transparent !important;
 }
 
 .hero {
