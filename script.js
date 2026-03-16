@@ -3,6 +3,7 @@ console.log("Three.js Morph Logic v1.3.4 - Restoration Active");
 const heroSection = document.querySelector('.hero');
 const canvasContainer = document.getElementById('canvas-container');
 if (heroSection && canvasContainer) {
+    console.log("Target elements found. Initializing Three.js...");
 // --- 1. SCENE SETUP ---
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
