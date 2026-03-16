@@ -666,3 +666,11 @@ form {
 section, .hero, .snap-point {
     background: transparent !important;
 }
+canvas {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
