@@ -7,7 +7,7 @@ if (heroSection && canvasContainer) {
 // --- 1. SCENE SETUP ---
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
-camera.position.z = 50; 
+camera.position.z = 40 + (scrollPercent * 15); 
 
 const renderer = new THREE.WebGLRenderer({ 
     alpha: true, 
