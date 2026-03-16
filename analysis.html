@@ -3,42 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analysis | Eco Impact Analyzer</title>
+    <title>Analysis | EIA Project</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body class="analysis-page">
+    
+    <div id="canvas-container"></div>
 
-    <nav style="padding: 30px;">
-    <button class="btn-back" onclick="window.location.href='index.html'">
-        Go Back
-    </button>
-    </nav>
+    <main id="analysis-root"></main>
 
-    <main class="container">
-        <section class="analysis-hero">
-            <h1 class="text-expand-fwd">Environmental Analysis</h1>
-            <p class="reveal active">Detailed metrics and ecosystem tracking data will appear here.</p>
-        </section>
-        
-        <div class="card reveal active">
-            <p>Waiting for data input...</p>
-        </div>
-    <div class="options-grid">
-    <div class="option-card">
-        <h3>Air Quality</h3>
-        <p>Monitor CO2 and PM2.5 levels.</p>
-    </div>
-    <div class="option-card">
-        <h3>Water Purity</h3>
-        <p>Analyze pH and chemical runoff.</p>
-    </div>
-    <div class="option-card">
-        <h3>Biodiversity</h3>
-        <p>Track local flora and fauna shifts.</p>
-    </div>
-    </div>
-    </main>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

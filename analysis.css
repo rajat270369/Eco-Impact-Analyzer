@@ -1,0 +1,9 @@
+.analysis-section {
+    height: auto; /* Overrides the 100vh global height */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Aligns content to top instead of center */
+    padding-top: 100px; /* Gives room for the heading */
+    padding-bottom: 50px;
+}
