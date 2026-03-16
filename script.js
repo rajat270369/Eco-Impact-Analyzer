@@ -7,7 +7,7 @@ if (heroSection && canvasContainer) {
 // --- 1. SCENE SETUP ---
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
-camera.position.z = 40 + (scrollPercent * 15); 
+camera.position.z = 50; 
 
 const renderer = new THREE.WebGLRenderer({ 
     alpha: true, 
@@ -135,7 +135,7 @@ function handleScroll() {
     const scrollPercent = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
     const clamp = (v) => Math.min(Math.max(v, 0), 1);
 
-    camera.position.z = 50; 
+    camera.position.z = 40 + (scrollPercent * 15); 
 
     // Multi-Stage Morphing
     if (scrollPercent <= 0.25) {
