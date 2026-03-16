@@ -135,7 +135,7 @@ function handleScroll() {
     const scrollPercent = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
     const clamp = (v) => Math.min(Math.max(v, 0), 1);
 
-    camera.position.z = 40 + (scrollPercent * 15); 
+    camera.position.z = 50; 
 
     // Multi-Stage Morphing
     if (scrollPercent <= 0.25) {
