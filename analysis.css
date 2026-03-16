@@ -1,7 +1,17 @@
+html, body.analysis-page {
+    background-color: #000 !important;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* YOUR UIVERSE PATTERN */
 .container {
-  position: fixed; /* Keeps it locked to the screen */
+  position: fixed; /* Changed from absolute to fixed to lock it to the screen */
   inset: 0;
-  z-index: -1;      /* Ensures it stays BEHIND your content */
+  z-index: 0;      /* Behind everything */
   background: #000;
   overflow: hidden;
 }
@@ -242,15 +252,7 @@
   position: relative;
 }
 /* GLOBAL SETTINGS */
-html, body.analysis-page {
-    background-color: #000 !important;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    font-family: 'Inter', sans-serif;
-}
+
 
 /* THE RAIN CANVAS */
 #rainCanvas {
