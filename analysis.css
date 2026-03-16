@@ -284,25 +284,24 @@
 .analysis-page .btn-17:hover:after {
   --progress: -102%;
 }
-/* Loading Overlay Container */
-/* Ensure the loader covers the entire screen */
+/* This forces the loader to fill the whole window */
 .analysis-page #loading-screen {
-    position: fixed;    /* Fixes it to the viewport, not the corner */
+    position: fixed;    /* Crucial: Pulls it out of the corner */
     top: 0;
     left: 0;
-    width: 100vw;       /* Full width */
-    height: 100vh;      /* Full height */
+    width: 100vw;       /* Full viewport width */
+    height: 100vh;      /* Full viewport height */
     background-color: #000;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10000;     /* Highest possible layer */
+    z-index: 99999;     /* Sits on top of everything */
+    transition: opacity 0.8s ease;
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.8s ease, visibility 0.8s ease;
 }
 
-/* The exit trigger */
+/* The class that JS will add to make it vanish */
 .analysis-page #loading-screen.fade-out {
     opacity: 0 !important;
     visibility: hidden !important;
