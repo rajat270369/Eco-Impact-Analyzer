@@ -285,84 +285,63 @@
   --progress: -102%;
 }
 /* Loading Overlay Container */
+/* THE LOADING CONTAINER */
 .analysis-page #loading-screen {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #000;
-    z-index: 10000;
+    inset: 0;
+    background-color: #000; /* Black background instead of #17afbd */
     display: flex;
     justify-content: center;
     align-items: center;
-    /* This makes the disappearance smooth */
+    z-index: 10000;
     transition: opacity 0.8s ease, visibility 0.8s ease;
-    opacity: 1;
-    visibility: visible;
 }
 
-/* This class is added by the JavaScript after 1.8 seconds */
+/* FADE OUT STATE */
 .analysis-page #loading-screen.fade-out {
     opacity: 0;
     visibility: hidden;
 }
 
-.analysis-page .loader-wrapper {
-    text-align: center;
-}
-
-.analysis-page .loading-text {
-    color: #00e676;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 4px;
-    margin-top: 20px;
-    font-weight: 900;
-    text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
-}
-
-/* --- ANIMATIONS (Modified for Green Theme) --- */
+/* YOUR UI-VERSE ANIMATIONS (EIA GREEN THEME) */
 @keyframes bounce {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(10px); }
+  0%, 100% { translate: 0px 36px; }
+  50% { translate: 0px 46px; }
 }
 
 @keyframes bounce2 {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(10px); }
+  0%, 100% { translate: 0px 46px; }
+  50% { translate: 0px 56px; }
 }
 
 @keyframes umbral {
-    0% { stop-color: #00e6762e; }
-    50% { stop-color: #00e676; }
-    100% { stop-color: #00e6762e; }
+  0% { stop-color: #00e6762e; }
+  50% { stop-color: #00e676; }
+  100% { stop-color: #00e6762e; }
 }
 
-@keyframes particles {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+@keyframes partciles {
+  0%, 100% { translate: 0px 16px; }
+  50% { translate: 0px 6px; }
 }
 
 .analysis-page #particles {
-    animation: particles 4s ease-in-out infinite;
+  animation: partciles 4s ease-in-out infinite;
 }
 
 .analysis-page #animatedStop {
-    animation: umbral 4s infinite;
+  animation: umbral 4s infinite;
 }
 
 .analysis-page #bounce {
-    animation: bounce 4s ease-in-out infinite;
+  animation: bounce 4s ease-in-out infinite;
+  translate: 0px 36px;
+  stroke: #00e676; /* Overriding your blue for the theme */
 }
 
 .analysis-page #bounce2 {
-    animation: bounce2 4s ease-in-out infinite;
-    animation-delay: 0.5s;
-}
-
-/* Class to trigger removal */
-.analysis-page .fade-out {
-    opacity: 0;
-    visibility: hidden;
+  animation: bounce2 4s ease-in-out infinite;
+  translate: 0px 46px;
+  animation-delay: 0.5s;
+  stroke: #00e676;
 }

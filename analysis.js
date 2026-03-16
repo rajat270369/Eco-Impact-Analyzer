@@ -1,19 +1,19 @@
-// Check if we are on the Analysis Page
+// This block only runs on the Analysis Page
 if (document.body.classList.contains('analysis-page')) {
-    
-    // We start the timer as soon as the script runs
-    window.addEventListener('load', () => {
-        const loadingScreen = document.getElementById('loading-screen');
+    console.log("Analysis System: Booting...");
+
+    // Execute when the browser has finished loading the document
+    window.addEventListener('DOMContentLoaded', () => {
+        const loader = document.getElementById('loading-screen');
         
-        // Force the user to wait exactly 1.8 seconds for the "System Load" feel
-        setTimeout(() => {
-            loadingScreen.classList.add('fade-out');
-            
-            // Optional: Remove from DOM after fade to save memory
+        if (loader) {
+            // Wait exactly 2 seconds then fade out
             setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 800); // Matches the CSS transition time
-            
-        }, 1800); 
+                loader.classList.add('fade-out');
+                console.log("Analysis System: Online.");
+            }, 2000);
+        } else {
+            console.error("Critical Error: Loading screen element not found.");
+        }
     });
 }
