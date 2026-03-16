@@ -1,6 +1,8 @@
 // VERSION: 1.3.4 - Full Logic Restoration & Variable Sync
 console.log("Three.js Morph Logic v1.3.4 - Restoration Active");
-if (document.querySelector('.hero')) {
+const heroSection = document.querySelector('.hero');
+const canvasContainer = document.getElementById('canvas-container');
+if (heroSection && canvasContainer) {
 // --- 1. SCENE SETUP ---
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
