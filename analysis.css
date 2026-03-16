@@ -1,8 +1,9 @@
-
-
 .container {
-  position: absolute;
+  position: fixed; /* Keeps it locked to the screen */
   inset: 0;
+  z-index: -1;      /* Ensures it stays BEHIND your content */
+  background: #000;
+  overflow: hidden;
 }
 
 .container::before {
