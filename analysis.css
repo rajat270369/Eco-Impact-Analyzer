@@ -179,3 +179,108 @@
     min-height: 100vh;
     background: transparent !important;
 }
+/* Container to position the button */
+.analysis-page .nav-container {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    z-index: 9999;
+}
+
+/* THEMED BTN-17 */
+.analysis-page .btn-17,
+.analysis-page .btn-17 *,
+.analysis-page .btn-17 :after,
+.analysis-page .btn-17 :before,
+.analysis-page .btn-17:after,
+.analysis-page .btn-17:before {
+  border: 0 solid;
+  box-sizing: border-box;
+}
+
+.analysis-page .btn-17 {
+  /* Removed -webkit-appearance and -webkit-mask-image to fix errors */
+  appearance: none; 
+  background-color: #000;
+  background-image: none;
+  color: #00e676; 
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 900;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border: 1px solid rgba(0, 230, 118, 0.3);
+  border-radius: 99rem;
+  padding: 0.6rem 2rem;
+  transition: box-shadow 0.3s ease;
+  
+  /* Modern replacement for the clipping effect */
+  overflow: hidden; 
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.analysis-page .btn-17:hover {
+    box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+    border-color: #00e676;
+}
+
+.analysis-page .btn-17 .text-container {
+  display: block;
+  mix-blend-mode: difference; /* Keeps text visible against the sliding background */
+  position: relative;
+  overflow: hidden;
+}
+
+.analysis-page .btn-17 .text {
+  display: block;
+  position: relative;
+}
+
+.analysis-page .btn-17:hover .text {
+  animation: move-up-alternate 0.3s forwards;
+}
+
+@keyframes move-up-alternate {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(80%); }
+  51% { transform: translateY(-80%); }
+  to { transform: translateY(0); }
+}
+
+/* SLIDING BACKGROUNDS - Swapped to Green */
+.analysis-page .btn-17:after,
+.analysis-page .btn-17:before {
+  --skew: 0.2;
+  background: #00e676; /* Swapped to EIA Green */
+  content: "";
+  display: block;
+  height: 102%;
+  left: calc(-50% - 50% * var(--skew));
+  pointer-events: none;
+  position: absolute;
+  top: -104%;
+  transform: skew(calc(150deg * var(--skew))) translateY(var(--progress, 0));
+  transition: transform 0.2s ease;
+  width: 100%;
+}
+
+.analysis-page .btn-17:after {
+  --progress: 0%;
+  left: calc(50% + 50% * var(--skew));
+  top: 102%;
+  z-index: -1;
+}
+
+.analysis-page .btn-17:hover:before {
+  --progress: 100%;
+}
+
+.analysis-page .btn-17:hover:after {
+  --progress: -102%;
+}
