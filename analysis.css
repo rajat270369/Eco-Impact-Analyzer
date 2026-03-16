@@ -241,7 +241,76 @@
   display: block;
   position: relative;
 }
+/* GLOBAL SETTINGS */
+html, body.analysis-page {
+    background-color: #000 !important;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+}
 
+/* THE RAIN CANVAS */
+#rainCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1; /* Below the UI, above the black background */
+}
+
+/* THE LOADER */
+#loading-screen {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 10000; /* Highest possible layer */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+    opacity: 1;
+    visibility: visible;
+}
+
+#loading-screen.fade-out {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none;
+}
+
+/* NAVIGATION */
+.nav-container {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    z-index: 9999;
+}
+
+/* BUTTON STYLING (BTN-17) */
+.btn-17 {
+    appearance: none; 
+    background-color: #000;
+    color: #00e676; 
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    border: 1px solid rgba(0, 230, 118, 0.3);
+    border-radius: 99rem;
+    padding: 0.6rem 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-17:hover {
+    box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+    border-color: #00e676;
+}
 .analysis-page .btn-17:hover .text {
   animation: move-up-alternate 0.3s forwards;
 }
@@ -285,47 +354,6 @@
   --progress: -102%;
 }
 /* This forces the loader to fill the whole window */
-/* --- analysis.css --- */
-html, body.analysis-page {
-    background-color: #000 !important;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-#rainCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1; /* Sits above the body but below the buttons */
-    background: transparent;
-}
-
-.nav-container {
-    position: fixed;
-    z-index: 100; /* Ensure the BACK button is on top */
-}
-
-#loading-screen {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 1000; /* Highest layer */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: opacity 0.8s ease;
-}
-
-#loading-screen.fade-out {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none;
-}
 
 /* This is what the analysis.js triggers */
 #loading-screen.fade-out {
