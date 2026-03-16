@@ -198,6 +198,8 @@ window.addEventListener('resize', () => {
     handleScroll();
 
 });
+handleScroll(); 
+animate();
 }
 
 
