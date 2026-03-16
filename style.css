@@ -1,3 +1,6 @@
+html, body {
+    background-color: transparent !important; /* Allow the canvas behind to be visible */
+}
 
 :root {
     --primary-green: #00e676;
@@ -30,16 +33,6 @@ body {
 }
 
 /* --- 2. THREE.JS RENDERING STAGE --- */
-#canvas-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0; /* Globe sits at the very back */
-    pointer-events: none;
-    background: transparent !important;
-}
 
 canvas {
     display: block;
@@ -657,3 +650,16 @@ form {
 }
 
 #main { position: relative; }
+#canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* Move it BEHIND everything */
+    background-color: #000 !important; /* This is now your primary background */
+    pointer-events: none;
+}
+section, .hero, .snap-point {
+    background: transparent !important;
+}
