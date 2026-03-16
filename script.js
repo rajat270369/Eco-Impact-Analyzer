@@ -261,10 +261,3 @@ const observerOptions = { threshold: 0.2 };
         document.querySelectorAll('.reveal, .story-card').forEach(el => {
             generalObserver.observe(el);
         });
-
-        // Initialize 3D loop safely
-        window.onload = () => {
-            if (typeof init === "function") init();
-            // Start the scroll handler once to set initial positions
-            if (typeof handleScroll === "function") handleScroll();
-        };
