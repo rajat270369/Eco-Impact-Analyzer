@@ -352,6 +352,7 @@
   stroke: #00e676;
 }
 /* Force black background and hide scrollbars */
+/* Force black background and hide scrollbars */
 html, body.analysis-page {
     background-color: #000 !important;
     margin: 0;
