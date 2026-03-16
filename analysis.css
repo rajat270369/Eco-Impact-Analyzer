@@ -285,17 +285,24 @@
   --progress: -102%;
 }
 /* Loading Overlay Container */
+/* Ensure the loader covers the entire screen */
 .analysis-page #loading-screen {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 10000;
+    position: fixed;    /* Fixes it to the viewport, not the corner */
+    top: 0;
+    left: 0;
+    width: 100vw;       /* Full width */
+    height: 100vh;      /* Full height */
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;     /* Highest possible layer */
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.8s ease, visibility 0.8s ease; /* The "fade" effect */
+    transition: opacity 0.8s ease, visibility 0.8s ease;
 }
 
-/* This is the class the JS adds after 2 seconds */
+/* The exit trigger */
 .analysis-page #loading-screen.fade-out {
     opacity: 0 !important;
     visibility: hidden !important;
