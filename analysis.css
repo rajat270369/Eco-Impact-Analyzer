@@ -286,20 +286,45 @@
 }
 /* This forces the loader to fill the whole window */
 /* --- analysis.css --- */
-#loading-screen {
-    position: fixed;    /* Fixes it to the window, not the page content */
+html, body.analysis-page {
+    background-color: #000 !important;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#rainCanvas {
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;       /* Full viewport width */
-    height: 100vh;      /* Full viewport height */
-    background-color: #000;
-    display: flex;      /* Centers the SVG icon */
+    width: 100vw;
+    height: 100vh;
+    z-index: 1; /* Sits above the body but below the buttons */
+    background: transparent;
+}
+
+.nav-container {
+    position: fixed;
+    z-index: 100; /* Ensure the BACK button is on top */
+}
+
+#loading-screen {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 1000; /* Highest layer */
+    display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10000;     /* Ensures it stays on top of the green rain */
-    transition: opacity 0.8s ease, visibility 0.8s ease;
-    opacity: 1;
-    visibility: visible;
+    transition: opacity 0.8s ease;
+}
+
+#loading-screen.fade-out {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none;
 }
 
 /* This is what the analysis.js triggers */
@@ -350,24 +375,4 @@
   translate: 0px 46px;
   animation-delay: 0.5s;
   stroke: #00e676;
-}
-/* Force black background and hide scrollbars */
-/* Force black background and hide scrollbars */
-html, body.analysis-page {
-    background-color: #000 !important;
-    margin: 0;
-    padding: 0;
-    overflow: hidden; 
-    width: 100%;
-    height: 100%;
-}
-
-/* Fix the canvas to the background */
-#rainCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1; /* Sits behind everything */
 }
