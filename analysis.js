@@ -1,11 +1,19 @@
+// Check if we are on the Analysis Page
 if (document.body.classList.contains('analysis-page')) {
-    // Wait for the window to finish loading assets
+    
+    // We start the timer as soon as the script runs
     window.addEventListener('load', () => {
-        const loader = document.getElementById('loading-screen');
+        const loadingScreen = document.getElementById('loading-screen');
         
-        // Brief delay for the "Cool Factor" so the animation is seen
+        // Force the user to wait exactly 1.8 seconds for the "System Load" feel
         setTimeout(() => {
-            loader.classList.add('fade-out');
-        }, 1500); 
+            loadingScreen.classList.add('fade-out');
+            
+            // Optional: Remove from DOM after fade to save memory
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 800); // Matches the CSS transition time
+            
+        }, 1800); 
     });
 }
