@@ -168,3 +168,14 @@
       426.5px 6480px;
   }
 }
+.analysis-page {
+    background-color: transparent !important;
+    margin: 0;
+    padding: 0;
+}
+#analysis-root {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    background: transparent !important;
+}
