@@ -188,6 +188,7 @@ html, body.analysis-page {
     z-index: 1;
     min-height: 100vh;
     background: transparent !important;
+    justify-content: center;
 }
 /* Container to position the button */
 .analysis-page .nav-container {
@@ -436,6 +437,7 @@ html, body.analysis-page {
     gap: 5rem;                /* Add space between each mascot */
     padding: 2rem;
     width: 100%;
+    align-items: flex-start;
 }
 
 .pillar-card {
