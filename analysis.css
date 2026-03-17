@@ -459,7 +459,11 @@ html, body.analysis-page {
     justify-content: center;
     align-items: center;
     gap: 4rem;
-    padding-top: 20px; /* Pushes the whole group down so they don't hit the ceiling */
+    /* Change this value: smaller number = higher on screen */
+    padding-top: 20px; 
+    
+    /* OR use a negative margin to pull it up even further */
+    margin-top: -50px;
 }
 .pillar-card {
     display: flex;
