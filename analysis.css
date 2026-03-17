@@ -495,8 +495,9 @@ html, body.analysis-page {
     var(--color-one) 30%,
     var(--color-two) 70%
   );
-  mask: url(#clipping);
-  -webkit-mask: url(#clipping);
+  /* Make sure this ID matches your SVG mask ID */
+  mask: url(#clipping-mask);
+  -webkit-mask: url(#clipping-mask);
 }
 
 .loader svg {
@@ -511,7 +512,14 @@ html, body.analysis-page {
 .loader svg #clipping polygon {
   filter: blur(7px);
 }
+.loader svg #clipping-mask {
+  filter: contrast(15) brightness(1); /* High contrast creates the "liquid" merge effect */
+  animation: roundness calc(var(--time-animation) / 2) linear infinite;
+}
 
+.loader svg #clipping-mask polygon {
+  filter: blur(7px); /* Blur + High Contrast = Metaballs effect */
+}
 .loader svg #clipping polygon:nth-child(1) {
   transform-origin: 75% 25%;
   transform: rotate(90deg);

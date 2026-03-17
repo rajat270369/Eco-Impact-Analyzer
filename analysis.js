@@ -37,3 +37,23 @@ if (canvas) {
     }
     setInterval(draw, 33);
 }
+// --- analysis.js ---
+
+function activateModule(moduleType) {
+    console.log(`EIA System: Activating ${moduleType} module...`);
+    
+    // Example logic to update the numbers
+    // In the future, this will 'fetch' from your Render Python backend
+    const values = {
+        'monitor': { id: 'neutral-val', text: '12% Offset' },
+        'analyze': { id: 'pollution-val', text: '0.45 CO2e' },
+        'strategize': { id: 'social-val', text: 'High Impact' },
+        'develop': { id: 'waste-val', text: '1.24kg' }
+    };
+
+    const target = values[moduleType];
+    if (target) {
+        document.getElementById(target.id).innerText = target.text;
+        document.getElementById(target.id).style.color = "#00e676"; // Highlight on update
+    }
+}
