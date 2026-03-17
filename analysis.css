@@ -477,9 +477,16 @@ html, body.analysis-page {
     flex-direction: row;
     justify-content: center;
     width: 100%;
-    gap: 2rem;
+    gap: 4rem;
+    width: 100%;
+    margin-top: -5vh;
 }
-
+.button-wrapper .btn.cube {
+    /* 3. This ensures each button takes up the same relative space as a fox */
+    flex: 1; 
+    max-width: 180px; /* Match this to your mascot-wrapper width */
+    margin: 0;
+}
 /* Fix: The button's existing bounce animation name clashes with your loader.
    Let's rename it specifically for the button to avoid glitches. */
 .cube:active {
