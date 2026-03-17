@@ -477,9 +477,9 @@ html, body.analysis-page {
     flex-direction: row;
     justify-content: center;
     width: 100%;
-    gap: 4rem;
+    gap: 5rem;
     width: 100%;
-    margin-top: -5vh;
+    margin-top: -15vh;
 }
 .button-wrapper .btn.cube {
     /* 3. This ensures each button takes up the same relative space as a fox */
