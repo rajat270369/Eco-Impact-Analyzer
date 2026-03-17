@@ -450,21 +450,16 @@ html, body.analysis-page {
 }
 
 @keyframes floatHigher {
-    0%, 100% { 
-        transform: translateY(-40px); /* This is the "Higher" starting point */
-    }
-    50% { 
-        transform: translateY(-60px); /* This is the peak of the float */
-    }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); } /* Just a small 15px bob */
 }
-
 .dashboard-grid {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     gap: 4rem;
-    padding-top: 100px; /* Pushes the whole group down so they don't hit the ceiling */
+    padding-top: 80px; /* Pushes the whole group down so they don't hit the ceiling */
 }
 .pillar-card {
     display: flex;
