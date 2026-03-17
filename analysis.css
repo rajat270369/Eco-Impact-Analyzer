@@ -251,7 +251,7 @@ html, body.analysis-page {
 #analysis-root {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* This moves the grid from the top to the center */
+    justify-content: flex-start; /* This moves the grid from the top to the center */
     align-items: center;
     min-height: 100vh;       /* Ensures the container takes up the full screen height */
     padding-top: 50px;       /* Adds a little extra breathing room from the nav bar */
