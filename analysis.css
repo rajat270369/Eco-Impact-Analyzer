@@ -428,3 +428,20 @@ html, body.analysis-page {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
 }
+.dashboard-grid {
+    display: flex;
+    flex-direction: row;      /* Force horizontal alignment */
+    justify-content: center;  /* Center them in the middle of the screen */
+    align-items: flex-end;    /* Align them at the bottom so they sit on the same line */
+    gap: 5rem;                /* Add space between each mascot */
+    padding: 2rem;
+    width: 100%;
+}
+
+.pillar-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      /* Center the text under each mascot */
+    flex: 1;                  /* Allow each card to take up equal space */
+    max-width: 200px;         /* Prevent them from becoming too wide */
+}
