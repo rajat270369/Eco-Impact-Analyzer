@@ -523,3 +523,65 @@ html, body.analysis-page {
     text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
     margin: 0;
 }
+/* --- EIA Theme Button Colors --- */
+
+.button {
+  /* ... keep your existing position/size properties ... */
+  box-shadow: 0 10px 20px rgba(0, 230, 118, 0.1); /* Subtle green shadow */
+  border: 1px solid rgba(0, 230, 118, 0.3);      /* Glassmorphism border */
+}
+
+/* The label that slides UP on hover (The "Action" text) */
+.button::before {
+  /* CONTENT is set in the specific btn classes below */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #00e676, #00c853); /* Vibrant EIA Green */
+  color: #000; /* Black text on green background pops better */
+  font-weight: 900;
+  transform: translate(0%, 90%);
+  z-index: 99;
+  position: relative;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+/* The label that slides UP and away (The "Module" name) */
+.button::after {
+  /* CONTENT is set in the specific btn classes below */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.8); /* Darker background */
+  color: #00e676;                       /* Green text */
+  width: 100%;
+  height: 100%;
+  transform: translate(0%, -100%);
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+/* SPECIFIC MODULE LABELS */
+.btn-monitor::after { content: "MONITOR"; }
+.btn-monitor::before { content: "NEUTRALIZATION"; }
+
+.btn-analyze::after { content: "ANALYZE"; }
+.btn-analyze::before { content: "POLLUTION"; }
+
+.btn-strategize::after { content: "STRATEGIZE"; }
+.btn-strategize::before { content: "SOCIAL IMPACT"; }
+
+.btn-develop::after { content: "DEVELOP"; }
+.btn-develop::before { content: "WASTE MGMT"; }
+
+/* Interactive Glow */
+.button:hover {
+  box-shadow: 0 0 20px rgba(0, 230, 118, 0.6);
+  border-color: #00e676;
+}
+
+.button:active {
+  scale: 0.95;
+  box-shadow: 0 0 5px rgba(0, 230, 118, 0.8);
+}
