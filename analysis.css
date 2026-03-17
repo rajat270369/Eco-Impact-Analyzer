@@ -479,7 +479,7 @@ html, body.analysis-page {
     width: 100%;
     gap: 7rem;
     width: 100%;
-    margin-top: -22vh;
+    margin-top: -25vh;
 }
 .button-wrapper .btn.cube {
     /* 3. This ensures each button takes up the same relative space as a fox */
