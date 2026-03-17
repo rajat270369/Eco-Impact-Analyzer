@@ -9,16 +9,7 @@
 </head>
 <body class="analysis-page">
     
-    <svg width="0" height="0" style="position: absolute;">
-      <defs>
-        <mask id="clipping-mask" maskUnits="objectBoundingBox">
-          <polygon points="0.5 0, 1 0.25, 1 0.75, 0.5 1, 0 0.75, 0 0.25"></polygon>
-          <polygon points="0.5 0.2, 0.8 0.4, 0.8 0.6, 0.5 0.8, 0.2 0.6, 0.2 0.4"></polygon>
-        </mask>
-      </defs>
-    </svg>
-    
-    <canvas id="rainCanvas" class="container"></canvas>
+    <div class="container"></div>
 
     <div id="loading-screen">
         <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 100 100">
@@ -28,7 +19,13 @@
                     <stop id="animatedStop" offset="100%" />
                 </linearGradient>
             </defs>
-            <path id="bounce" d="M30 20 L50 0 L70 20" fill="none" stroke="#00e676" stroke-width="3" />
+            <g id="particles" fill="#00e676">
+                <circle cx="20" cy="10" r="1" />
+                <circle cx="80" cy="15" r="1" />
+                <circle cx="50" cy="5" r="1" />
+            </g>
+            <path id="bounce" d="M30 20 L50 0 L70 20" fill="none" stroke-width="3" />
+            <path id="bounce2" d="M35 30 L50 15 L65 30" fill="none" stroke-width="2" opacity="0.5" />
         </svg>
     </div>
 
@@ -41,50 +38,7 @@
     </div>
 
     <main id="analysis-root">
-        <div class="dashboard-grid">
-            
-            <div class="pillar-card" onclick="activateModule('monitor')">
-                <div class="loader-container">
-                    <div class="loader">
-                        <div class="box"></div>
-                    </div>
-                </div>
-                <h3>NEUTRALIZATION</h3>
-                <p class="metric-value" id="neutral-val">0% Offset</p>
-            </div>
-
-            <div class="pillar-card" onclick="activateModule('analyze')">
-                <div class="loader-container">
-                    <div class="loader">
-                        <div class="box"></div>
-                    </div>
-                </div>
-                <h3>POLLUTION ESTIMATE</h3>
-                <p class="metric-value" id="pollution-val">Clear</p>
-            </div>
-
-            <div class="pillar-card" onclick="activateModule('strategize')">
-                <div class="loader-container">
-                    <div class="loader">
-                        <div class="box"></div>
-                    </div>
-                </div>
-                <h3>SOCIAL IMPACT</h3>
-                <p class="metric-value" id="social-val">Stable</p>
-            </div>
-
-            <div class="pillar-card" onclick="activateModule('develop')">
-                <div class="loader-container">
-                    <div class="loader">
-                        <div class="box"></div>
-                    </div>
-                </div>
-                <h3>WASTE GENERATED</h3>
-                <p class="metric-value" id="waste-val">0.00kg</p>
-            </div>
-
-        </div>
-    </main>
+        </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="analysis.js"></script> 
