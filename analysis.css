@@ -460,7 +460,7 @@ html, body.analysis-page {
     align-items: flex-start;
     gap: 4rem;
     /* Change this value: smaller number = higher on screen */
-    padding-top: 15vh; 
+    padding-top: 10vh; 
     width: 100%;
 }
 .pillar-card {
