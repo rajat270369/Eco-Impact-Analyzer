@@ -183,13 +183,6 @@ html, body.analysis-page {
     margin: 0;
     padding: 0;
 }
-#analysis-root {
-    position: relative;
-    z-index: 1;
-    min-height: 100vh;
-    background: transparent !important;
-    justify-content: center;
-}
 /* Container to position the button */
 .analysis-page .nav-container {
     position: fixed;
@@ -253,7 +246,25 @@ html, body.analysis-page {
   position: relative;
 }
 /* GLOBAL SETTINGS */
+/* --- analysis.css --- */
 
+#analysis-root {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* This moves the grid from the top to the center */
+    align-items: center;
+    min-height: 100vh;       /* Ensures the container takes up the full screen height */
+    padding-top: 50px;       /* Adds a little extra breathing room from the nav bar */
+}
+
+.dashboard-grid {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start; /* Keeps the foxes level with each other */
+    gap: 4rem;
+    width: 100%;
+}
 
 /* THE RAIN CANVAS */
 #rainCanvas {
