@@ -415,20 +415,6 @@ html, body.analysis-page {
     z-index: 10;
 }
 
-.pillar-card {
-    background: none !important; /* Removes the box background */
-    border: none !important;     /* Removes the box border */
-    backdrop-filter: none;       /* Removes the blur box */
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.pillar-card:hover {
-    background: rgba(0, 230, 118, 0.1);
-    transform: translateY(-10px);
-    border-color: #00e676;
-}
 
 .loader-container {
     display: flex;
@@ -438,19 +424,41 @@ html, body.analysis-page {
     filter: hue-rotate(80deg) saturate(2); 
 }
 
+.pillar-card {
+    background: rgba(0, 230, 118, 0.05); /* Very faint green tint */
+    border-left: 3px solid #00e676;      /* Single accent line */
+    padding: 20px;
+    text-align: left;                    /* Left aligned looks more like a terminal */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pillar-card:hover {
+    background: rgba(0, 230, 118, 0.15);
+    transform: translateX(10px);         /* Slides slightly to the right */
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    background: #00e676;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00e676;
+    margin-bottom: 15px;
+}
+
 .pillar-card h3 {
-    color: #00e676;
-    letter-spacing: 2px;
-    font-size: 1rem;
-    margin: 10px 0;
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    margin: 5px 0;
+    opacity: 0.8;
 }
 
 .metric-value {
-    color: #fff;
-    font-family: monospace;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+    font-weight: 900;
+    font-family: 'Courier New', monospace;
 }
-
 /* From Uiverse.io by andrew-manzyk */ 
 .loader {
   --color-one: #ffbf48;
