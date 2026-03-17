@@ -472,7 +472,7 @@ html, body.analysis-page {
 }
 /* Container to give the button some breathing room from the foxes */
 .button-wrapper {
-    margin-top: 4rem; 
+    margin-top: 1rem; 
     display: flex;
     justify-content: center;
     width: 100%;
@@ -586,10 +586,10 @@ html, body.analysis-page {
 
 .cube:active {
   z-index: 9999;
-  animation: bounce 0.1s linear;
+  animation: cube-press 0.1s linear;
 }
 
-@keyframes bounce {
+@keyframes cube-press {
   50% {
     transform: scale(0.9);
   }
