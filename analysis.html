@@ -38,7 +38,30 @@
     </div>
 
     <main id="analysis-root">
-        </main>
+        <div class="dashboard-grid">
+            
+            <div class="pillar-card">
+                <button class="button btn-monitor" onclick="activateModule('monitor')"></button>
+                <p class="metric-value" id="neutral-val">0% Offset</p>
+            </div>
+
+            <div class="pillar-card">
+                <button class="button btn-analyze" onclick="activateModule('analyze')"></button>
+                <p class="metric-value" id="pollution-val">Clear</p>
+            </div>
+
+            <div class="pillar-card">
+                <button class="button btn-strategize" onclick="activateModule('strategize')"></button>
+                <p class="metric-value" id="social-val">Stable</p>
+            </div>
+
+            <div class="pillar-card">
+                <button class="button btn-develop" onclick="activateModule('develop')"></button>
+                <p class="metric-value" id="waste-val">0.00kg</p>
+            </div>
+
+        </div>
+    </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="analysis.js"></script> 
