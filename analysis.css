@@ -431,12 +431,31 @@ html, body.analysis-page {
 }
 /* --- analysis.css --- */
 
+
 .mascot-wrapper {
-    width: 170px;  /* Increased from 150px for that "tiny bit bigger" look */
-    height: 170px;
+    width: 180px;  /* Slightly bigger as requested */
+    height: 180px;
     margin: 0 auto;
-    /* This lifts them up slightly without messing up the text placement below */
-    transform: translateY(-20px); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.eco-fox {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 12px #00e676);
+    /* Lifts them up and starts the animation */
+    animation: floatHigher 4s ease-in-out infinite; 
+}
+
+@keyframes floatHigher {
+    0%, 100% { 
+        transform: translateY(-40px); /* This is the "Higher" starting point */
+    }
+    50% { 
+        transform: translateY(-60px); /* This is the peak of the float */
+    }
 }
 
 .dashboard-grid {
@@ -444,18 +463,9 @@ html, body.analysis-page {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 3.5rem;   /* Adjusted gap for the larger size */
-    width: 100%;
-    /* Increase this padding to push the whole row down further if needed */
-    padding-top: 120px; 
+    gap: 4rem;
+    padding-top: 100px; /* Pushes the whole group down so they don't hit the ceiling */
 }
-
-.eco-fox {
-    width: 100%;
-    height: 100%;
-    filter: drop-shadow(0 0 15px #00e676); /* Slightly stronger glow for the bigger size */
-}
-
 .pillar-card {
     display: flex;
     flex-direction: column;
