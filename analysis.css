@@ -460,10 +460,7 @@ html, body.analysis-page {
     align-items: center;
     gap: 4rem;
     /* Change this value: smaller number = higher on screen */
-    padding-top: 20px; 
-    
-    /* OR use a negative margin to pull it up even further */
-    margin-top: -50px;
+    padding-top: 50px; 
 }
 .pillar-card {
     display: flex;
