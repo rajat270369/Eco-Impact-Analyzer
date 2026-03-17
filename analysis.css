@@ -406,3 +406,58 @@ html, body.analysis-page {
   animation-delay: 0.5s;
   stroke: #00e676;
 }
+/* --- analysis.css --- */
+
+.dashboard-grid {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 50px;
+    padding: 20px;
+}
+
+.pillar-card {
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.pillar-card:hover {
+    transform: translateY(-10px);
+}
+
+.mascot-container {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mascot {
+    width: 80px;
+    height: 80px;
+    background: #00e676; /* Replace with your mascot image URL if using one */
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Give each mascot a slightly different float timing so they don't move in sync */
+.analyze-mascot { animation-delay: 0.5s; background: #00c853; }
+.strategize-mascot { animation-delay: 1s; background: #69f0ae; }
+.develop-mascot { animation-delay: 1.5s; background: #1b5e20; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
+
+.metric-value {
+    color: #00e676;
+    font-weight: 900;
+    font-family: monospace;
+    font-size: 1.2rem;
+}
