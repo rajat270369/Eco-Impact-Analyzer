@@ -470,3 +470,127 @@ html, body.analysis-page {
     flex: 1;                  /* Allow each card to take up equal space */
     max-width: 200px;         /* Prevent them from becoming too wide */
 }
+/* Container to give the button some breathing room from the foxes */
+.button-wrapper {
+    margin-top: 4rem; 
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Fix: The button's existing bounce animation name clashes with your loader.
+   Let's rename it specifically for the button to avoid glitches. */
+.cube:active {
+    z-index: 999;
+    animation: btn-press 0.1s linear;
+}
+
+@keyframes btn-press {
+    50% { transform: scale(0.9); }
+}
+
+/* Optional: If you want the button to match your EIA Green theme, 
+   swap #d4af37 (Gold) with #00e676 (Green) in your button CSS. */
+   /* From Uiverse.io by gagan-gv */ 
+.btn {
+  display: block;
+  padding: 0.7em 1em;
+  background: transparent;
+  outline: none;
+  border: 0;
+  color: #00e676;
+  letter-spacing: 0.1em;
+  font-family: monospace;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.cube {
+  position: relative;
+  transition: all 0.5s;
+}
+
+.cube .bg-top {
+  position: absolute;
+  height: 10px;
+  background: #00e676;
+  bottom: 100%;
+  left: 5px;
+  right: -5px;
+  transform: skew(-45deg, 0);
+  margin: 0;
+  transition: all 0.4s;
+}
+
+.cube .bg-top .bg-inner {
+  bottom: 0;
+}
+
+.cube .bg {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  top: 0;
+  right: 0;
+  background: #00e676;
+  transition: all 0.4s;
+}
+
+.cube .bg-right {
+  position: absolute;
+  background: #00e676;
+  top: -5px;
+  z-index: 0;
+  bottom: 5px;
+  width: 10px;
+  left: 100%;
+  transform: skew(0, -45deg);
+  transition: all 0.4s;
+}
+
+.cube .bg-right .bg-inner {
+  left: 0;
+}
+
+.cube .bg-inner {
+  background: #28282d;
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 2px;
+  bottom: 2px;
+}
+
+.cube .text {
+  position: relative;
+  transition: all 0.4s;
+}
+
+.cube:hover .bg-inner {
+  background: #00e676;
+  transition: all 0.4s;
+}
+
+.cube:hover .text {
+  color: #28282d;
+  transition: all 0.4s;
+}
+
+.cube:hover .bg-right,
+.cube:hover .bg,
+.cube:hover .bg-top {
+  background: #28282d;
+}
+
+.cube:active {
+  z-index: 9999;
+  animation: bounce 0.1s linear;
+}
+
+@keyframes bounce {
+  50% {
+    transform: scale(0.9);
+  }
+}
