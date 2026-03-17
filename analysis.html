@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body class="analysis-page">
-    <body class="analysis-page">
+    
     <svg width="0" height="0" style="position: absolute;">
       <defs>
         <mask id="clipping-mask" maskUnits="objectBoundingBox">
@@ -47,14 +47,6 @@
                 <div class="loader-container">
                     <div class="loader">
                         <div class="box"></div>
-                        <svg width="0" height="0">
-                            <defs>
-                                <mask id="clipping" maskUnits="objectBoundingBox">
-                                    <polygon points="0.5 0, 1 0.25, 1 0.75, 0.5 1, 0 0.75, 0 0.25"></polygon>
-                                    <polygon points="0.5 0.2, 0.8 0.4, 0.8 0.6, 0.5 0.8, 0.2 0.6, 0.2 0.4"></polygon>
-                                </mask>
-                            </defs>
-                        </svg>
                     </div>
                 </div>
                 <h3>NEUTRALIZATION</h3>
@@ -63,7 +55,9 @@
 
             <div class="pillar-card" onclick="activateModule('analyze')">
                 <div class="loader-container">
-                    <div class="loader"><div class="box"></div></div>
+                    <div class="loader">
+                        <div class="box"></div>
+                    </div>
                 </div>
                 <h3>POLLUTION ESTIMATE</h3>
                 <p class="metric-value" id="pollution-val">Clear</p>
@@ -71,7 +65,9 @@
 
             <div class="pillar-card" onclick="activateModule('strategize')">
                 <div class="loader-container">
-                    <div class="loader"><div class="box"></div></div>
+                    <div class="loader">
+                        <div class="box"></div>
+                    </div>
                 </div>
                 <h3>SOCIAL IMPACT</h3>
                 <p class="metric-value" id="social-val">Stable</p>
@@ -79,7 +75,9 @@
 
             <div class="pillar-card" onclick="activateModule('develop')">
                 <div class="loader-container">
-                    <div class="loader"><div class="box"></div></div>
+                    <div class="loader">
+                        <div class="box"></div>
+                    </div>
                 </div>
                 <h3>WASTE GENERATED</h3>
                 <p class="metric-value" id="waste-val">0.00kg</p>

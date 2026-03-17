@@ -416,14 +416,12 @@ html, body.analysis-page {
 }
 
 .pillar-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(0, 230, 118, 0.2);
-    border-radius: 20px;
-    padding: 2rem;
+    background: none !important; /* Removes the box background */
+    border: none !important;     /* Removes the box border */
+    backdrop-filter: none;       /* Removes the blur box */
     text-align: center;
-    transition: all 0.3s ease;
     cursor: pointer;
+    transition: transform 0.3s ease;
 }
 
 .pillar-card:hover {
