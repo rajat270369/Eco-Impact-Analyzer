@@ -418,18 +418,7 @@ html, body.analysis-page {
   animation-delay: 0.5s;
   stroke: #00e676;
 }
-.mascot-wrapper {
-    width: 150px;
-    height: 150px;
-    margin: 0 auto;
-}
 
-.eco-fox {
-    width: 100%;
-    height: 100%;
-    filter: drop-shadow(0 0 10px #00e676);
-    animation: float 4s ease-in-out infinite;
-}
 
 /* Stagger the animations so they don't look like robots in sync */
 .pillar-card:nth-child(2) .eco-fox { animation-delay: 1s; }
@@ -440,15 +429,31 @@ html, body.analysis-page {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
 }
+/* --- analysis.css --- */
+
+.mascot-wrapper {
+    width: 170px;  /* Increased from 150px for that "tiny bit bigger" look */
+    height: 170px;
+    margin: 0 auto;
+    /* This lifts them up slightly without messing up the text placement below */
+    transform: translateY(-20px); 
+}
+
 .dashboard-grid {
     display: flex;
-    flex-direction: row;      /* Force horizontal alignment */
-    justify-content: center;  /* Center them in the middle of the screen */
-    align-items: flex-end;    /* Align them at the bottom so they sit on the same line */
-    gap: 5rem;                /* Add space between each mascot */
-    padding: 2rem;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 3.5rem;   /* Adjusted gap for the larger size */
     width: 100%;
-    align-items: flex-start;
+    /* Increase this padding to push the whole row down further if needed */
+    padding-top: 120px; 
+}
+
+.eco-fox {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 15px #00e676); /* Slightly stronger glow for the bigger size */
 }
 
 .pillar-card {
