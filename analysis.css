@@ -472,10 +472,12 @@ html, body.analysis-page {
 }
 /* Container to give the button some breathing room from the foxes */
 .button-wrapper {
-    margin-top: 1rem; 
+    margin-top: 2rem; 
     display: flex;
+    flex-direction: row;
     justify-content: center;
     width: 100%;
+    gap: 2rem;
 }
 
 /* Fix: The button's existing bounce animation name clashes with your loader.
@@ -506,7 +508,9 @@ html, body.analysis-page {
   cursor: pointer;
   z-index: 1;
 }
-
+.btn.cube {
+    min-width: 160px;
+}
 .cube {
   position: relative;
   transition: all 0.5s;
