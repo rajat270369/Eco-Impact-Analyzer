@@ -457,10 +457,11 @@ html, body.analysis-page {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     gap: 4rem;
     /* Change this value: smaller number = higher on screen */
-    padding-top: 50px; 
+    padding-top: 15vh; 
+    width: 100%;
 }
 .pillar-card {
     display: flex;
