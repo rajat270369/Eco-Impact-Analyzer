@@ -40,6 +40,7 @@ if (canvas) {
 /* --- analysis.js --- */
 
 async function runAnalysis() {
+    console.log("Button clicked! Connecting to Render...");
     // 1. Collect
     const payload = {
         diesel: parseFloat(document.getElementById('diesel-input').value) || 0,
