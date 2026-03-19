@@ -37,7 +37,6 @@
         </button>
     </div>
 
-    <main id="analysis-root">
         <div class="dashboard-grid">
             
             <div class="pillar-card" onclick="activateModule('monitor')">
@@ -89,7 +88,6 @@
             </div>
 
         </div>
-        <main id="analysis-root">
     <div class="dashboard-grid">
         <div class="pillar-card" onclick="activateModule('monitor')">...</div>
         <div class="pillar-card" onclick="activateModule('analyze')">...</div>
@@ -105,7 +103,7 @@
         <div class="text">MONITOR</div>
     </button>
 
-    <button class="btn cube" type="button">
+    <button class="btn cube" type="button" onclick="runAnalysis()">
         <div class="bg-top"><div class="bg-inner"></div></div>
         <div class="bg-right"><div class="bg-inner"></div></div>
         <div class="bg"><div class="bg-inner"></div></div>
@@ -130,7 +128,23 @@
 </main>
  <div class="analysis-container">
     <div class="input-grid">
-        </div>
+    <div class="input-group">
+        <label>Diesel (Liters)</label>
+        <input type="number" id="diesel-input" placeholder="0">
+    </div>
+    <div class="input-group">
+        <label>Electricity (kWh)</label>
+        <input type="number" id="elec-input" placeholder="0">
+    </div>
+    <div class="input-group">
+        <label>Concrete (m³)</label>
+        <input type="number" id="concrete-input" placeholder="0">
+    </div>
+    <div class="input-group">
+        <label>Plastic (kg)</label>
+        <input type="number" id="plastic-input" placeholder="0">
+    </div>
+</div>
 
     <div id="results-display" class="results-grid" style="display: none;">
         <div class="result-card">
