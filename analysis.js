@@ -40,45 +40,27 @@ if (canvas) {
 /* --- analysis.js --- */
 
 async function runAnalysis() {
-    // 1. Get the values from your input fields
-    // Ensure these IDs match your <input> tags in HTML
-    const dieselVal = document.getElementById('diesel-input')?.value || 0;
-    const elecVal = document.getElementById('elec-input')?.value || 0;
-    const concreteVal = document.getElementById('concrete-input')?.value || 0;
-    const plasticVal = document.getElementById('plastic-input')?.value || 0;
-
+    // 1. Collect
     const payload = {
-        diesel: parseFloat(dieselVal),
-        electricity: parseFloat(elecVal),
-        concrete: parseFloat(concreteVal),
-        plastic: parseFloat(plasticVal)
+        diesel: parseFloat(document.getElementById('diesel-input').value) || 0,
+        electricity: parseFloat(document.getElementById('elec-input').value) || 0,
+        concrete: parseFloat(document.getElementById('concrete-input').value) || 0,
+        plastic: parseFloat(document.getElementById('plastic-input').value) || 0
     };
 
-    try {
-        // 2. Send data to your LIVE Render backend
-        const response = await fetch('https://eco-impact-backend.onrender.com/calculate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+    // 2. Fetch from your Render URL
+    const response = await fetch('https://eco-impact-backend.onrender.com/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
 
-        if (!response.ok) throw new Error("Backend Error");
+    const results = await response.json();
 
-        const results = await response.json();
-
-        // 3. Show the Results Section
-        const resultsDisplay = document.getElementById('results-display');
-        resultsDisplay.style.display = 'grid'; // Makes the cards appear
-        resultsDisplay.classList.add('fade-in'); // Optional animation
-
-        // 4. Update the 4 Result Cards with your Python's math
-        document.getElementById('res-air').innerText = results.air_pollution;
-        document.getElementById('res-waste').innerText = results.solid_waste;
-        document.getElementById('res-co2').innerText = results.co2_emissions;
-        document.getElementById('res-score').innerText = results.impact_score;
-
-    } catch (error) {
-        console.error("Analysis failed:", error);
-        alert("Could not connect to the Analysis Engine. Check if the backend is awake!");
-    }
+    // 3. Display
+    document.getElementById('results-display').style.display = 'grid';
+    document.getElementById('res-air').innerText = results.air_pollution;
+    document.getElementById('res-waste').innerText = results.solid_waste;
+    document.getElementById('res-co2').innerText = results.co2_emissions;
+    document.getElementById('res-score').innerText = results.impact_score;
 }
