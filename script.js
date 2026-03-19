@@ -1,4 +1,3 @@
-// VERSION: 1.3.4 - Full Logic Restoration & Variable Sync
 console.log("Three.js Morph Logic v1.3.4 - Restoration Active");
 
 // --- 1. SCENE SETUP ---

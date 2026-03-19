@@ -37,3 +37,28 @@ if (canvas) {
     }
     setInterval(draw, 33);
 }
+async function runAnalysis() {
+    // 1. Get values from your input fields
+    const payload = {
+        diesel: document.getElementById('diesel-input').value,
+        electricity: document.getElementById('elec-input').value,
+        concrete: document.getElementById('concrete-input').value,
+        plastic: document.getElementById('plastic-input').value
+    };
+
+    // 2. Post to Python
+    const response = await fetch('/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    const results = await response.json();
+
+    // 3. Show the Results section and update numbers
+    document.getElementById('results-display').style.display = 'grid';
+    document.getElementById('res-air').innerText = results.air_pollution;
+    document.getElementById('res-waste').innerText = results.solid_waste;
+    document.getElementById('res-co2').innerText = results.co2_emissions;
+    document.getElementById('res-score').innerText = results.impact_score;
+}
