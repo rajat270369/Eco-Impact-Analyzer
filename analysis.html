@@ -128,27 +128,22 @@
 </div>
     
 </main>
- <div class="analysis-container">
-    <div class="input-grid">
-        </div>
-
-    <div id="results-display" class="results-grid" style="display: none;">
-        <div class="result-card">
-            <span class="label">Air Pollution</span>
-            <span id="res-air" class="value">0</span>
-        </div>
-        <div class="result-card">
-            <span class="label">Solid Waste</span>
-            <span id="res-waste" class="value">0</span>
-        </div>
-        <div class="result-card">
-            <span class="label">CO2 Emissions</span>
-            <span id="res-co2" class="value">0</span>
-        </div>
-        <div class="result-card">
-            <span class="label">Impact Score</span>
-            <span id="res-score" class="value">0</span>
-        </div>
+ <div class="input-grid">
+    <div class="input-group">
+        <label>Diesel (Liters)</label>
+        <input type="number" id="diesel-input" placeholder="0" oninput="runAnalysis()">
+    </div>
+    <div class="input-group">
+        <label>Electricity (kWh)</label>
+        <input type="number" id="elec-input" placeholder="0" oninput="runAnalysis()">
+    </div>
+    <div class="input-group">
+        <label>Concrete (m³)</label>
+        <input type="number" id="concrete-input" placeholder="0" oninput="runAnalysis()">
+    </div>
+    <div class="input-group">
+        <label>Plastic (kg)</label>
+        <input type="number" id="plastic-input" placeholder="0" oninput="runAnalysis()">
     </div>
 </div>
     </main>

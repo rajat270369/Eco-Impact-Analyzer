@@ -37,29 +37,48 @@ if (canvas) {
     }
     setInterval(draw, 33);
 }
+/* --- analysis.js --- */
+
 async function runAnalysis() {
-    // Collect data from your inputs
+    // 1. Get the values from your input fields
+    // Ensure these IDs match your <input> tags in HTML
+    const dieselVal = document.getElementById('diesel-input')?.value || 0;
+    const elecVal = document.getElementById('elec-input')?.value || 0;
+    const concreteVal = document.getElementById('concrete-input')?.value || 0;
+    const plasticVal = document.getElementById('plastic-input')?.value || 0;
+
     const payload = {
-        diesel: document.getElementById('diesel-input').value || 0,
-        electricity: document.getElementById('elec-input').value || 0,
-        concrete: document.getElementById('concrete-input').value || 0,
-        plastic: document.getElementById('plastic-input').value || 0
+        diesel: parseFloat(dieselVal),
+        electricity: parseFloat(elecVal),
+        concrete: parseFloat(concreteVal),
+        plastic: parseFloat(plasticVal)
     };
 
     try {
-        // Change 'localhost:5000' to your new Render URL
+        // 2. Send data to your LIVE Render backend
         const response = await fetch('https://eco-impact-backend.onrender.com/calculate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
+        if (!response.ok) throw new Error("Backend Error");
+
         const results = await response.json();
-        
-        // Show the results on the screen
-        updateResultsUI(results);
-        
+
+        // 3. Show the Results Section
+        const resultsDisplay = document.getElementById('results-display');
+        resultsDisplay.style.display = 'grid'; // Makes the cards appear
+        resultsDisplay.classList.add('fade-in'); // Optional animation
+
+        // 4. Update the 4 Result Cards with your Python's math
+        document.getElementById('res-air').innerText = results.air_pollution;
+        document.getElementById('res-waste').innerText = results.solid_waste;
+        document.getElementById('res-co2').innerText = results.co2_emissions;
+        document.getElementById('res-score').innerText = results.impact_score;
+
     } catch (error) {
         console.error("Analysis failed:", error);
+        alert("Could not connect to the Analysis Engine. Check if the backend is awake!");
     }
 }
