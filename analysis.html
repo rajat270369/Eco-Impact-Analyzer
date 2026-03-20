@@ -38,7 +38,9 @@
     </div>
 
     <main id="analysis-root">
-        <div class="dashboard-grid">
+       <div class="dashboard-grid">
+        
+        <div class="pillar-group">
             <div class="pillar-card" onclick="activateModule('monitor')">
                 <div class="mascot-wrapper">
                     <svg class="eco-fox" viewBox="0 0 100 100">
@@ -50,66 +52,45 @@
                     </svg>
                 </div>
             </div>
-
-            <div class="pillar-card" onclick="activateModule('analyze')">
-                <div class="mascot-wrapper">
-                    <svg class="eco-fox" viewBox="0 0 100 100">
-                        <path d="M70,70 Q90,50 70,30" fill="none" stroke="#00e676" stroke-width="4" stroke-linecap="round"/>
-                        <path d="M30,80 Q50,90 70,80 L70,50 Q50,40 30,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-                        <path d="M35,50 L50,20 L65,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-                        <circle cx="45" cy="40" r="2" fill="#00e676" />
-                        <circle cx="55" cy="40" r="2" fill="#00e676" />
-                    </svg>
-                </div>
-            </div>
-
-            <div class="pillar-card" onclick="activateModule('strategize')">
-                <div class="mascot-wrapper">
-                    <svg class="eco-fox" viewBox="0 0 100 100">
-                        <path d="M70,70 Q90,50 70,30" fill="none" stroke="#00e676" stroke-width="4" stroke-linecap="round"/>
-                        <path d="M30,80 Q50,90 70,80 L70,50 Q50,40 30,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-                        <path d="M35,50 L50,20 L65,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-                        <circle cx="45" cy="40" r="2" fill="#00e676" />
-                        <circle cx="55" cy="40" r="2" fill="#00e676" />
-                    </svg>
-                </div>
-            </div>
-
-            <div class="pillar-card" onclick="activateModule('develop')">
-                <div class="mascot-wrapper">
-                    <svg class="eco-fox" viewBox="0 0 100 100">
-                        <path d="M70,70 Q90,50 70,30" fill="none" stroke="#00e676" stroke-width="4" stroke-linecap="round"/>
-                        <path d="M30,80 Q50,90 70,80 L70,50 Q50,40 30,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-                        <path d="M35,50 L50,20 L65,50 Z" fill="#1a1a1a" stroke="#00e676" stroke-width="2"/>
-                        <circle cx="45" cy="40" r="2" fill="#00e676" />
-                        <circle cx="55" cy="40" r="2" fill="#00e676" />
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <div class="button-wrapper">
-            <button class="btn cube" type="button" onclick="runAnalysis()" id="monitor-trigger">
+            <button class="btn cube" type="button" onclick="runAnalysis()">
                 <div class="bg-top"><div class="bg-inner"></div></div>
                 <div class="bg-right"><div class="bg-inner"></div></div>
                 <div class="bg"><div class="bg-inner"></div></div>
                 <div class="text">MONITOR</div>
             </button>
+        </div>
 
+        <div class="pillar-group">
+            <div class="pillar-card" onclick="activateModule('analyze')">
+                <div class="mascot-wrapper">
+                    </div>
+            </div>
             <button class="btn cube" type="button" onclick="runAnalysis()">
                 <div class="bg-top"><div class="bg-inner"></div></div>
                 <div class="bg-right"><div class="bg-inner"></div></div>
                 <div class="bg"><div class="bg-inner"></div></div>
                 <div class="text">ANALYZE</div>
             </button>
+        </div>
 
+        <div class="pillar-group">
+            <div class="pillar-card" onclick="activateModule('strategize')">
+                <div class="mascot-wrapper">
+                    </div>
+            </div>
             <button class="btn cube" type="button">
                 <div class="bg-top"><div class="bg-inner"></div></div>
                 <div class="bg-right"><div class="bg-inner"></div></div>
                 <div class="bg"><div class="bg-inner"></div></div>
                 <div class="text">STRATEGIZE</div>
             </button>
+        </div>
 
+        <div class="pillar-group">
+            <div class="pillar-card" onclick="activateModule('develop')">
+                <div class="mascot-wrapper">
+                    </div>
+            </div>
             <button class="btn cube" type="button">
                 <div class="bg-top"><div class="bg-inner"></div></div>
                 <div class="bg-right"><div class="bg-inner"></div></div>
@@ -117,6 +98,8 @@
                 <div class="text">DEVELOP</div>
             </button>
         </div>
+
+    </div>
 
         <div class="analysis-container">
             <div class="input-grid">
