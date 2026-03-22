@@ -40,51 +40,51 @@ if (canvas) {
 /* --- analysis.js --- */
 
 async function runAnalysis() {
-    // 1. Grab values from your HTML inputs
+    // 1. Immediately scroll so the user sees the "System Log" starting
+    const monitorSection = document.getElementById('monitor-results-section');
+    if (monitorSection) monitorSection.scrollIntoView({ behavior: 'smooth' });
+
+    const log = document.getElementById('system-log');
+    if (log) log.innerHTML += `<br> > [${new Date().toLocaleTimeString()}] Fetching Environmental Data...`;
+
+    // 2. Now do the heavy lifting
     const diesel = document.getElementById('diesel-input').value || 0;
     const electricity = document.getElementById('elec-input').value || 0;
     const concrete = document.getElementById('concrete-input').value || 0;
     const plastic = document.getElementById('plastic-input').value || 0;
 
     try {
-        // FIXED: Explicitly defining the fetch request
         const response = await fetch('http://127.0.0.1:5000/calculate', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                diesel: diesel,
-                electricity: electricity,
-                concrete: concrete,
-                plastic: plastic
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ diesel, electricity, concrete, plastic })
         });
 
         const result = await response.json();
 
-        // 1. Update the numbers
-        document.getElementById('res-air').innerText = result.air_pollution;
-        document.getElementById('res-waste').innerText = result.solid_waste;
-        document.getElementById('res-co2').innerText = result.co2_emissions;
-        document.getElementById('res-score').innerText = result.impact_score;
-
-        // 2. THE TRIGGER: Auto-scroll to the Monitor section
-        const monitorSection = document.getElementById('monitor-results-section');
-        if (monitorSection) {
-            monitorSection.scrollIntoView({ 
-                behavior: 'smooth' 
-            });
-        }
-
-        // 3. Update the log
-        const log = document.getElementById('system-log');
-        if (log) {
-            log.innerHTML += `<br> > [${new Date().toLocaleTimeString()}] Analysis Complete. Impact Score: ${result.impact_score}`;
-        }
+        // 3. Update the numbers with a slight delay for "hacker" effect
+        setTimeout(() => {
+            document.getElementById('res-air').innerText = result.air_pollution;
+            document.getElementById('res-waste').innerText = result.solid_waste;
+            document.getElementById('res-co2').innerText = result.co2_emissions;
+            document.getElementById('res-score').innerText = result.impact_score;
+            if (log) log.innerHTML += `<br> > [SYSTEM] Analysis Complete. Score: ${result.impact_score}`;
+        }, 500);
 
     } catch (error) {
         console.error("Connection failed", error);
-        alert("Check your Ubuntu terminal! The backend might not be running.");
+        if (log) log.innerHTML += `<br> <span style="color: #ff5252;">> [ERROR] Backend Offline.</span>`;
+    }
+}
+function activateModule(moduleName) {
+    console.log(`EIA System: Activating ${moduleName.toUpperCase()}...`);
+    
+    if (moduleName === 'monitor') {
+        // Just scroll down to the monitor
+        const monitorSection = document.getElementById('monitor-results-section');
+        if (monitorSection) monitorSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        // For Analyze, Strategize, and Develop, show a quick system alert
+        alert(`ACCESS GRANTED: ${moduleName.toUpperCase()} module is initializing. Ensure parameters are set.`);
     }
 }
