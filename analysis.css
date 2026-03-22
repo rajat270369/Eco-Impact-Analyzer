@@ -612,15 +612,6 @@ html, body {
     scroll-behavior: smooth; /* Makes the auto-scroll look slick */
 }
 
-section {
-    height: 100vh; /* Each section takes exactly one full screen */
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
 /* Monitor Layout Split */
 .monitor-layout {
     display: flex;
@@ -647,7 +638,33 @@ section {
     letter-spacing: 2px;
     margin-bottom: 8px;
 }
+/* Update your section CSS */
+section {
+    height: 100vh;
+    width: 100vw;
+    max-height: 100vh; /* Strictly lock the height */
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
+/* Fix the System Log so it doesn't grow */
+#system-log {
+    width: 90%;
+    max-width: 1200px;
+    height: 80px;      /* Give it a fixed height */
+    overflow-y: auto;  /* Let it scroll internally */
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 230, 118, 0.2);
+    color: #00e676;
+    font-family: monospace;
+    font-size: 0.8rem;
+    padding: 10px;
+    margin-top: 20px;
+}
 .input-group input {
     width: 100%;
     background: rgba(0, 0, 0, 0.6);
@@ -672,14 +689,41 @@ section {
     display: flex;
     flex-direction: column;
 }
-
-.result-card .value {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0 0 10px #00e676;
+/* Make labels visible */
+.result-card .label {
+    color: #00e676;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.8;
 }
 
+/* Make the big numbers glow */
+.result-card .value {
+    color: #ffffff;
+    font-size: 3rem;
+    font-weight: 900;
+    text-shadow: 0 0 15px rgba(0, 230, 118, 0.6);
+}
+
+/* Fix the Execute button look */
+#monitor-results-section .btn-calculate, 
+#monitor-results-section button {
+    background: #00e676;
+    color: #000;
+    border: none;
+    padding: 12px 25px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: 0.3s ease;
+}
+
+#monitor-results-section button:hover {
+    background: #fff;
+    box-shadow: 0 0 20px #00e676;
+}
 /* Status & Log Styles */
 .status-bar { font-size: 0.8rem; margin-bottom: 20px; }
 .online { color: #00e676; animation: blink 1s infinite; }

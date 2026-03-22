@@ -39,52 +39,61 @@ if (canvas) {
 }
 /* --- analysis.js --- */
 
+function activateModule(moduleName) {
+    console.log(`EIA System: Activating ${moduleName.toUpperCase()}...`);
+    
+    // Check if it's the monitor or analyze button
+    if (moduleName === 'monitor' || moduleName === 'analyze') {
+        const monitorSection = document.getElementById('monitor-results-section');
+        if (monitorSection) {
+            monitorSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+}
+
+// 3. Calculation Logic
 async function runAnalysis() {
     const log = document.getElementById('system-log');
     
-    // REMOVED: scrollIntoView is removed here so the page stays still 
-    // when you are already in the monitor section.
+    // Add entry to log
+    if (log) {
+        log.innerHTML += `<br> > [${new Date().toLocaleTimeString()}] Initializing environmental scan...`;
+        log.scrollTop = log.scrollHeight; // Keep log focused on latest entry
+    }
 
-    if (log) log.innerHTML += `<br> > [${new Date().toLocaleTimeString()}] Fetching Telemetry...`;
-
-    const diesel = document.getElementById('diesel-input').value || 0;
-    const electricity = document.getElementById('elec-input').value || 0;
-    const concrete = document.getElementById('concrete-input').value || 0;
-    const plastic = document.getElementById('plastic-input').value || 0;
+    const payload = {
+        diesel: document.getElementById('diesel-input').value || 0,
+        electricity: document.getElementById('elec-input').value || 0,
+        concrete: document.getElementById('concrete-input').value || 0,
+        plastic: document.getElementById('plastic-input').value || 0
+    };
 
     try {
         const response = await fetch('http://127.0.0.1:5000/calculate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ diesel, electricity, concrete, plastic })
+            body: JSON.stringify(payload)
         });
 
-        if (!response.ok) throw new Error('Server Error');
-
+        if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
 
-        // Update values
-        document.getElementById('res-air').innerText = result.air_pollution || 0;
-        document.getElementById('res-waste').innerText = result.solid_waste || 0;
-        document.getElementById('res-co2').innerText = result.co2_emissions || 0;
-        document.getElementById('res-score').innerText = result.impact_score || 0;
+        // Update the UI
+        document.getElementById('res-air').innerText = result.air_pollution;
+        document.getElementById('res-waste').innerText = result.solid_waste;
+        document.getElementById('res-co2').innerText = result.co2_emissions;
+        document.getElementById('res-score').innerText = result.impact_score;
 
-        if (log) log.innerHTML += `<br> > [SUCCESS] Data Processed.`;
+        if (log) {
+            log.innerHTML += `<br> > [SUCCESS] Impact Score: ${result.impact_score} calculated.`;
+            log.scrollTop = log.scrollHeight;
+        }
 
     } catch (error) {
-        console.error("Connection failed", error);
-        if (log) log.innerHTML += `<br> <span style="color: #ff5252;">> [ERROR] Backend Offline. Check Ubuntu Terminal.</span>`;
-    }
-}
-function activateModule(moduleName) {
-    console.log(`EIA System: Activating ${moduleName.toUpperCase()}...`);
-    
-    if (moduleName === 'monitor') {
-        // Just scroll down to the monitor
-        const monitorSection = document.getElementById('monitor-results-section');
-        if (monitorSection) monitorSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-        // For Analyze, Strategize, and Develop, show a quick system alert
-        alert(`ACCESS GRANTED: ${moduleName.toUpperCase()} module is initializing. Ensure parameters are set.`);
+        console.error("Fetch error:", error);
+        if (log) {
+            log.innerHTML += `<br> <span style="color: #ff5252;">> [FAILURE] Backend connection failed.</span>`;
+            log.scrollTop = log.scrollHeight;
+        }
     }
 }
