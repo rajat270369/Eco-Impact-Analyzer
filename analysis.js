@@ -47,24 +47,44 @@ async function runAnalysis() {
     const plastic = document.getElementById('plastic-input').value || 0;
 
     try {
-        // 2. Send to the Flask backend
+        // FIXED: Explicitly defining the fetch request
         const response = await fetch('http://127.0.0.1:5000/calculate', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ diesel, electricity, concrete, plastic })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                diesel: diesel,
+                electricity: electricity,
+                concrete: concrete,
+                plastic: plastic
+            })
         });
 
         const result = await response.json();
 
-        // 3. Update your UI with the results
-        document.getElementById('results-display').style.display = 'grid';
+        // 1. Update the numbers
         document.getElementById('res-air').innerText = result.air_pollution;
         document.getElementById('res-waste').innerText = result.solid_waste;
         document.getElementById('res-co2').innerText = result.co2_emissions;
         document.getElementById('res-score').innerText = result.impact_score;
 
+        // 2. THE TRIGGER: Auto-scroll to the Monitor section
+        const monitorSection = document.getElementById('monitor-results-section');
+        if (monitorSection) {
+            monitorSection.scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        // 3. Update the log
+        const log = document.getElementById('system-log');
+        if (log) {
+            log.innerHTML += `<br> > [${new Date().toLocaleTimeString()}] Analysis Complete. Impact Score: ${result.impact_score}`;
+        }
+
     } catch (error) {
-        console.error("Backend connection failed:", error);
-        alert("The backend isn't responding. Is the Python script running?");
+        console.error("Connection failed", error);
+        alert("Check your Ubuntu terminal! The backend might not be running.");
     }
 }
