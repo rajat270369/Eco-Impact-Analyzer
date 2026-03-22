@@ -40,14 +40,13 @@ if (canvas) {
 /* --- analysis.js --- */
 
 async function runAnalysis() {
-    // 1. Immediately scroll so the user sees the "System Log" starting
-    const monitorSection = document.getElementById('monitor-results-section');
-    if (monitorSection) monitorSection.scrollIntoView({ behavior: 'smooth' });
-
     const log = document.getElementById('system-log');
-    if (log) log.innerHTML += `<br> > [${new Date().toLocaleTimeString()}] Fetching Environmental Data...`;
+    
+    // REMOVED: scrollIntoView is removed here so the page stays still 
+    // when you are already in the monitor section.
 
-    // 2. Now do the heavy lifting
+    if (log) log.innerHTML += `<br> > [${new Date().toLocaleTimeString()}] Fetching Telemetry...`;
+
     const diesel = document.getElementById('diesel-input').value || 0;
     const electricity = document.getElementById('elec-input').value || 0;
     const concrete = document.getElementById('concrete-input').value || 0;
@@ -60,20 +59,21 @@ async function runAnalysis() {
             body: JSON.stringify({ diesel, electricity, concrete, plastic })
         });
 
+        if (!response.ok) throw new Error('Server Error');
+
         const result = await response.json();
 
-        // 3. Update the numbers with a slight delay for "hacker" effect
-        setTimeout(() => {
-            document.getElementById('res-air').innerText = result.air_pollution;
-            document.getElementById('res-waste').innerText = result.solid_waste;
-            document.getElementById('res-co2').innerText = result.co2_emissions;
-            document.getElementById('res-score').innerText = result.impact_score;
-            if (log) log.innerHTML += `<br> > [SYSTEM] Analysis Complete. Score: ${result.impact_score}`;
-        }, 500);
+        // Update values
+        document.getElementById('res-air').innerText = result.air_pollution || 0;
+        document.getElementById('res-waste').innerText = result.solid_waste || 0;
+        document.getElementById('res-co2').innerText = result.co2_emissions || 0;
+        document.getElementById('res-score').innerText = result.impact_score || 0;
+
+        if (log) log.innerHTML += `<br> > [SUCCESS] Data Processed.`;
 
     } catch (error) {
         console.error("Connection failed", error);
-        if (log) log.innerHTML += `<br> <span style="color: #ff5252;">> [ERROR] Backend Offline.</span>`;
+        if (log) log.innerHTML += `<br> <span style="color: #ff5252;">> [ERROR] Backend Offline. Check Ubuntu Terminal.</span>`;
     }
 }
 function activateModule(moduleName) {
