@@ -38,67 +38,25 @@ if (canvas) {
     setInterval(draw, 33);
 }
 /* --- analysis.js --- */
-
+// 1. Unified Activation Logic
 function activateModule(moduleName) {
-    // 1. Check if the module is NOT monitor
-    if (moduleName !== 'monitor') {
-        return; 
-    }
-    // 2. If it IS monitor, scroll to the section
+    if (moduleName !== 'monitor') return; 
+
     const monitorSection = document.getElementById('monitor-results-section');
     if (monitorSection) {
         monitorSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
-window.addEventListener('wheel', (e) => {
-    if (e.deltaY > 0 && window.scrollY < 10) { 
-        e.preventDefault(); 
-    }
-}, { passive: false });
+
+// 2. Updated Calculation Logic (Now triggers scroll AND math)
 async function runAnalysis() {
+    // FIRST: Scroll down to the monitor
+    activateModule('monitor');
+
     const log = document.getElementById('system-log');
     if (log) {
-        log.innerHTML += `<br> > [${new Date().toLocaleTimeString()}] Telemetry Syncing...`;
+        log.innerHTML += `<br> > [${new Date().toLocaleTimeString()}] Syncing Telemetry...`;
         log.scrollTop = log.scrollHeight;
-    }
-
-    // Capture inputs
-    const data = {
-        diesel: document.getElementById('diesel-input').value || 0,
-        electricity: document.getElementById('elec-input').value || 0,
-        concrete: document.getElementById('concrete-input').value || 0,
-        plastic: document.getElementById('plastic-input').value || 0
-    };
-
-    try {
-        const response = await fetch('http://127.0.0.1:5000/calculate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        // Update Numbers
-        document.getElementById('res-air').innerText = result.air_pollution || 0;
-        document.getElementById('res-waste').innerText = result.solid_waste || 0;
-        document.getElementById('res-co2').innerText = result.co2_emissions || 0;
-        document.getElementById('res-score').innerText = result.impact_score || 0;
-
-        if (log) log.innerHTML += `<br> > [SUCCESS] Processing Complete.`;
-    } catch (e) {
-        if (log) log.innerHTML += `<br> > [ERROR] Backend Offline.`;
-    }
-}
-
-// 3. Calculation Logic
-async function runAnalysis() {
-    const log = document.getElementById('system-log');
-    
-    // Add entry to log
-    if (log) {
-        log.innerHTML += `<br> > [${new Date().toLocaleTimeString()}] Initializing environmental scan...`;
-        log.scrollTop = log.scrollHeight; // Keep log focused on latest entry
     }
 
     const payload = {
@@ -115,25 +73,25 @@ async function runAnalysis() {
             body: JSON.stringify(payload)
         });
 
-        if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
 
-        // Update the UI
-        document.getElementById('res-air').innerText = result.air_pollution;
-        document.getElementById('res-waste').innerText = result.solid_waste;
-        document.getElementById('res-co2').innerText = result.co2_emissions;
-        document.getElementById('res-score').innerText = result.impact_score;
+        // Update UI
+        document.getElementById('res-air').innerText = result.air_pollution || 0;
+        document.getElementById('res-waste').innerText = result.solid_waste || 0;
+        document.getElementById('res-co2').innerText = result.co2_emissions || 0;
+        document.getElementById('res-score').innerText = result.impact_score || 0;
 
-        if (log) {
-            log.innerHTML += `<br> > [SUCCESS] Impact Score: ${result.impact_score} calculated.`;
-            log.scrollTop = log.scrollHeight;
-        }
+        if (log) log.innerHTML += `<br> > [SUCCESS] Data Processed.`;
 
     } catch (error) {
-        console.error("Fetch error:", error);
-        if (log) {
-            log.innerHTML += `<br> <span style="color: #ff5252;">> [FAILURE] Backend connection failed.</span>`;
-            log.scrollTop = log.scrollHeight;
-        }
+        if (log) log.innerHTML += `<br> <span style="color: #ff5252;">> [ERROR] Backend Offline.</span>`;
     }
 }
+
+// 3. THE "LOCK" (Allows scroll UP, blocks accidental scroll DOWN)
+window.addEventListener('wheel', (e) => {
+    // If trying to scroll down while at the very top, block it.
+    if (e.deltaY > 0 && window.scrollY < 10) { 
+        e.preventDefault(); 
+    }
+}, { passive: false });
