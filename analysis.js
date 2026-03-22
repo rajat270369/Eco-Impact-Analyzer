@@ -40,14 +40,15 @@ if (canvas) {
 /* --- analysis.js --- */
 
 function activateModule(moduleName) {
-    console.log(`EIA System: Activating ${moduleName.toUpperCase()}...`);
-    
-    // Use 'analyze' or 'monitor' to trigger the scroll
-    if (moduleName === 'monitor' || moduleName === 'analyze') {
-        const target = document.getElementById('monitor-results-section');
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+    // 1. Check if the module is NOT monitor
+    if (moduleName !== 'monitor') {
+        return; // Do absolutely nothing and exit the function
+    }
+
+    // 2. If it IS monitor, scroll to the section
+    const monitorSection = document.getElementById('monitor-results-section');
+    if (monitorSection) {
+        monitorSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
 
