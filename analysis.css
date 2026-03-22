@@ -621,3 +621,66 @@ section {
     align-items: center;
     position: relative;
 }
+/* Monitor Layout Split */
+.monitor-layout {
+    display: flex;
+    gap: 40px;
+    width: 90%;
+    max-width: 1200px;
+    background: rgba(0, 230, 118, 0.03);
+    padding: 30px;
+    border: 1px solid rgba(0, 230, 118, 0.2);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+}
+
+/* Control Panel (Left) */
+.control-panel { flex: 1; }
+.results-display { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+/* Themed Inputs - Fixing the "White Bar" issue */
+.input-group { margin-bottom: 20px; }
+.input-group label {
+    display: block;
+    color: #00e676;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.input-group input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(0, 230, 118, 0.3);
+    padding: 12px;
+    color: #00e676;
+    font-family: 'Courier New', monospace;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #00e676;
+    box-shadow: 0 0 15px rgba(0, 230, 118, 0.2);
+}
+
+/* Result Cards */
+.result-card {
+    background: rgba(0, 0, 0, 0.4);
+    border-left: 3px solid #00e676;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.result-card .value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px #00e676;
+}
+
+/* Status & Log Styles */
+.status-bar { font-size: 0.8rem; margin-bottom: 20px; }
+.online { color: #00e676; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0.5; } }
