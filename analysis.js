@@ -42,12 +42,48 @@ if (canvas) {
 function activateModule(moduleName) {
     console.log(`EIA System: Activating ${moduleName.toUpperCase()}...`);
     
-    // Check if it's the monitor or analyze button
+    // Use 'analyze' or 'monitor' to trigger the scroll
     if (moduleName === 'monitor' || moduleName === 'analyze') {
-        const monitorSection = document.getElementById('monitor-results-section');
-        if (monitorSection) {
-            monitorSection.scrollIntoView({ behavior: 'smooth' });
+        const target = document.getElementById('monitor-results-section');
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+    }
+}
+
+async function runAnalysis() {
+    const log = document.getElementById('system-log');
+    if (log) {
+        log.innerHTML += `<br> > [${new Date().toLocaleTimeString()}] Telemetry Syncing...`;
+        log.scrollTop = log.scrollHeight;
+    }
+
+    // Capture inputs
+    const data = {
+        diesel: document.getElementById('diesel-input').value || 0,
+        electricity: document.getElementById('elec-input').value || 0,
+        concrete: document.getElementById('concrete-input').value || 0,
+        plastic: document.getElementById('plastic-input').value || 0
+    };
+
+    try {
+        const response = await fetch('http://127.0.0.1:5000/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        // Update Numbers
+        document.getElementById('res-air').innerText = result.air_pollution || 0;
+        document.getElementById('res-waste').innerText = result.solid_waste || 0;
+        document.getElementById('res-co2').innerText = result.co2_emissions || 0;
+        document.getElementById('res-score').innerText = result.impact_score || 0;
+
+        if (log) log.innerHTML += `<br> > [SUCCESS] Processing Complete.`;
+    } catch (e) {
+        if (log) log.innerHTML += `<br> > [ERROR] Backend Offline.`;
     }
 }
 
