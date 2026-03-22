@@ -42,16 +42,19 @@ if (canvas) {
 function activateModule(moduleName) {
     // 1. Check if the module is NOT monitor
     if (moduleName !== 'monitor') {
-        return; // Do absolutely nothing and exit the function
+        return; 
     }
-
     // 2. If it IS monitor, scroll to the section
     const monitorSection = document.getElementById('monitor-results-section');
     if (monitorSection) {
         monitorSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
-
+window.addEventListener('wheel', (e) => {
+    if (e.deltaY > 0 && window.scrollY < 10) { 
+        e.preventDefault(); 
+    }
+}, { passive: false });
 async function runAnalysis() {
     const log = document.getElementById('system-log');
     if (log) {
