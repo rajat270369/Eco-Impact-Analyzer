@@ -7,11 +7,11 @@ html, body.analysis-page {
     overflow: hidden;
 }
 
-/* YOUR UIVERSE PATTERN */
+
 .container {
-  position: fixed; /* Changed from absolute to fixed to lock it to the screen */
+  position: fixed; 
   inset: 0;
-  z-index: 0;      /* Behind everything */
+  z-index: 0;      
   background: #000;
   overflow: hidden;
 }
@@ -203,7 +203,7 @@ html, body.analysis-page {
 }
 
 .analysis-page .btn-17 {
-  /* Removed -webkit-appearance and -webkit-mask-image to fix errors */
+  
   appearance: none; 
   background-color: #000;
   background-image: none;
@@ -222,7 +222,6 @@ html, body.analysis-page {
   padding: 0.6rem 2rem;
   transition: box-shadow 0.3s ease;
   
-  /* Modern replacement for the clipping effect */
   overflow: hidden; 
   position: relative;
   display: inline-block;
@@ -236,7 +235,7 @@ html, body.analysis-page {
 
 .analysis-page .btn-17 .text-container {
   display: block;
-  mix-blend-mode: difference; /* Keeps text visible against the sliding background */
+  mix-blend-mode: difference; 
   position: relative;
   overflow: hidden;
 }
@@ -246,15 +245,14 @@ html, body.analysis-page {
   position: relative;
 }
 /* GLOBAL SETTINGS */
-/* --- analysis.css --- */
 
 #analysis-root {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* This moves the grid from the top to the center */
+    justify-content: flex-start; 
     align-items: center;
-    min-height: 100vh;       /* Ensures the container takes up the full screen height */
-    padding-top: 50px;       /* Adds a little extra breathing room from the nav bar */
+    min-height: 100vh;      
+    padding-top: 50px;      
 }
 
 .dashboard-grid {
@@ -339,11 +337,11 @@ html, body.analysis-page {
   to { transform: translateY(0); }
 }
 
-/* SLIDING BACKGROUNDS - Swapped to Green */
+/* SLIDING BACKGROUNDS */
 .analysis-page .btn-17:after,
 .analysis-page .btn-17:before {
   --skew: 0.2;
-  background: #00e676; /* Swapped to EIA Green */
+  background: #00e676; 
   content: "";
   display: block;
   height: 102%;
@@ -370,16 +368,14 @@ html, body.analysis-page {
 .analysis-page .btn-17:hover:after {
   --progress: -102%;
 }
-/* This forces the loader to fill the whole window */
 
-/* This is what the analysis.js triggers */
 #loading-screen.fade-out {
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none;
 }
 
-/* YOUR UI-VERSE ANIMATIONS (EIA GREEN THEME) */
+/* UI-VERSE ANIMATIONS (EIA GREEN THEME) */
 @keyframes bounce {
   0%, 100% { translate: 0px 36px; }
   50% { translate: 0px 46px; }
@@ -412,7 +408,7 @@ html, body.analysis-page {
 .analysis-page #bounce {
   animation: bounce 4s ease-in-out infinite;
   translate: 0px 36px;
-  stroke: #00e676; /* Overriding your blue for the theme */
+  stroke: #00e676; 
 }
 
 .analysis-page #bounce2 {
@@ -423,7 +419,7 @@ html, body.analysis-page {
 }
 
 
-/* Stagger the animations so they don't look like robots in sync */
+
 .pillar-card:nth-child(2) .eco-fox { animation-delay: 1s; }
 .pillar-card:nth-child(3) .eco-fox { animation-delay: 2s; }
 .pillar-card:nth-child(4) .eco-fox { animation-delay: 3s; }
@@ -432,11 +428,10 @@ html, body.analysis-page {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
 }
-/* --- analysis.css --- */
 
 
 .mascot-wrapper {
-    width: 180px;  /* Slightly bigger as requested */
+    width: 180px;  
     height: 180px;
     margin: 0 auto;
     display: flex;
@@ -448,13 +443,12 @@ html, body.analysis-page {
     width: 100%;
     height: 100%;
     filter: drop-shadow(0 0 12px #00e676);
-    /* Lifts them up and starts the animation */
     animation: floatHigher 4s ease-in-out infinite; 
 }
 
 @keyframes floatHigher {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); } /* Just a small 15px bob */
+    50% { transform: translateY(-15px); } 
 }
 .dashboard-grid {
     display: flex;
@@ -462,19 +456,18 @@ html, body.analysis-page {
     justify-content: center;
     align-items: flex-start;
     gap: 4rem;
-    /* Change this value: smaller number = higher on screen */
     padding-top: 14vh; 
     width: 100%;
 }
 .pillar-card {
     display: flex;
     flex-direction: column;
-    align-items: center;      /* Center the text under each mascot */
-    flex: 1;                  /* Allow each card to take up equal space */
+    align-items: center;     
+    flex: 1;                 
     max-width: 200px;        
     gap:20px;
 }
-/* Container to give the button some breathing room from the foxes */
+
 .button-wrapper {
     margin-top: 2rem; 
     display: flex;
@@ -486,13 +479,10 @@ html, body.analysis-page {
     margin-top: -28vh;
 }
 .button-wrapper .btn.cube {
-    /* 3. This ensures each button takes up the same relative space as a fox */
     flex: 1; 
-    max-width: 180px; /* Match this to your mascot-wrapper width */
+    max-width: 180px; 
     margin: 0;
 }
-/* Fix: The button's existing bounce animation name clashes with your loader.
-   Let's rename it specifically for the button to avoid glitches. */
 .cube:active {
     z-index: 999;
     animation: btn-press 0.1s linear;
@@ -502,9 +492,6 @@ html, body.analysis-page {
     50% { transform: scale(0.9); }
 }
 
-/* Optional: If you want the button to match your EIA Green theme, 
-   swap #d4af37 (Gold) with #00e676 (Green) in your button CSS. */
-   /* From Uiverse.io by gagan-gv */ 
 .btn {
   display: block;
   padding: 0.7em 1em;
@@ -624,11 +611,11 @@ html, body.analysis-page {
     backdrop-filter: blur(10px);
 }
 
-/* Control Panel (Left) */
+/* Control Panel */
 .control-panel { flex: 1; }
 .results-display { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-/* Themed Inputs - Fixing the "White Bar" issue */
+/* Themed Inputs*/
 .input-group { margin-bottom: 20px; }
 .input-group label {
     display: block;
@@ -637,14 +624,14 @@ html, body.analysis-page {
     letter-spacing: 2px;
     margin-bottom: 8px;
 }
-/* Update your section CSS */
+
 html, body {
     margin: 0;
     padding: 0;
     height: 100%;
     width: 100%;
-    overflow-x: hidden; /* Locks the screen */
-    overflow-y: auto; /* Changed from hidden to allow manual scroll up */
+    overflow-x: hidden; 
+    overflow-y: auto;
     scroll-snap-type: y mandatory;
     background-color: #000;
     color: #00e676;
@@ -658,8 +645,8 @@ section {
     display: flex;
     flex-direction: column;
     scroll-snap-align: start;
-    justify-content: center; /* Vertical Center */
-    align-items: center;     /* Horizontal Center */
+    justify-content: center; 
+    align-items: center;     
     position: relative;
     overflow: hidden;
 }
@@ -699,7 +686,7 @@ section {
     display: flex;
     flex-direction: column;
 }
-/* Make labels visible */
+
 .result-card .label {
     color: #00e676;
     font-size: 0.65rem;
@@ -709,7 +696,7 @@ section {
     opacity: 0.8;
 }
 
-/* Make the big numbers glow */
+
 .result-card .value {
     color: #ffffff;
     font-size: 3rem;
@@ -717,7 +704,7 @@ section {
     text-shadow: 0 0 15px rgba(0, 230, 118, 0.6);
 }
 
-/* Fix the Execute button look */
+
 #monitor-results-section .btn-calculate, 
 #monitor-results-section button {
     background: #00e676;
@@ -734,7 +721,7 @@ section {
     background: #fff;
     box-shadow: 0 0 20px #00e676;
 }
-/* Status & Log Styles */
+
 .status-bar { font-size: 0.8rem; margin-bottom: 20px; }
 .online { color: #00e676; animation: blink 1s infinite; }
 @keyframes blink { 50% { opacity: 0.5; } }

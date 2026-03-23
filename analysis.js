@@ -37,7 +37,6 @@ if (canvas) {
     }
     setInterval(draw, 33);
 }
-/* --- analysis.js --- */
 // 1. Unified Activation Logic
 function activateModule(moduleName) {
     if (moduleName !== 'monitor') return; 
@@ -50,7 +49,6 @@ function activateModule(moduleName) {
 
 // 2. Updated Calculation Logic (Now triggers scroll AND math)
 async function runAnalysis() {
-    // FIRST: Scroll down to the monitor
     activateModule('monitor');
 
     const log = document.getElementById('system-log');
@@ -75,7 +73,6 @@ async function runAnalysis() {
 
         const result = await response.json();
 
-        // Update UI
         document.getElementById('res-air').innerText = result.air_pollution || 0;
         document.getElementById('res-waste').innerText = result.solid_waste || 0;
         document.getElementById('res-co2').innerText = result.co2_emissions || 0;
@@ -90,7 +87,6 @@ async function runAnalysis() {
 
 // 3. THE "LOCK" (Allows scroll UP, blocks accidental scroll DOWN)
 window.addEventListener('wheel', (e) => {
-    // If trying to scroll down while at the very top, block it.
     if (e.deltaY > 0 && window.scrollY < 10) { 
         e.preventDefault(); 
     }

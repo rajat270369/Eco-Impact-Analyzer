@@ -91,15 +91,13 @@ for (let i = 0; i < vertexCount; i++) {
             target_FeedbackPlane[i*3] = progress * fW; 
             target_FeedbackPlane[i*3+1] = -fH; 
         }
-        target_FeedbackPlane[i*3+2] = -5; // Shared depth for the box
+        target_FeedbackPlane[i*3+2] = -5; 
     } 
     else {
-        // CRUSH ALL OTHER PARTICLES
         target_FeedbackPlane[i*3] = 0;
         target_FeedbackPlane[i*3+1] = -1500; 
         target_FeedbackPlane[i*3+2] = -100;
     }
-    // Shared depth for the blueprint form
     if (i < vertexCount * 0.4) {
         target_FeedbackPlane[i*3+2] = -5;
     }
@@ -120,7 +118,6 @@ const particleMaterial = new THREE.PointsMaterial({
     blending: THREE.AdditiveBlending
 });
 
-// Variable name 'particles' now matches the animate loop requirements
 const particles = new THREE.Points(geometry, particleMaterial);
 scene.add(particles);
 
@@ -210,16 +207,16 @@ feedbackForm.addEventListener('submit', async (e) => {
 
     const emailValue = document.getElementById('email-input').value;
 
-    // 1. Check if this email has already submitted (Device-based limit)
+   
     if (localStorage.getItem('form_submitted_' + emailValue)) {
         alert("PROTOCOL ERROR: Multiple submissions detected from this address.");
         return;
     }
 
-    // Change button text to show progress
+    
     submitBtn.innerText = "TRANSMITTING...";
 
-    // 2. Submit via AJAX (Prevents Formspree window)
+   
     const formData = new FormData(feedbackForm);
     
     try {
@@ -230,14 +227,14 @@ feedbackForm.addEventListener('submit', async (e) => {
         });
 
         if (response.ok) {
-            // 3. Handle Success
+            
             feedbackForm.style.display = 'none';
             successMsg.style.display = 'block';
 
-            // 2. Clear all input fields (Email and Textarea)
+           
             feedbackForm.reset();
             
-            // Set local storage so they can't submit again
+            
             localStorage.setItem('form_submitted_' + emailValue, 'true');
         } else {
             alert("TRANSMISSION FAILED: Please check connection.");
