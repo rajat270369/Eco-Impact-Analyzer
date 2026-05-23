@@ -771,13 +771,17 @@ document.addEventListener("mousemove", pointerMove);
     .catch(err => console.error("Error configuring forest compilation:", err));
 
     // SYSTEM ENVIRONMENT POSITION VALUES
-    dlight01.position.set(10, 20, 10);
-    camera.position.set(-15, 9, -18);
     
-    controls.target = new THREE.Vector3(0, 1.8, 0);
     controls.maxPolarAngle = Math.PI * 0.48; 
-    controls.minDistance = 5.0;
-    controls.maxDistance = 35.0;
+   // 1. UPDATE YOUR ENVIRONMENT DEFAULT VIEWPORT COORDINATES
+// Locate these setup initialization property overrides right below your asset loader block:
+
+dlight01.position.set(30, 45, 25);     // Elevate light angles to eliminate massive dark-side shadows
+camera.position.set(-45, 22, -50);     // Step back diagonally to pull the entire scene layout into frame
+
+controls.target = new THREE.Vector3(0, 2.5, 0); // Center focus track slightly higher
+controls.minDistance = 15.0;            // Keep camera bounds from clipping inside tree nodes again
+controls.maxDistance = 120.0;           // Extend zoom boundaries to capture full mountain vistas
     controls.enableDamping = true;
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.3;
