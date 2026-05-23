@@ -264,9 +264,8 @@
             ringGroup.position.y = 0.05; 
 
             for (let i = 0; i < totalRocks; i++) {
-                // Isolated unique material for every rock ring asset group container
                 const individualRockMat = new THREE.MeshToonMaterial({ 
-                    map: basePole.material.map, // Pulls map safely from loaded GLB trunk assets
+                    map: basePole.material.map, 
                     color: 0x333333, 
                     side: THREE.FrontSide
                 });
@@ -317,7 +316,8 @@
         });
 
         killRandom();
-    })
+    }
+    )
     .catch(err => console.error("Error configuring forest compilation:", err));
 
     // SYSTEM ENVIRONMENT POSITION VALUES
@@ -399,7 +399,7 @@
         setTimeout(killRandom, Math.random() * 1800);
     }
 
-    // DISCRETE INTERACTION HOVER MECHANICS WITH COLOR CORRECTION
+    // DISCRETE INTERACTION HOVER MECHANICS
     function pointerMove(e) {
         pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
         raycaster.setFromCamera(pointer, camera);
@@ -409,12 +409,11 @@
         const leafTargetMeshes = forest.map(item => item.leavesMesh);
         const leafIntersects = raycaster.intersectObjects(leafTargetMeshes);
         
+        // Reset leaf uniform hover state variables
         forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
         
+        // Hide overlay text blocks cleanly
         treeState.labeledRocks.forEach(item => {
-            item.rockMeshGroup.traverse(child => {
-                if(child.isMesh) child.material.color.setHex(0x333333); // Base color slate gray
-            });
             item.htmlLabel.style.display = 'none';
         });
 
@@ -431,9 +430,7 @@
 
                 const associatedLabel = treeState.labeledRocks.find(label => label.treeNode === activeNode);
                 if(associatedLabel){
-                    associatedLabel.rockMeshGroup.traverse(child => {
-                        if(child.isMesh) child.material.color.setHex(0xdeff9a); // Highlight cyber-green!
-                    });
+                    // Only display the overlay HTML label element; rock materials are untouched
                     associatedLabel.htmlLabel.style.display = 'block';
                 }
             }
