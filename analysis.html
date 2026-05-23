@@ -229,6 +229,9 @@
         
         controls.target = new THREE.Vector3(0, 2.4, 0);
         controls.maxPolarAngle = Math.PI * 0.5; 
+        controls.minDistance = 4.0;   // Hard cap: Prevents zooming inside the trunk/branches
+        controls.maxDistance = 25.0;  // Hard cap: Prevents zooming out infinitely into the void
+        // --------------------------------------
         controls.enableDamping = true;
         controls.autoRotate = true;
         controls.autoRotateSpeed = 0.5;
