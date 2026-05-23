@@ -264,6 +264,89 @@
         treeState.isLoaded = true;
         
         killRandom();
+
+        // ==========================================
+// FOREST FLOOR ROCK-RING LABELING ARCHITECTURE
+// ==========================================
+
+// Setup standard rock asset profile
+const rockLoader = new THREE.TextureLoader();
+// Reusing pole texture for rocks - can be updated later to specialized rock texture!
+const rockTexture = poleTexture; 
+const rockGeo = new THREE.DodecahedronGeometry(0.18, 0); // Stylized, low-poly rocks
+const rockMat = new THREE.MeshToonMaterial({ 
+    map: rockTexture, 
+    color: 0x444444, // Default dark state
+    side: THREE.FrontSide
+});
+
+// Registry for all rock elements for interactive highlighting
+treeState.labeledRocks = [];
+
+// Helper function to build a specific labeled ring node
+function buildLabeledRockRing(targetTree, radius, titleText, totalRocks = 32) {
+    const ringGroup = new THREE.Group();
+    ringGroup.name = `${titleText}_RING`;
+    ringGroup.position.copy(targetTree.group.position);
+    ringGroup.position.y = -0.15; // Set slightly below ground
+
+    // 1. Build the circular rock formation
+    for (let i = 0; i < totalRocks; i++) {
+        const angle = (i / totalRocks) * Math.PI * 2;
+        const rock = new THREE.Mesh(rockGeo, rockMat);
+        
+        rock.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+        
+        // Randomize scale/rotation slightly for natural look
+        rock.scale.setScalar(0.7 + Math.random() * 0.6);
+        rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+        
+        // Setup initial hover scope matrix state for interaction engine
+        matrix.compose(rock.position, rock.quaternion, rock.scale);
+        matrix.update();
+        
+        ringGroup.add(rock);
+    }
+
+    // 2. Setup the Text Label overlay (Done inside standard HTML for crisp typography)
+    const labelContainer = document.createElement('div');
+    labelContainer.className = 'tree-label-div';
+    labelContainer.innerHTML = `<p class="label-title">${titleText}</p>`;
+    
+    // Position text div near the center of the ring in screen space (will update in animate loop)
+    labelContainer.style.position = 'absolute';
+    labelContainer.style.color = '#cbd5e1';
+    labelContainer.style.fontSize = '12px';
+    labelContainer.style.fontFamily = "'JetBrains Mono', monospace";
+    labelContainer.style.letterSpacing = '1px';
+    labelContainer.style.textTransform = 'uppercase';
+    labelContainer.style.zIndex = '5';
+    labelContainer.style.display = 'none'; // Will show/hide with pointer interaction
+    document.body.appendChild(labelContainer);
+
+    treeState.labeledRocks.push({
+        treeNode: targetTree,
+        rockMeshGroup: ringGroup,
+        htmlLabel: labelContainer
+    });
+
+    scene.add(ringGroup);
+}
+
+// ------------------------------------------
+// RING 1: Mother Tree Core Ring ("ABOUT EIA")
+const motherNode = forest[0]; 
+buildLabeledRockRing(motherNode, 2.2, "ABOUT EIA", 36);
+
+// ------------------------------------------
+// RING 2: Master Satellite Engine Ring
+// (Builds callouts for all 4 functional trees)
+forest.forEach((item, index) => {
+    if (item.config.name === "Mother_Tree") return; // Skip central mother
+    const labelTitles = ["SYSTEM MONITORING", "ANALYSIS MODULE", "FORECASTING ENGINE", "DEVELOPMENT PIPELINE"];
+    buildLabeledRockRing(item, 1.8, labelTitles[index-1], 28);
+});
+
     })
     .catch(err => console.error("Error configuration forest compilation:", err));
 
@@ -288,7 +371,7 @@
         forest.forEach(item => {
             item.material.uniforms.uTime.value += timeDelta;
         });
-
+        
         // Safe ambient falling decay processing mapped on Mother Tree bounds
         if (treeState.isLoaded && treeState.deadID.length > 0 && forest[0]) {
             const motherLeaves = forest[0].leavesMesh;
@@ -310,7 +393,43 @@
             }).filter(val => val !== undefined);
             motherLeaves.instanceMatrix.needsUpdate = true; 
         } 
+        // ==========================================
+// ANIMATION: Spatial HTML Label Projection
+// ==========================================
+if(treeState.isLoaded && treeState.labeledRocks.length > 0) {
+    const frustum = new THREE.Frustum();
+    const projScreenMatrix = new THREE.Matrix4();
+    projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+    frustum.setFromProjectionMatrix(projScreenMatrix);
 
+    treeState.labeledRocks.forEach(item => {
+        if(item.htmlLabel.style.display !== 'block') return; // Skip updating hidden labels
+
+        // Create a spatial anchor point just above the top of the specific canopy mesh
+        dummy.position.copy(item.treeNode.group.position);
+        
+        // Adjust text floating height slightly based on tree scale
+        dummy.position.y = (item.treeNode.config.name === "Mother_Tree") ? 3.5 : 2.0;
+
+        // Project the 3D coordinate onto the 2D screen coordinate vector [x, y] scope
+        const vector = dummy.position.clone().project(camera);
+        
+        // Check if the label is actually visible inside the camera's view frustum range
+        if (frustum.containsPoint(dummy.position)) {
+            item.htmlLabel.style.display = 'block';
+            
+            // Map the projected normalized [-1 to 1] vector context to actual pixel [X,Y] scopes
+            const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+            
+            // Apply coordinates with exact text-centering offset shifts
+            item.htmlLabel.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+        } else {
+            // Hide the label if the tree rotates behind the camera viewscope parameters
+            item.htmlLabel.style.display = 'none';
+        }
+    });
+}
         controls.update(); 
         renderer.render(scene, camera); 
     }
@@ -324,33 +443,52 @@
     }
 
     // DISCRETE TARGET HOVER SCANNING HANDLER
-    function pointerMove(e) {
+    // REFINED INTERACTION HANDLER FOR DUAL TIER LABEL SCALES
+function pointerMove(e) {
     pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
     raycaster.setFromCamera(pointer, camera);
     
     if (!treeState.isLoaded) return;
 
-    // Collect all interactive leaf meshes across our instantiated forest records
-    const targetMeshes = forest.map(item => item.leavesMesh);
-    const intersects = raycaster.intersectObjects(targetMeshes);
+    // Grab interactive leaf meshes and target meshes for raycasting checks
+    const leafTargetMeshes = forest.map(item => item.leavesMesh);
+    const leafIntersects = raycaster.intersectObjects(leafTargetMeshes);
     
-    // Reset hover flags across all forest records initially
-    forest.forEach(item => {
-        item.material.uniforms.uIsHovered.value = 0.0;
+    // RESET all states initially across forest and label registries
+    forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
+    
+    treeState.labeledRocks.forEach(item => {
+        // Reset rocks to default dark gray color
+        item.rockMeshGroup.traverse(child => {
+            if(child.isMesh) child.material.color.setHex(0x444444);
+        });
+        // Hide all HTML labels
+        item.htmlLabel.style.display = 'none';
     });
 
-    if (intersects.length > 0) {
-        const hitMesh = intersects[0].object;
+    if (leafIntersects.length > 0) {
+        const hitMesh = leafIntersects[0].object;
         
-        // Find which tree instance matched the collision target
+        // Find matched forest config profile for the specific canopy instance context
         const activeNode = forest.find(item => item.leavesMesh === hitMesh);
         if (activeNode) {
-            // Activate the isolated speed/color shift properties for this tree ONLY
+            // Activate the individual speed/color shift scope ONLY for this hovered node tree
             activeNode.material.uniforms.uIsHovered.value = 1.0;
             
-            // Allow ambient leaves to fall from the Mother Tree on mouse hover intervals
-            if (Math.random() * 5 > 4.2 && intersects[0].instanceId !== undefined && activeNode.config.name === "Mother_Tree") {
-                treeState.deadID.push(intersects[0].instanceId);
+            // Allow Mother Tree ambient leaf fall on mouse ticks
+            if (Math.random() * 5 > 4.2 && leafIntersects[0].instanceId !== undefined && activeNode.config.name === "Mother_Tree") {
+                treeState.deadID.push(leafIntersects[0].instanceId);
+            }
+
+            // FIND MATCHED ROCK RING Label
+            const associatedLabel = treeState.labeledRocks.find(label => label.treeNode === activeNode);
+            if(associatedLabel){
+                // HIGHLIGHT THE ROCKS below the hovered tree
+                associatedLabel.rockMeshGroup.traverse(child => {
+                    if(child.isMesh) child.material.color.setHex(0xdeff9a); // Signature cyber-green!
+                });
+                // SHOW the HTML text label associated with this tree/feature
+                associatedLabel.htmlLabel.style.display = 'block';
             }
         }
     }
