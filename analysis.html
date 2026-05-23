@@ -178,7 +178,8 @@
         fragmentShader: leavesFS,
     });
     // Keep track of the river meshes globally so we can animate them in the main loop
-let animatedRiverLayers = [];
+    // Global tracking for animation execution
+let activeRiverMaterials = [];
 
 function createLowPolyMountains() {
     const mtnGroup = new THREE.Group();
@@ -228,75 +229,107 @@ function createLowPolyMountains() {
     const baseMesh = new THREE.Mesh(baseGeo, baseMat);
     mtnGroup.add(baseMesh);
 
-    // --- 2. GENERATE LAYERED SCROLLING RIVERS (CSS Snippet Match) ---
-    animatedRiverLayers = []; // Reset tracking array
-
-    // Exact color hex updates derived from your SCSS lightness variables
-    const waveColors = [
-        0x5599dd, // Layer 1: $color Base
-        0x66a3e0, // Layer 2: lighten(5%)
-        0x77adde, // Layer 3: lighten(10%)
-        0x88b8e3  // Layer 4: lighten(15%)
-    ];
-
-    // Speed scales relative to your SCSS animation values (lower duration = faster motion)
-    const waveSpeeds = [0.04, 0.045, 0.05, 0.058];
+    // --- 2. NATURAL SLOPED RIVERS ---
+    activeRiverMaterials = []; // Clear old tracking state
 
     const riverAngles = [Math.PI * 0.25, Math.PI * 0.85, -Math.PI * 0.45];
-
+    
     riverAngles.forEach((riverAngle) => {
-        // Build the shared base pathway points down the mountain profile
-        const pathPoints = [];
-        const steps = 10;
+        // Create a custom plane strip that wraps flat against the mountain curvature
+        const segments = 16;
+        const riverGeo = new THREE.PlaneGeometry(1.8, 18, 2, segments);
+        
+        const rPosAttr = riverGeo.attributes.position;
+        
+        for (let i = 0; i < rPosAttr.count; i++) {
+            // y goes from -9 (bottom of ribbon) to +9 (top of ribbon)
+            let ry = rPosAttr.getY(i);
+            let rx = rPosAttr.getX(i); // Width distribution (-0.9 to 0.9)
 
-        for (let j = 0; j <= steps; j++) {
-            const progress = j / steps;
-            const wiggle = Math.sin(progress * 5.0) * 2.2;
-            const currentAngle = riverAngle + (wiggle / radiusBottom);
+            // Normalize height progress from 0 (bottom) to 1 (top)
+            const progress = (ry + 9) / 18; 
 
-            const sIdx = Math.abs(Math.round((currentAngle + Math.PI) / (Math.PI * 2) * radialSegments)) % radialSegments;
+            // Add winding curves down the mountain side
+            const windingOffset = Math.sin(progress * 4.0) * 2.0;
+            const currentAngle = riverAngle + (windingOffset / radiusBottom);
+
+            // Taper width: River becomes wider as it reaches the base
+            const taperFactor = THREE.MathUtils.lerp(1.4, 0.4, progress);
+            const widthAngleOffset = (rx * taperFactor) / radiusBottom;
+
+            const finalAngle = currentAngle + widthAngleOffset;
+
+            // Fetch terrain height data
+            const sIdx = Math.abs(Math.round((finalAngle + Math.PI) / (Math.PI * 2) * radialSegments)) % radialSegments;
             const valleyPeak = peakOffsets[sIdx];
 
-            const vPercent = THREE.MathUtils.lerp(0.55, -0.05, progress);
+            // Scale vertical range from mid-mountain to dropping below the scene floor
+            const vPercent = THREE.MathUtils.lerp(0.05, 0.52, progress); 
             const mtnBaseY = -height / 2;
             const mtnTopY = (height / 2) + valleyPeak;
             
-            const rY = THREE.MathUtils.lerp(mtnBaseY, mtnTopY, vPercent);
-            const rRad = THREE.MathUtils.lerp(radiusBottom, radiusTop, vPercent) - 0.2;
+            const finalY = THREE.MathUtils.lerp(mtnBaseY, mtnTopY, vPercent);
+            // Push radius slightly inward/forward so it rests perfectly flat against the rock face
+            const finalRadius = THREE.MathUtils.lerp(radiusBottom, radiusTop, vPercent) - 0.08; 
 
-            pathPoints.push(new THREE.Vector3(Math.cos(currentAngle) * rRad, rY, Math.sin(currentAngle) * rRad));
+            rPosAttr.setX(i, Math.cos(finalAngle) * finalRadius);
+            rPosAttr.setY(i, finalY);
+            rPosAttr.setZ(i, Math.sin(finalAngle) * finalRadius);
         }
 
-        const riverCurve = new THREE.CatmullRomCurve3(pathPoints);
+        riverGeo.computeVertexNormals();
 
-        // Generate the 4 stacked individual wave meshes matching your stylesheet
-        waveColors.forEach((colorHex, index) => {
-            // Give every layer a unique geometric thickness to recreate the circular overlaps
-            const thickness = 0.5 - (index * 0.08); 
-            const layerGeo = new THREE.TubeGeometry(riverCurve, 24, thickness, 4, false);
-            
-            const layerMat = new THREE.MeshToonMaterial({
-                color: colorHex,
-                roughness: 0.3,
-                flatShading: true
-            });
-
-            const layerMesh = new THREE.Mesh(layerGeo, layerMat);
-            
-            // Offset coordinates slightly so layers stack side-by-side down the valley
-            layerMesh.position.x += (index * 0.12) - 0.18;
-            layerMesh.position.z += (index * 0.12) - 0.18;
-
-            mtnGroup.add(layerMesh);
-
-            // Store the data structure so we can target its vertex arrays inside the loop
-            animatedRiverLayers.push({
-                mesh: layerMesh,
-                baseGeometry: layerGeo.clone(), // Clone to read clean initial position states
-                speed: waveSpeeds[index],
-                offsetPhase: index * Math.PI // Desynchronize layers
-            });
+        // Custom stylized toon shader material to animate flowing water color transitions naturally
+        const customRiverMat = new THREE.MeshToonMaterial({
+            color: 0x5599dd,
+            roughness: 0.2,
+            flatShading: true,
+            side: THREE.DoubleSide
         });
+
+        // Modify shader program directly to create an endless downward flowing wave animation
+        customRiverMat.onBeforeCompile = (shader) => {
+            shader.uniforms.uTime = { value: 0 };
+            customRiverMat.userData.shader = shader; // Reference to animate later
+            
+            shader.vertexShader = shader.vertexShader.replace(
+                '#include <uv_vertex>',
+                `#include <uv_vertex>
+                 vUv = uv;`
+            );
+
+            shader.fragmentShader = `
+                varying vec2 vUv;
+                uniform float uTime;
+            ` + shader.fragmentShader;
+
+            shader.fragmentShader = shader.fragmentShader.replace(
+                '#include <color_fragment>',
+                `
+                // Multi-layered light coordinates matching your style guidelines
+                float wave = sin(vUv.y * 30.0 - uTime * 4.0) * 0.5 + 0.5;
+                float wave2 = sin(vUv.y * 15.0 - uTime * 2.5) * 0.5 + 0.5;
+                
+                vec3 baseWater = vec3(0.33, 0.6, 0.86); // #5599dd
+                vec3 lightWater = vec3(0.47, 0.68, 0.87); // lighten 10%
+                
+                vec3 finalWaterColor = mix(baseWater, lightWater, step(0.7, (wave + wave2) * 0.5));
+                
+                // Naturally fade out opacity near the bottom so it never clips awkwardly on brown floor
+                float edgeFade = smoothstep(0.02, 0.18, vUv.y);
+                
+                diffuseColor.rgb = finalWaterColor;
+                diffuseColor.a *= edgeFade;
+                `
+            );
+        };
+
+        // Turn transparency configuration flags on
+        customRiverMat.transparent = true;
+
+        const riverMesh = new THREE.Mesh(riverGeo, customRiverMat);
+        mtnGroup.add(riverMesh);
+        activeRiverMaterials.push(customRiverMat);
     });
 
     // --- 3. DENSE SCATTERED TREES ---
@@ -312,7 +345,7 @@ function createLowPolyMountains() {
         
         if (Math.random() > 0.35) {
             const targetRiver = riverAngles[Math.floor(Math.random() * riverAngles.length)];
-            tAngle = targetRiver + (Math.random() * 0.5 - 0.25); 
+            tAngle = targetRiver + (Math.random() * 0.4 - 0.2); 
         }
 
         const sIdx = Math.abs(Math.round((tAngle + Math.PI) / (Math.PI * 2) * radialSegments)) % radialSegments;
