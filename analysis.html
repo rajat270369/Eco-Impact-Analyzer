@@ -181,11 +181,11 @@
     const mtnGroup = new THREE.Group();
     mtnGroup.name = "BACKGROUND_MOUNTAINS";
 
-    // Make the range much wider and taller so it fills the distant horizon
-    const width = 120;
-    const height = 45;
-    const segmentsX = 18;
-    const segmentsY = 6;
+    // 1. Shrink dimensions significantly so it fits cleanly in the distant background
+    const width = 50;
+    const height = 15;
+    const segmentsX = 14;
+    const segmentsY = 4;
     const geo = new THREE.PlaneGeometry(width, height, segmentsX, segmentsY);
 
     const posAttr = geo.attributes.position;
@@ -194,12 +194,13 @@
         let y = posAttr.getY(i);
         
         const nx = x / width; 
-        let baseHeight = Math.cos(nx * Math.PI) * 22.0; // Higher peak slope
+        // A gentler mathematical peak curve
+        let baseHeight = Math.cos(nx * Math.PI) * 5.0; 
         
         if (y > 0) {
-            baseHeight += Math.sin(nx * 12.0) * 6.0 + (Math.random() * 3.0 - 1.5);
+            baseHeight += Math.sin(nx * 10.0) * 2.0 + (Math.random() * 1.0 - 0.5);
         } else {
-            baseHeight = 0; // Seamless floor attachment
+            baseHeight = 0; 
         }
 
         posAttr.setZ(i, baseHeight);
@@ -208,22 +209,22 @@
     geo.computeVertexNormals();
 
     const mtnMat = new THREE.MeshToonMaterial({
-        color: 0x2e3b32,   // Slightly darker, atmospheric slate green for distance depth
-        roughness: 0.95,
+        color: 0x223026,   // Darker, atmospheric distant slate-green
+        roughness: 0.9,
         flatShading: true, 
-        side: THREE.DoubleSide
+        side: THREE.FrontSide // Only render the front faces to avoid visual artifacts
     });
 
     const mountainMesh = new THREE.Mesh(geo, mtnMat);
     
-    // Stand the plane upright
+    // Rotate upright
     mountainMesh.rotation.x = -Math.PI / 2;
     mtnGroup.add(mountainMesh);
 
-    // 1. Push it way back into the far corner of the horizon line (deep positive X and Z)
-    // 2. Rotate the entire group so it faces inward toward your center tree setup
-    mtnGroup.position.set(25, -2.0, 25); 
-    mtnGroup.rotation.y = -Math.PI * 0.25; // Angled corner backdrop
+    // 2. Position it perfectly on the horizon relative to your camera view loop
+    // Pushing it deep into the negative Y/Z quadrants away from your active scene nodes
+    mtnGroup.position.set(5, 0.0, -35); 
+    mtnGroup.rotation.y = Math.PI * 0.15; // Subtle angle facing the camera trajectory
 
     scene.add(mtnGroup);
 }
