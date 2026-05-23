@@ -177,54 +177,75 @@
         vertexShader: leavesVS,
         fragmentShader: leavesFS,
     });
-    function createLowPolyMountains() {
+   function createLowPolyMountains() {
     const mtnGroup = new THREE.Group();
     mtnGroup.name = "BACKGROUND_MOUNTAINS";
 
-    // 1. Shrink dimensions significantly so it fits cleanly in the distant background
-    const width = 50;
-    const height = 15;
-    const segmentsX = 14;
-    const segmentsY = 4;
-    const geo = new THREE.PlaneGeometry(width, height, segmentsX, segmentsY);
+    // 1. Create a cylinder to act as a 360-degree stadium wall surrounding the scene
+    const radiusTop = 55;
+    const radiusBottom = 50;
+    const height = 18;
+    const radialSegments = 36; // Number of jagged mountain peaks around the ring
+    const heightSegments = 4;
+    
+    // openEnded = true leaves the top and bottom clear so it acts purely as a horizon wall
+    const geo = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, true);
+
+    // 2. Flip the geometry inside-out so the faces point inward toward your central camera
+    geo.scale(-1, 1, 1);
 
     const posAttr = geo.attributes.position;
+    
+    // Create an array to store custom RGB colors for every single vertex
+    const colors = [];
+    const baseColor = new THREE.Color(0x1a261f); // Dark, atmospheric slate base
+    const peakColor = new THREE.Color(0x384d3f); // Lighter green-gray for top ridges
+
     for (let i = 0; i < posAttr.count; i++) {
         let x = posAttr.getX(i);
         let y = posAttr.getY(i);
-        
-        const nx = x / width; 
-        // A gentler mathematical peak curve
-        let baseHeight = Math.cos(nx * Math.PI) * 5.0; 
-        
-        if (y > 0) {
-            baseHeight += Math.sin(nx * 10.0) * 2.0 + (Math.random() * 1.0 - 0.5);
-        } else {
-            baseHeight = 0; 
+        let z = posAttr.getZ(i);
+
+        // Calculate the horizontal angle from the center to randomize peaks systematically
+        const angle = Math.atan2(z, x);
+
+        // Only distort the mid-to-top vertices so the base stays flat on the floor line
+        if (y > -height / 3) {
+            // Combine large mountain waves with sharp jagged noise variations
+            const mainWave = Math.sin(angle * 5.0) * 4.5;
+            const sharpJagged = Math.cos(angle * 15.0) * 2.0 + (Math.sin(angle * 30.0) * 0.8);
+            
+            // Apply height displacement relative to how high up the vertex is
+            const heightFactor = (y + height / 2) / height; 
+            y += (mainWave + sharpJagged) * heightFactor;
+            
+            posAttr.setY(i, y);
         }
 
-        posAttr.setZ(i, baseHeight);
+        // 3. Polish with vertex shading: interpolate color based on final height
+        const normalizedHeight = THREE.MathUtils.mapLinear(y, -height/2, height, 0, 1);
+        const vertexColor = baseColor.clone().lerp(peakColor, THREE.MathUtils.clamp(normalizedHeight, 0, 1));
+        colors.push(vertexColor.r, vertexColor.g, vertexColor.b);
     }
+
+    // Add the generated vertex colors directly into the geometry attributes
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
     
+    // Recompute normals flat for that distinct, low-poly faceted look
     geo.computeVertexNormals();
 
     const mtnMat = new THREE.MeshToonMaterial({
-        color: 0x223026,   // Darker, atmospheric distant slate-green
-        roughness: 0.9,
+        vertexColors: true, // Tells Three.js to use our custom gradient mapping
+        roughness: 0.95,
         flatShading: true, 
-        side: THREE.FrontSide // Only render the front faces to avoid visual artifacts
+        side: THREE.FrontSide
     });
 
     const mountainMesh = new THREE.Mesh(geo, mtnMat);
     
-    // Rotate upright
-    mountainMesh.rotation.x = -Math.PI / 2;
+    // Drop the base slightly below the floor plane so there are no floating gaps
+    mtnGroup.position.set(0, -2.0, 0); 
     mtnGroup.add(mountainMesh);
-
-    // 2. Position it perfectly on the horizon relative to your camera view loop
-    // Pushing it deep into the negative Y/Z quadrants away from your active scene nodes
-    mtnGroup.position.set(5, 0.0, -35); 
-    mtnGroup.rotation.y = Math.PI * 0.15; // Subtle angle facing the camera trajectory
 
     scene.add(mtnGroup);
 }
