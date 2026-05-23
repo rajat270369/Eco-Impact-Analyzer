@@ -181,56 +181,50 @@
     const mtnGroup = new THREE.Group();
     mtnGroup.name = "BACKGROUND_MOUNTAINS";
 
-    // Create a dense grid plane for the mountain mesh
-    const width = 60;
-    const height = 25;
-    const segmentsX = 14;
+    // Make the range much wider and taller so it fills the distant horizon
+    const width = 120;
+    const height = 45;
+    const segmentsX = 18;
     const segmentsY = 6;
     const geo = new THREE.PlaneGeometry(width, height, segmentsX, segmentsY);
 
-    // Access raw vertex positions to distort them into low-poly peaks
     const posAttr = geo.attributes.position;
     for (let i = 0; i < posAttr.count; i++) {
         let x = posAttr.getX(i);
         let y = posAttr.getY(i);
         
-        // Normalize x from -0.5 to 0.5 along the range width
         const nx = x / width; 
+        let baseHeight = Math.cos(nx * Math.PI) * 22.0; // Higher peak slope
         
-        // Shape a natural mountain silhouette curve (highest in the center, tapering at edges)
-        let baseHeight = Math.cos(nx * Math.PI) * 12.0; 
-        
-        // Introduce sharp, jagged variations for the peak ridges
         if (y > 0) {
-            baseHeight += Math.sin(nx * 15.0) * 3.5 + (Math.random() * 2.0 - 1.0);
+            baseHeight += Math.sin(nx * 12.0) * 6.0 + (Math.random() * 3.0 - 1.5);
         } else {
-            // Flatten the base vertices so it connects cleanly with your floor line
-            baseHeight = 0;
+            baseHeight = 0; // Seamless floor attachment
         }
 
-        // Apply our custom displacement mapping
         posAttr.setZ(i, baseHeight);
     }
     
-    // Recalculate face vectors strictly for flat, faceted low-poly cell shading
     geo.computeVertexNormals();
 
-    // Earthy slate-green mountain material matching your toon palette
     const mtnMat = new THREE.MeshToonMaterial({
-        color: 0x415346,
+        color: 0x2e3b32,   // Slightly darker, atmospheric slate green for distance depth
         roughness: 0.95,
-        flatShading: true, // Forces sharp edges between geometry faces
+        flatShading: true, 
         side: THREE.DoubleSide
     });
 
     const mountainMesh = new THREE.Mesh(geo, mtnMat);
     
-    // Rotate the vertical plane to sit upright and face the initial camera view
+    // Stand the plane upright
     mountainMesh.rotation.x = -Math.PI / 2;
     mtnGroup.add(mountainMesh);
 
-    // Position the range slightly far back along the negative Z/X horizon line
-    mtnGroup.position.set(0, -0.5, -22);
+    // 1. Push it way back into the far corner of the horizon line (deep positive X and Z)
+    // 2. Rotate the entire group so it faces inward toward your center tree setup
+    mtnGroup.position.set(25, -2.0, 25); 
+    mtnGroup.rotation.y = -Math.PI * 0.25; // Angled corner backdrop
+
     scene.add(mtnGroup);
 }
 
