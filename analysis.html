@@ -181,75 +181,136 @@
     const mtnGroup = new THREE.Group();
     mtnGroup.name = "BACKGROUND_MOUNTAINS";
 
-    // 1. Create a cylinder to act as a 360-degree stadium wall surrounding the scene
-    const radiusTop = 55;
-    const radiusBottom = 50;
-    const height = 18;
-    const radialSegments = 36; // Number of jagged mountain peaks around the ring
-    const heightSegments = 4;
-    
-    // openEnded = true leaves the top and bottom clear so it acts purely as a horizon wall
-    const geo = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, true);
+    // Horizon configuration metrics
+    const radiusTop = 65;
+    const radiusBottom = 60;
+    const height = 22;
+    const radialSegments = 32; 
+    const heightSegments = 3;
 
-    // 2. Flip the geometry inside-out so the faces point inward toward your central camera
-    geo.scale(-1, 1, 1);
+    // --- LAYER 1: BASE MOUNTAIN WALL ---
+    const baseGeo = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, true);
+    baseGeo.scale(-1, 1, 1); 
 
-    const posAttr = geo.attributes.position;
-    
-    // Create an array to store custom RGB colors for every single vertex
-    const colors = [];
-    const baseColor = new THREE.Color(0x1a261f); // Dark, atmospheric slate base
-    const peakColor = new THREE.Color(0x384d3f); // Lighter green-gray for top ridges
+    const posAttr = baseGeo.attributes.position;
+    const peakOffsets = new Array(radialSegments).fill(0);
 
     for (let i = 0; i < posAttr.count; i++) {
         let x = posAttr.getX(i);
         let y = posAttr.getY(i);
         let z = posAttr.getZ(i);
 
-        // Calculate the horizontal angle from the center to randomize peaks systematically
         const angle = Math.atan2(z, x);
+        const segmentIdx = Math.abs(Math.round((angle + Math.PI) / (Math.PI * 2) * radialSegments)) % radialSegments;
 
-        // Only distort the mid-to-top vertices so the base stays flat on the floor line
-        if (y > -height / 3) {
-            // Combine large mountain waves with sharp jagged noise variations
-            const mainWave = Math.sin(angle * 5.0) * 4.5;
-            const sharpJagged = Math.cos(angle * 15.0) * 2.0 + (Math.sin(angle * 30.0) * 0.8);
-            
-            // Apply height displacement relative to how high up the vertex is
-            const heightFactor = (y + height / 2) / height; 
-            y += (mainWave + sharpJagged) * heightFactor;
-            
+        if (y > -height / 4) {
+            if (peakOffsets[segmentIdx] === 0) {
+                const majorRidge = Math.sin(angle * 4.0) * 5.5;
+                const minorRidge = Math.cos(angle * 11.0) * 2.5;
+                const sharpJagg = Math.sin(angle * 25.0) * 1.2;
+                peakOffsets[segmentIdx] = majorRidge + minorRidge + sharpJagg;
+            }
+
+            const factor = (y + height / 2) / height;
+            y += peakOffsets[segmentIdx] * factor;
             posAttr.setY(i, y);
         }
-
-        // 3. Polish with vertex shading: interpolate color based on final height
-        const normalizedHeight = THREE.MathUtils.mapLinear(y, -height/2, height, 0, 1);
-        const vertexColor = baseColor.clone().lerp(peakColor, THREE.MathUtils.clamp(normalizedHeight, 0, 1));
-        colors.push(vertexColor.r, vertexColor.g, vertexColor.b);
     }
+    baseGeo.computeVertexNormals();
 
-    // Add the generated vertex colors directly into the geometry attributes
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-    
-    // Recompute normals flat for that distinct, low-poly faceted look
-    geo.computeVertexNormals();
-
-    const mtnMat = new THREE.MeshToonMaterial({
-        vertexColors: true, // Tells Three.js to use our custom gradient mapping
-        roughness: 0.95,
-        flatShading: true, 
+    const baseMat = new THREE.MeshToonMaterial({
+        color: 0x8fa0b0, 
+        roughness: 0.85,
+        flatShading: true,
         side: THREE.FrontSide
     });
 
-    const mountainMesh = new THREE.Mesh(geo, mtnMat);
-    
-    // Drop the base slightly below the floor plane so there are no floating gaps
-    mtnGroup.position.set(0, -2.0, 0); 
-    mtnGroup.add(mountainMesh);
+    const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+    mtnGroup.add(baseMesh);
 
+    // --- LAYER 2: SNOW-CAPPED PEAKS ---
+    const snowGeo = new THREE.CylinderGeometry(radiusTop, radiusTop - 2, 4, radialSegments, 1, true);
+    snowGeo.scale(-1, 1, 1);
+
+    const snowPosAttr = snowGeo.attributes.position;
+    for (let i = 0; i < snowPosAttr.count; i++) {
+        let sx = snowPosAttr.getX(i);
+        let sy = snowPosAttr.getY(i);
+        let sz = snowPosAttr.getZ(i);
+
+        const sAngle = Math.atan2(sz, sx);
+        const sSegmentIdx = Math.abs(Math.round((sAngle + Math.PI) / (Math.PI * 2) * radialSegments)) % radialSegments;
+        const peakHeight = peakOffsets[sSegmentIdx];
+        
+        if (sy > 0) {
+            sy = (height / 2) + peakHeight;
+        } else {
+            sy = (height / 2) + peakHeight - 3.5 - (Math.sin(sAngle * 40.0) * 0.8);
+        }
+        snowPosAttr.setY(i, sy);
+    }
+    snowGeo.computeVertexNormals();
+
+    const snowMat = new THREE.MeshToonMaterial({
+        color: 0xffffff, 
+        roughness: 0.6,
+        flatShading: true,
+        side: THREE.FrontSide
+    });
+
+    const snowMesh = new THREE.Mesh(snowGeo, snowMat);
+    mtnGroup.add(snowMesh);
+
+    // --- LAYER 3: SCATTERED DISTANT TREES ---
+    // Reusable materials matching your dark-green and light-green snippet variables
+    const darkTreeMat = new THREE.MeshToonMaterial({ color: 0x044946, flatShading: true });
+    const lightTreeMat = new THREE.MeshToonMaterial({ color: 0x38845E, flatShading: true });
+    
+    // Create a mini low-poly cone to represent a distant evergreen pine tree
+    const treeGeo = new THREE.ConeGeometry(0.4, 1.2, 4);
+    treeGeo.translate(0, 0.6, 0); // Shift pivot point to the bottom of the trunk
+
+    const totalDistantTrees = 60; // How dense you want the mountain forests to look
+
+    for (let t = 0; t < totalDistantTrees; t++) {
+        // 1. Pick a random angle around the 360-degree perimeter ring
+        const tAngle = Math.random() * Math.PI * 2;
+        const sIdx = Math.abs(Math.round((tAngle + Math.PI) / (Math.PI * 2) * radialSegments)) % radialSegments;
+        
+        // 2. Determine mountain face height at this explicit slice
+        const calculatedPeak = peakOffsets[sIdx];
+        
+        // Scatter them midway up the mountain body (keeping them clear of the deep snow lines)
+        const verticalPercent = THREE.MathUtils.lerp(0.1, 0.55, Math.random()); 
+        const mtnBaseY = -height / 2;
+        const mtnTopY = (height / 2) + calculatedPeak;
+        const finalY = THREE.MathUtils.lerp(mtnBaseY, mtnTopY, verticalPercent);
+
+        // 3. Extrapolate radius depth matching the subtle slope curve inward
+        const currentRadius = THREE.MathUtils.lerp(radiusBottom, radiusTop, verticalPercent) - 0.2;
+
+        const treeMesh = new THREE.Mesh(treeGeo, Math.random() > 0.4 ? darkTreeMat : lightTreeMat);
+        
+        // Position tree along the inner radial rim wall
+        treeMesh.position.x = Math.cos(tAngle) * currentRadius;
+        treeMesh.position.z = Math.sin(tAngle) * currentRadius;
+        treeMesh.position.y = finalY;
+
+        // Give them minor random height variances so they look natural
+        const randomScale = THREE.MathUtils.lerp(0.6, 1.4, Math.random());
+        treeMesh.scale.set(randomScale, randomScale, randomScale);
+
+        // Orient them slightly to lean with the mountain surface vector
+        treeMesh.rotation.z = -Math.cos(tAngle) * 0.12;
+        treeMesh.rotation.x = Math.sin(tAngle) * 0.12;
+
+        mtnGroup.add(treeMesh);
+    }
+
+    // Shift stadium container down below your workspace grass line
+    mtnGroup.position.set(0, -2.5, 0);
     scene.add(mtnGroup);
 }
-
     // LOAD AND CLONE FOREST SYSTEM
     loader.loadAsync("https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/tree.glb")
     .then(obj => {
