@@ -177,8 +177,7 @@
         vertexShader: leavesVS,
         fragmentShader: leavesFS,
     });
-    // Keep track of the river meshes globally so we can animate them in the main loop
-    // Global tracking for animation execution
+ // Global tracking arrays for system animations
 let activeRiverMaterials = [];
 
 function createLowPolyMountains() {
@@ -230,46 +229,35 @@ function createLowPolyMountains() {
     mtnGroup.add(baseMesh);
 
     // --- 2. NATURAL SLOPED RIVERS ---
-    activeRiverMaterials = []; // Clear old tracking state
+    activeRiverMaterials = []; 
 
     const riverAngles = [Math.PI * 0.25, Math.PI * 0.85, -Math.PI * 0.45];
     
     riverAngles.forEach((riverAngle) => {
-        // Create a custom plane strip that wraps flat against the mountain curvature
         const segments = 16;
         const riverGeo = new THREE.PlaneGeometry(1.8, 18, 2, segments);
-        
         const rPosAttr = riverGeo.attributes.position;
         
         for (let i = 0; i < rPosAttr.count; i++) {
-            // y goes from -9 (bottom of ribbon) to +9 (top of ribbon)
             let ry = rPosAttr.getY(i);
-            let rx = rPosAttr.getX(i); // Width distribution (-0.9 to 0.9)
+            let rx = rPosAttr.getX(i); 
 
-            // Normalize height progress from 0 (bottom) to 1 (top)
             const progress = (ry + 9) / 18; 
-
-            // Add winding curves down the mountain side
             const windingOffset = Math.sin(progress * 4.0) * 2.0;
             const currentAngle = riverAngle + (windingOffset / radiusBottom);
 
-            // Taper width: River becomes wider as it reaches the base
             const taperFactor = THREE.MathUtils.lerp(1.4, 0.4, progress);
             const widthAngleOffset = (rx * taperFactor) / radiusBottom;
-
             const finalAngle = currentAngle + widthAngleOffset;
 
-            // Fetch terrain height data
             const sIdx = Math.abs(Math.round((finalAngle + Math.PI) / (Math.PI * 2) * radialSegments)) % radialSegments;
             const valleyPeak = peakOffsets[sIdx];
 
-            // Scale vertical range from mid-mountain to dropping below the scene floor
             const vPercent = THREE.MathUtils.lerp(0.05, 0.52, progress); 
             const mtnBaseY = -height / 2;
             const mtnTopY = (height / 2) + valleyPeak;
             
             const finalY = THREE.MathUtils.lerp(mtnBaseY, mtnTopY, vPercent);
-            // Push radius slightly inward/forward so it rests perfectly flat against the rock face
             const finalRadius = THREE.MathUtils.lerp(radiusBottom, radiusTop, vPercent) - 0.08; 
 
             rPosAttr.setX(i, Math.cos(finalAngle) * finalRadius);
@@ -279,7 +267,6 @@ function createLowPolyMountains() {
 
         riverGeo.computeVertexNormals();
 
-        // Custom stylized toon shader material to animate flowing water color transitions naturally
         const customRiverMat = new THREE.MeshToonMaterial({
             color: 0x5599dd,
             roughness: 0.2,
@@ -287,10 +274,9 @@ function createLowPolyMountains() {
             side: THREE.DoubleSide
         });
 
-        // Modify shader program directly to create an endless downward flowing wave animation
         customRiverMat.onBeforeCompile = (shader) => {
             shader.uniforms.uTime = { value: 0 };
-            customRiverMat.userData.shader = shader; // Reference to animate later
+            customRiverMat.userData.shader = shader;
             
             shader.vertexShader = shader.vertexShader.replace(
                 '#include <uv_vertex>',
@@ -306,16 +292,13 @@ function createLowPolyMountains() {
             shader.fragmentShader = shader.fragmentShader.replace(
                 '#include <color_fragment>',
                 `
-                // Multi-layered light coordinates matching your style guidelines
                 float wave = sin(vUv.y * 30.0 - uTime * 4.0) * 0.5 + 0.5;
                 float wave2 = sin(vUv.y * 15.0 - uTime * 2.5) * 0.5 + 0.5;
                 
-                vec3 baseWater = vec3(0.33, 0.6, 0.86); // #5599dd
-                vec3 lightWater = vec3(0.47, 0.68, 0.87); // lighten 10%
+                vec3 baseWater = vec3(0.33, 0.6, 0.86); 
+                vec3 lightWater = vec3(0.47, 0.68, 0.87); 
                 
                 vec3 finalWaterColor = mix(baseWater, lightWater, step(0.7, (wave + wave2) * 0.5));
-                
-                // Naturally fade out opacity near the bottom so it never clips awkwardly on brown floor
                 float edgeFade = smoothstep(0.02, 0.18, vUv.y);
                 
                 diffuseColor.rgb = finalWaterColor;
@@ -324,7 +307,6 @@ function createLowPolyMountains() {
             );
         };
 
-        // Turn transparency configuration flags on
         customRiverMat.transparent = true;
 
         const riverMesh = new THREE.Mesh(riverGeo, customRiverMat);
@@ -376,6 +358,276 @@ function createLowPolyMountains() {
     mtnGroup.position.set(0, -6.0, 0);
     scene.add(mtnGroup);
 }
+
+// LOAD AND CLONE FOREST SYSTEM
+loader.loadAsync("https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/tree.glb")
+.then(obj => {
+    const preview = document.getElementById("previewHack");
+    if(preview) preview.style.display = "none";
+
+    const basePole = obj.scene.getObjectByName("Pole");
+    const baseCrown = obj.scene.getObjectByName("Leaves");
+    const baseLeafGeo = obj.scene.getObjectByName("Leaf").geometry;
+    
+    const bbox = new THREE.Box3().setFromObject(baseCrown);
+    const bboxSize = bbox.getSize(new THREE.Vector3());
+
+    const treeConfigs = [
+        { name: "Mother_Tree", pos: new THREE.Vector3(0, 0, 0), scale: 1.0, rotY: 0 },
+        { name: "Satellite_Alpha", pos: new THREE.Vector3(-6, 0, 0), scale: 0.6, rotY: Math.PI * 0.2 },
+        { name: "Satellite_Beta", pos: new THREE.Vector3(6, 0, 0), scale: 0.6, rotY: Math.PI * 0.7 },
+        { name: "Satellite_Gamma", pos: new THREE.Vector3(0, 0, -6), scale: 0.6, rotY: -Math.PI * 0.4 },
+        { name: "Satellite_Delta", pos: new THREE.Vector3(0, 0, 6), scale: 0.6, rotY: Math.PI * 1.1 }
+    ];
+
+    treeConfigs.forEach((config) => {
+        const treeGroup = new THREE.Group();
+        treeGroup.name = config.name;
+        
+        const poleClone = basePole.clone();
+        treeGroup.add(poleClone);
+
+        const uniqueMat = baseLeavesMat.clone();
+        uniqueMat.uniforms.uBoxMin.value.copy(bbox.min);
+        uniqueMat.uniforms.uBoxSize.value.copy(bboxSize);
+
+        const leavesCount = baseCrown.geometry.attributes.position.count;
+        const instancedLeaves = new THREE.InstancedMesh(baseLeafGeo, uniqueMat, leavesCount);
+
+        for (let i = 0; i < leavesCount; i++) { 
+            dummy.position.x = baseCrown.geometry.attributes.position.array[i*3];
+            dummy.position.y = baseCrown.geometry.attributes.position.array[i*3+1];
+            dummy.position.z = baseCrown.geometry.attributes.position.array[i*3+2];
+            
+            dummy.lookAt(
+                dummy.position.x + baseCrown.geometry.attributes.normal.array[i*3],
+                dummy.position.y + baseCrown.geometry.attributes.normal.array[i*3+1],
+                dummy.position.z + baseCrown.geometry.attributes.normal.array[i*3+2]
+            );
+            
+            dummy.scale.set(
+                (Math.random() * 0.2 + 0.8),
+                (Math.random() * 0.2 + 0.8),
+                (Math.random() * 0.2 + 0.8)
+            );
+            dummy.updateMatrix();
+            instancedLeaves.setMatrixAt(i, dummy.matrix);
+        }
+
+        treeGroup.add(instancedLeaves);
+        
+        treeGroup.position.copy(config.pos);
+        treeGroup.scale.setScalar(config.scale);
+        treeGroup.rotation.y = config.rotY;
+        
+        scene.add(treeGroup);
+        
+        forest.push({
+            group: treeGroup,
+            leavesMesh: instancedLeaves,
+            material: uniqueMat,
+            config: config
+        });
+    });
+
+    treeState.leavesCount = baseCrown.geometry.attributes.position.count;
+    treeState.isLoaded = true;
+    
+    // --- FIXED ROCK-RING LABELING GENERATION ROUTINE ---
+    const rockGeo = new THREE.DodecahedronGeometry(0.15, 0); 
+
+    function buildLabeledRockRing(targetTree, radius, titleText, totalRocks = 24) {
+        const ringGroup = new THREE.Group();
+        ringGroup.name = `${titleText}_RING`;
+        ringGroup.position.copy(targetTree.group.position);
+        ringGroup.position.y = 0.05; 
+
+        for (let i = 0; i < totalRocks; i++) {
+            const individualRockMat = new THREE.MeshToonMaterial({ 
+                map: basePole.material.map, 
+                color: 0x333333, 
+                side: THREE.FrontSide
+            });
+
+            const angle = (i / totalRocks) * Math.PI * 2;
+            const rock = new THREE.Mesh(rockGeo, individualRockMat);
+            
+            rock.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+            rock.scale.set(0.6 + Math.random()*0.5, 0.6 + Math.random()*0.5, 0.6 + Math.random()*0.5);
+            rock.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+            
+            ringGroup.add(rock);
+        }
+
+        const labelContainer = document.createElement('div');
+        labelContainer.className = 'tree-label-div';
+        labelContainer.innerHTML = `<p style="margin:0; padding:4px 8px; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,0.1); border-radius:4px;">${titleText}</p>`;
+        
+        labelContainer.style.position = 'absolute';
+        labelContainer.style.color = '#e2e8f0';
+        labelContainer.style.fontSize = '11px';
+        labelContainer.style.fontWeight = 'bold';
+        labelContainer.style.fontFamily = 'monospace';
+        labelContainer.style.letterSpacing = '1.5px';
+        labelContainer.style.zIndex = '100';
+        labelContainer.style.display = 'none'; 
+        labelContainer.style.pointerEvents = 'none';
+        document.body.appendChild(labelContainer);
+
+        treeState.labeledRocks.push({
+            treeNode: targetTree,
+            rockMeshGroup: ringGroup,
+            htmlLabel: labelContainer
+        });
+
+        scene.add(ringGroup);
+    }
+
+    buildLabeledRockRing(forest[0], 2.2, "ABOUT PROTOCOL", 32);
+
+    const labelTitles = ["MONITOR ENGINE", "ANALYZE MODULE", "STRATEGIZE PIPELINE", "DEVELOP CONSOLE"];
+    forest.forEach((item, index) => {
+        if (item.config.name === "Mother_Tree") return; 
+        buildLabeledRockRing(item, 1.4, labelTitles[index - 1], 20);
+    });
+
+    createLowPolyMountains();
+    killRandom();
+})
+.catch(err => console.error("Error configuring forest compilation:", err));
+
+// SYSTEM ENVIRONMENT POSITION VALUES
+dlight01.position.set(10, 20, 10);
+camera.position.set(-15, 9, -18);
+
+controls.target = new THREE.Vector3(0, 1.8, 0);
+controls.maxPolarAngle = Math.PI * 0.48; 
+controls.minDistance = 5.0;
+controls.maxDistance = 35.0;
+controls.enableDamping = true;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.3;
+controls.enablePan = false;
+
+// RUNTIME RENDER ENGINE LOOP
+function animate() {
+    requestAnimationFrame(animate);
+    const timeDelta = 0.01;
+
+    forest.forEach(item => {
+        item.material.uniforms.uTime.value += timeDelta;
+    });
+    
+    if (treeState.isLoaded && treeState.deadID.length > 0 && forest[0]) {
+        const motherLeaves = forest[0].leavesMesh;
+        treeState.deadID = treeState.deadID.map(i => {
+            if (i === undefined) return undefined;
+            motherLeaves.getMatrixAt(i, matrix);
+            matrix.decompose(dummy.position, dummy.rotation, dummy.scale);
+            
+            if (dummy.position.y > 0) {
+                dummy.position.y -= 0.04;
+                dummy.position.x += Math.random()/5 - 0.11;
+                dummy.position.z += Math.random()/5 - 0.11;
+                dummy.rotation.x += 0.2;
+                dummy.updateMatrix();
+                motherLeaves.setMatrixAt(i, dummy.matrix);
+                return i;
+            }
+            return undefined;
+        }).filter(val => val !== undefined);
+        motherLeaves.instanceMatrix.needsUpdate = true; 
+    } 
+
+    // CLEAN DRIVER FOR SHADER-BASED RIVER ANIMATION
+    if (activeRiverMaterials && activeRiverMaterials.length > 0) {
+        const timeClock = performance.now() * 0.001;
+        activeRiverMaterials.forEach((mat) => {
+            if (mat.userData && mat.userData.shader) {
+                mat.userData.shader.uniforms.uTime.value = timeClock;
+            }
+        });
+    }
+        
+    // Live Spatial Label Reposition Loop Matrix Checks
+    if(treeState.isLoaded && treeState.labeledRocks.length > 0) {
+        const frustum = new THREE.Frustum();
+        const projScreenMatrix = new THREE.Matrix4();
+        projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+        frustum.setFromProjectionMatrix(projScreenMatrix);
+
+        treeState.labeledRocks.forEach(item => {
+            if(item.htmlLabel.style.display !== 'block') return; 
+
+            dummy.position.copy(item.treeNode.group.position);
+            dummy.position.y = (item.treeNode.config.name === "Mother_Tree") ? 3.8 : 2.2;
+
+            const vector = dummy.position.clone().project(camera);
+            
+            if (frustum.containsPoint(dummy.position)) {
+                const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+                item.htmlLabel.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+            } else {
+                item.htmlLabel.style.display = 'none';
+            }
+        });
+    }
+
+    controls.update(); 
+    renderer.render(scene, camera); 
+}
+animate();
+
+function killRandom() {
+    if (!treeState.isLoaded) return;
+    treeState.deadID.push(Math.floor(Math.random() * treeState.leavesCount)); 
+    setTimeout(killRandom, Math.random() * 1800);
+}
+
+// DISCRETE INTERACTION HOVER MECHANICS
+function pointerMove(e) {
+    pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+    raycaster.setFromCamera(pointer, camera);
+    
+    if (!treeState.isLoaded) return;
+
+    const leafTargetMeshes = forest.map(item => item.leavesMesh);
+    const leafIntersects = raycaster.intersectObjects(leafTargetMeshes);
+    
+    forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
+    
+    treeState.labeledRocks.forEach(item => {
+        item.htmlLabel.style.display = 'none';
+    });
+
+    if (leafIntersects.length > 0) {
+        const hitMesh = leafIntersects[0].object;
+        const activeNode = forest.find(item => item.leavesMesh === hitMesh);
+        
+        if (activeNode) {
+            activeNode.material.uniforms.uIsHovered.value = 1.0;
+            
+            if (Math.random() * 5 > 4.2 && leafIntersects[0].instanceId !== undefined && activeNode.config.name === "Mother_Tree") {
+                treeState.deadID.push(leafIntersects[0].instanceId);
+            }
+
+            const associatedLabel = treeState.labeledRocks.find(label => label.treeNode === activeNode);
+            if(associatedLabel){
+                associatedLabel.htmlLabel.style.display = 'block';
+            }
+        }
+    }
+}
+
+window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+document.addEventListener("mousemove", pointerMove);
+
     // LOAD AND CLONE FOREST SYSTEM
     loader.loadAsync("https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/tree.glb")
     .then(obj => {
