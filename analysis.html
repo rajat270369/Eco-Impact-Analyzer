@@ -177,6 +177,62 @@
         vertexShader: leavesVS,
         fragmentShader: leavesFS,
     });
+    function createLowPolyMountains() {
+    const mtnGroup = new THREE.Group();
+    mtnGroup.name = "BACKGROUND_MOUNTAINS";
+
+    // Create a dense grid plane for the mountain mesh
+    const width = 60;
+    const height = 25;
+    const segmentsX = 14;
+    const segmentsY = 6;
+    const geo = new THREE.PlaneGeometry(width, height, segmentsX, segmentsY);
+
+    // Access raw vertex positions to distort them into low-poly peaks
+    const posAttr = geo.attributes.position;
+    for (let i = 0; i < posAttr.count; i++) {
+        let x = posAttr.getX(i);
+        let y = posAttr.getY(i);
+        
+        // Normalize x from -0.5 to 0.5 along the range width
+        const nx = x / width; 
+        
+        // Shape a natural mountain silhouette curve (highest in the center, tapering at edges)
+        let baseHeight = Math.cos(nx * Math.PI) * 12.0; 
+        
+        // Introduce sharp, jagged variations for the peak ridges
+        if (y > 0) {
+            baseHeight += Math.sin(nx * 15.0) * 3.5 + (Math.random() * 2.0 - 1.0);
+        } else {
+            // Flatten the base vertices so it connects cleanly with your floor line
+            baseHeight = 0;
+        }
+
+        // Apply our custom displacement mapping
+        posAttr.setZ(i, baseHeight);
+    }
+    
+    // Recalculate face vectors strictly for flat, faceted low-poly cell shading
+    geo.computeVertexNormals();
+
+    // Earthy slate-green mountain material matching your toon palette
+    const mtnMat = new THREE.MeshToonMaterial({
+        color: 0x415346,
+        roughness: 0.95,
+        flatShading: true, // Forces sharp edges between geometry faces
+        side: THREE.DoubleSide
+    });
+
+    const mountainMesh = new THREE.Mesh(geo, mtnMat);
+    
+    // Rotate the vertical plane to sit upright and face the initial camera view
+    mountainMesh.rotation.x = -Math.PI / 2;
+    mtnGroup.add(mountainMesh);
+
+    // Position the range slightly far back along the negative Z/X horizon line
+    mtnGroup.position.set(0, -0.5, -22);
+    scene.add(mtnGroup);
+}
 
     // LOAD AND CLONE FOREST SYSTEM
     loader.loadAsync("https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/tree.glb")
@@ -314,7 +370,7 @@
             if (item.config.name === "Mother_Tree") return; 
             buildLabeledRockRing(item, 1.4, labelTitles[index - 1], 20);
         });
-
+        createLowPolyMountains();
         killRandom();
     }
     )
