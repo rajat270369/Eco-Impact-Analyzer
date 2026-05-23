@@ -188,7 +188,7 @@
     const radialSegments = 32; 
     const heightSegments = 3;
 
-    // --- LAYER 1: BASE MOUNTAIN WALL ---
+    // --- BASE MOUNTAIN WALL ---
     const baseGeo = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, true);
     baseGeo.scale(-1, 1, 1); 
 
@@ -218,8 +218,9 @@
     }
     baseGeo.computeVertexNormals();
 
+    // Soft slate-blue base material matching your source snippet's mountain color
     const baseMat = new THREE.MeshToonMaterial({
-        color: 0x8fa0b0, 
+        color: 0x8fa0b0, // Pure clean mountain tone
         roughness: 0.85,
         flatShading: true,
         side: THREE.FrontSide
@@ -228,86 +229,45 @@
     const baseMesh = new THREE.Mesh(baseGeo, baseMat);
     mtnGroup.add(baseMesh);
 
-    // --- LAYER 2: SNOW-CAPPED PEAKS ---
-    const snowGeo = new THREE.CylinderGeometry(radiusTop, radiusTop - 2, 4, radialSegments, 1, true);
-    snowGeo.scale(-1, 1, 1);
-
-    const snowPosAttr = snowGeo.attributes.position;
-    for (let i = 0; i < snowPosAttr.count; i++) {
-        let sx = snowPosAttr.getX(i);
-        let sy = snowPosAttr.getY(i);
-        let sz = snowPosAttr.getZ(i);
-
-        const sAngle = Math.atan2(sz, sx);
-        const sSegmentIdx = Math.abs(Math.round((sAngle + Math.PI) / (Math.PI * 2) * radialSegments)) % radialSegments;
-        const peakHeight = peakOffsets[sSegmentIdx];
-        
-        if (sy > 0) {
-            sy = (height / 2) + peakHeight;
-        } else {
-            sy = (height / 2) + peakHeight - 3.5 - (Math.sin(sAngle * 40.0) * 0.8);
-        }
-        snowPosAttr.setY(i, sy);
-    }
-    snowGeo.computeVertexNormals();
-
-    const snowMat = new THREE.MeshToonMaterial({
-        color: 0xffffff, 
-        roughness: 0.6,
-        flatShading: true,
-        side: THREE.FrontSide
-    });
-
-    const snowMesh = new THREE.Mesh(snowGeo, snowMat);
-    mtnGroup.add(snowMesh);
-
-    // --- LAYER 3: SCATTERED DISTANT TREES ---
-    // Reusable materials matching your dark-green and light-green snippet variables
+    // --- SCATTERED DISTANT TREES ---
     const darkTreeMat = new THREE.MeshToonMaterial({ color: 0x044946, flatShading: true });
     const lightTreeMat = new THREE.MeshToonMaterial({ color: 0x38845E, flatShading: true });
     
-    // Create a mini low-poly cone to represent a distant evergreen pine tree
     const treeGeo = new THREE.ConeGeometry(0.4, 1.2, 4);
-    treeGeo.translate(0, 0.6, 0); // Shift pivot point to the bottom of the trunk
+    treeGeo.translate(0, 0.6, 0); 
 
-    const totalDistantTrees = 60; // How dense you want the mountain forests to look
+    const totalDistantTrees = 60; 
 
     for (let t = 0; t < totalDistantTrees; t++) {
-        // 1. Pick a random angle around the 360-degree perimeter ring
         const tAngle = Math.random() * Math.PI * 2;
         const sIdx = Math.abs(Math.round((tAngle + Math.PI) / (Math.PI * 2) * radialSegments)) % radialSegments;
         
-        // 2. Determine mountain face height at this explicit slice
         const calculatedPeak = peakOffsets[sIdx];
         
-        // Scatter them midway up the mountain body (keeping them clear of the deep snow lines)
-        const verticalPercent = THREE.MathUtils.lerp(0.1, 0.55, Math.random()); 
+        // Allowed to climb higher up the mountain now that the snowcap is gone
+        const verticalPercent = THREE.MathUtils.lerp(0.1, 0.75, Math.random()); 
         const mtnBaseY = -height / 2;
         const mtnTopY = (height / 2) + calculatedPeak;
         const finalY = THREE.MathUtils.lerp(mtnBaseY, mtnTopY, verticalPercent);
 
-        // 3. Extrapolate radius depth matching the subtle slope curve inward
         const currentRadius = THREE.MathUtils.lerp(radiusBottom, radiusTop, verticalPercent) - 0.2;
 
         const treeMesh = new THREE.Mesh(treeGeo, Math.random() > 0.4 ? darkTreeMat : lightTreeMat);
         
-        // Position tree along the inner radial rim wall
         treeMesh.position.x = Math.cos(tAngle) * currentRadius;
         treeMesh.position.z = Math.sin(tAngle) * currentRadius;
         treeMesh.position.y = finalY;
 
-        // Give them minor random height variances so they look natural
         const randomScale = THREE.MathUtils.lerp(0.6, 1.4, Math.random());
         treeMesh.scale.set(randomScale, randomScale, randomScale);
 
-        // Orient them slightly to lean with the mountain surface vector
         treeMesh.rotation.z = -Math.cos(tAngle) * 0.12;
         treeMesh.rotation.x = Math.sin(tAngle) * 0.12;
 
         mtnGroup.add(treeMesh);
     }
 
-    // Shift stadium container down below your workspace grass line
+    // Drop the container slightly below your central grass ring floor line
     mtnGroup.position.set(0, -2.5, 0);
     scene.add(mtnGroup);
 }
