@@ -580,6 +580,15 @@ function createLowPolyMountains() {
                 posAttr.setX(i, bx + waveRipple);
                 posAttr.setZ(i, bz + waveRipple);
             }
+            if (activeRiverMaterials && activeRiverMaterials.length > 0) {
+        const timeClock = performance.now() * 0.001;
+        
+        activeRiverMaterials.forEach((mat) => {
+            if (mat.userData && mat.userData.shader) {
+                mat.userData.shader.uniforms.uTime.value = timeClock;
+            }
+        });
+    }
             
             // Force WebGL buffer reassignment updates to redraw the meshes on screen
             posAttr.needsUpdate = true;
