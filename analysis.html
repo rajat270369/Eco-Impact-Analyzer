@@ -50,7 +50,7 @@
     </script>
 </head>
 <body>
-     <div id="previewHack"></div>
+    <div id="previewHack"></div>
 
 <script type="module">
     import * as THREE from "three";
@@ -315,10 +315,10 @@
         });
 
         // ========================================================
-        // HIGH-DENSITY ULTRA-WIDE UNIFORM GRASS FIELD
+        // HIGH-DENSITY SOLID-CARPET UNIFORM GRASS FIELD
         // ========================================================
         const grassGeo = new THREE.BufferGeometry();
-        const baseWidth = 0.18;
+        const baseWidth = 0.18; 
         const alto_hierba = 0.65; 
 
         const grassVertices = new Float32Array([
@@ -353,7 +353,7 @@
             grassDummy.position.set(posX, 0.0, posZ);
             grassDummy.rotation.y = Math.random() * Math.PI * 2;
             
-            const s = 0.6 + Math.random() * 0.6;
+            const s = 0.7 + Math.random() * 0.5;
             grassDummy.scale.set(s, s, s);
 
             grassDummy.updateMatrix();
@@ -362,51 +362,69 @@
         scene.add(fullFieldMesh);
         treeState.grassMesh = fullFieldMesh; 
 
-        // ADDED: Stylized Soil Floor Plane
-        const floorGeo = new THREE.PlaneGeometry(160, 160);
+        // ========================================================
+        // STYLIZED SOIL FLOOR PLANE
+        // ========================================================
+        const floorGeo = new THREE.PlaneGeometry(fieldWidth, fieldWidth);
         const floorMat = new THREE.MeshStandardMaterial({
-        color: 0x2b1d11, // Deep, rich soil brown
-        roughness: 0.9,  // Matte finish so it doesn't look like plastic
-        metalness: 0.0
-       });
-       const floor = new THREE.Mesh(floorGeo, floorMat);
-       floor.rotation.x = -Math.PI / 2; // Lay it flat
-       floor.position.y = -0.01;        // Sit just underneath the grass base
-       scene.add(floor);
+            color: 0x2b1d11, 
+            roughness: 0.9,
+            metalness: 0.0
+        });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -0.01; 
+        scene.add(floor);
 
         // ========================================================
-        // LOW-POLY MOUNTAIN RANGE BACKGROUND GENERATION
+        // ANIME-STYLED EXTRUDED MOUNTAIN RIDGES (REPLACED CONES)
         // ========================================================
-        const mountainCount = 28;
-        const mountainRingRadius = 110.0;
         const mountainGroup = new THREE.Group();
-        mountainGroup.name = "BACKGROUND_MOUNTAINS";
+        mountainGroup.name = "ANIME_MOUNTAINS";
 
-        const mountainMat = new THREE.MeshStandardMaterial({
-            color: 0x24272d,
-            roughness: 0.85,
-            metalness: 0.05,
-            flatShading: true
+        // Helper path function translating SVG relative coordinates to ThreeJS Vector Paths
+        function createRidgeShape(pointsArray) {
+            const shape = new THREE.Shape();
+            // Scaling coordinates to span across the background cleanly (Width ~180, Height Max ~35)
+            shape.moveTo((pointsArray[0][0] - 720) * 0.15, (500 - pointsArray[0][1]) * 0.15);
+            for(let i = 1; i < pointsArray.length; i++) {
+                shape.lineTo((pointsArray[i][0] - 720) * 0.15, (500 - pointsArray[i][1]) * 0.15);
+            }
+            shape.lineTo((pointsArray[pointsArray.length-1][0] - 720) * 0.15, 0);
+            shape.lineTo((pointsArray[0][0] - 720) * 0.15, 0);
+            return shape;
+        }
+
+        // Exact Coordinate Mappings Extracted from your SVG code snippet
+        const layer1Points = [[0,420],[180,220],[360,390],[520,170],[720,400],[900,200],[1120,410],[1280,260],[1440,420]];
+        const layer2Points = [[0,460],[140,300],[300,430],[470,250],[650,450],[830,230],[1040,430],[1220,290],[1440,460]];
+        const layer3Points = [[0,500],[200,340],[390,470],[600,260],[840,500],[1030,320],[1240,460],[1440,300]];
+
+        const extrusionSettings = { depth: 2, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.2, bevelThickness: 0.2 };
+
+        // Configuration mapping matching Hex colors and exact layer opacities
+        const mountainConfigs = [
+            { points: layer1Points, color: 0x5b6ee1, opacity: 0.5,  zDepth: -85 },
+            { points: layer2Points, color: 0x3b4cca, opacity: 0.75, zDepth: -80 },
+            { points: layer3Points, color: 0x1f2f98, opacity: 1.0,  zDepth: -75 }
+        ];
+
+        mountainConfigs.forEach(cfg => {
+            const mShape = createRidgeShape(cfg.points);
+            const mGeo = new THREE.ExtrudeGeometry(mShape, extrusionSettings);
+            const mMat = new THREE.MeshStandardMaterial({
+                color: cfg.color,
+                transparent: cfg.opacity < 1.0,
+                opacity: cfg.opacity,
+                roughness: 0.8,
+                metalness: 0.1,
+                flatShading: true
+            });
+            const ridgeMesh = new THREE.Mesh(mGeo, mMat);
+            ridgeMesh.position.set(0, -0.5, cfg.zDepth); // Positioned back out on the horizon line
+            mountainGroup.add(ridgeMesh);
         });
 
-        for (let i = 0; i < mountainCount; i++) {
-            const angle = (i / mountainCount) * Math.PI * 2 + (Math.random() * 0.15);
-            const mHeight = 16.0 + Math.random() * 22.0;
-            const mRadius = 18.0 + Math.random() * 14.0;
-            
-            // 4 segments gives it an asymmetrical, faceted low-poly look
-            const mGeo = new THREE.ConeGeometry(mRadius, mHeight, 4);
-            const mountain = new THREE.Mesh(mGeo, mountainMat);
-
-            const mX = Math.cos(angle) * mountainRingRadius;
-            const mZ = Math.sin(angle) * mountainRingRadius;
-
-            mountain.position.set(mX, mHeight / 2 - 2.0, mZ); // Sunk slightly to hide the base cleanly
-            mountain.rotation.y = Math.random() * Math.PI;
-            mountain.rotation.x = (Math.random() - 0.5) * 0.08;
-            
-            mountainGroup.add(mountain);
-        }
         scene.add(mountainGroup);
 
         killRandom();
