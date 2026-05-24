@@ -362,6 +362,18 @@
         scene.add(fullFieldMesh);
         treeState.grassMesh = fullFieldMesh; 
 
+        // ADDED: Stylized Soil Floor Plane
+        const floorGeo = new THREE.PlaneGeometry(160, 160);
+        const floorMat = new THREE.MeshStandardMaterial({
+        color: 0x2b1d11, // Deep, rich soil brown
+        roughness: 0.9,  // Matte finish so it doesn't look like plastic
+        metalness: 0.0
+       });
+       const floor = new THREE.Mesh(floorGeo, floorMat);
+       floor.rotation.x = -Math.PI / 2; // Lay it flat
+       floor.position.y = -0.01;        // Sit just underneath the grass base
+       scene.add(floor);
+
         // ========================================================
         // LOW-POLY MOUNTAIN RANGE BACKGROUND GENERATION
         // ========================================================
