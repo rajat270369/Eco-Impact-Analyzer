@@ -50,8 +50,7 @@
     </script>
 </head>
 <body>
-
-  <div id="previewHack"></div>
+     <div id="previewHack"></div>
 
 <script type="module">
     import * as THREE from "three";
@@ -342,12 +341,9 @@
             flatShading: true
         });
 
-        // Elevated to 60,000 instances for absolute field-wide density
         const totalPlaneBlades = 60000;
         const fullFieldMesh = new THREE.InstancedMesh(grassGeo, grassMat, totalPlaneBlades);
         const grassDummy = new THREE.Object3D();
-
-        // Spreading uniformly over a massive 160x160 area to hit every angle of the camera path
         const fieldWidth = 160.0; 
 
         for(let i = 0; i < totalPlaneBlades; i++) {
@@ -365,6 +361,41 @@
         }
         scene.add(fullFieldMesh);
         treeState.grassMesh = fullFieldMesh; 
+
+        // ========================================================
+        // LOW-POLY MOUNTAIN RANGE BACKGROUND GENERATION
+        // ========================================================
+        const mountainCount = 28;
+        const mountainRingRadius = 110.0;
+        const mountainGroup = new THREE.Group();
+        mountainGroup.name = "BACKGROUND_MOUNTAINS";
+
+        const mountainMat = new THREE.MeshStandardMaterial({
+            color: 0x24272d,
+            roughness: 0.85,
+            metalness: 0.05,
+            flatShading: true
+        });
+
+        for (let i = 0; i < mountainCount; i++) {
+            const angle = (i / mountainCount) * Math.PI * 2 + (Math.random() * 0.15);
+            const mHeight = 16.0 + Math.random() * 22.0;
+            const mRadius = 18.0 + Math.random() * 14.0;
+            
+            // 4 segments gives it an asymmetrical, faceted low-poly look
+            const mGeo = new THREE.ConeGeometry(mRadius, mHeight, 4);
+            const mountain = new THREE.Mesh(mGeo, mountainMat);
+
+            const mX = Math.cos(angle) * mountainRingRadius;
+            const mZ = Math.sin(angle) * mountainRingRadius;
+
+            mountain.position.set(mX, mHeight / 2 - 2.0, mZ); // Sunk slightly to hide the base cleanly
+            mountain.rotation.y = Math.random() * Math.PI;
+            mountain.rotation.x = (Math.random() - 0.5) * 0.08;
+            
+            mountainGroup.add(mountain);
+        }
+        scene.add(mountainGroup);
 
         killRandom();
     })
