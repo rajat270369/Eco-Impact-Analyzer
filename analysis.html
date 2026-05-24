@@ -150,7 +150,7 @@
     scene.add(dlight01, alight);
 
     const forest = [];
-    const treeState = { isLoaded: false, deadID: [], leavesCount: 0, labeledRocks: [] };
+    const treeState = { isLoaded: false, deadID: [], leavesCount: 0, labeledRocks: [], grassInstances: [] };
     
     const noiseMap = new THREE.TextureLoader().load('https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/noise.png');
     noiseMap.wrapS = THREE.RepeatWrapping;
@@ -315,9 +315,67 @@
             buildLabeledRockRing(item, 1.4, labelTitles[index - 1], 20);
         });
 
+        // ========================================================
+        // INJECTED PROCEDURAL CANVASES-RULE GRASS CLUSTERS
+        // ========================================================
+        const grassGeo = new THREE.BufferGeometry();
+        const baseWidth = 0.05;
+        const alto_hierba = 0.22; // Matches your initialization rule parameters
+
+        const grassVertices = new Float32Array([
+            -baseWidth / 2, 0, 0,
+             baseWidth / 2, 0, 0,
+            -baseWidth / 3, alto_hierba * 0.4, 0.015,
+             baseWidth / 3, alto_hierba * 0.4, 0.015,
+             0,             alto_hierba,       0.04
+        ]);
+        const grassIndices = [0, 1, 3,  0, 3, 2,  2, 3, 4];
+        grassGeo.setAttribute('position', new THREE.BufferAttribute(grassVertices, 3));
+        grassGeo.setIndex(grassIndices);
+        grassGeo.computeVertexNormals();
+
+        const grassMat = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(0x247137), // Balanced palette grass green color layout
+            roughness: 0.9,
+            metalness: 0.1,
+            side: THREE.DoubleSide,
+            flatShading: true
+        });
+
+        const bladesPerNode = 250;
+        treeConfigs.forEach(config => {
+            const nodeGrassInst = new THREE.InstancedMesh(grassGeo, grassMat, bladesPerNode);
+            const grassDummy = new THREE.Object3D();
+            
+            // Set boundary limits based on node size constraints
+            const spawnRadius = config.name === "Mother_Tree" ? 2.0 : 1.2;
+
+            for(let i = 0; i < bladesPerNode; i++) {
+                const radius = Math.random() * spawnRadius;
+                const theta = Math.random() * Math.PI * 2;
+
+                // Relative calculation offsets matching core layout coordinates
+                grassDummy.position.set(
+                    config.pos.x + Math.cos(theta) * radius,
+                    0.0,
+                    config.pos.z + Math.sin(theta) * radius
+                );
+
+                grassDummy.rotation.y = Math.random() * Math.PI * 2;
+                
+                // Controlled size scale variance
+                const s = (0.6 + Math.random() * 0.6) * config.scale;
+                grassDummy.scale.set(s, s, s);
+
+                grassDummy.updateMatrix();
+                nodeGrassInst.setMatrixAt(i, grassDummy.matrix);
+            }
+            scene.add(nodeGrassInst);
+            treeState.grassInstances.push(nodeGrassInst);
+        });
+
         killRandom();
-    }
-    )
+    })
     .catch(err => console.error("Error configuring forest compilation:", err));
 
     // SYSTEM ENVIRONMENT POSITION VALUES
@@ -337,10 +395,19 @@
     function animate () {
         requestAnimationFrame(animate);
         const timeDelta = 0.01;
+        const runtimeEpoch = Date.now() * 0.0025;
 
         forest.forEach(item => {
             item.material.uniforms.uTime.value += timeDelta;
         });
+
+        // Procedural wind physics applied directly to grass elements
+        if(treeState.isLoaded) {
+            treeState.grassInstances.forEach((inst, idx) => {
+                inst.rotation.z = Math.sin(runtimeEpoch + idx) * 0.05;
+                inst.rotation.x = Math.abs(Math.sin(runtimeEpoch * 0.5 + idx)) * 0.03;
+            });
+        }
         
         if (treeState.isLoaded && treeState.deadID.length > 0 && forest[0]) {
             const motherLeaves = forest[0].leavesMesh;
@@ -430,7 +497,6 @@
 
                 const associatedLabel = treeState.labeledRocks.find(label => label.treeNode === activeNode);
                 if(associatedLabel){
-                    // Only display the overlay HTML label element; rock materials are untouched
                     associatedLabel.htmlLabel.style.display = 'block';
                 }
             }
