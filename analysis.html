@@ -51,7 +51,7 @@
 </head>
 <body>
 
-    <div id="previewHack"></div>
+   <div id="previewHack"></div>
 
 <script type="module">
     import * as THREE from "three";
@@ -150,7 +150,7 @@
     scene.add(dlight01, alight);
 
     const forest = [];
-    const treeState = { isLoaded: false, deadID: [], leavesCount: 0, labeledRocks: [], grassInstances: [] };
+    const treeState = { isLoaded: false, deadID: [], leavesCount: 0, labeledRocks: [], grassMesh: null };
     
     const noiseMap = new THREE.TextureLoader().load('https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/noise.png');
     noiseMap.wrapS = THREE.RepeatWrapping;
@@ -316,11 +316,11 @@
         });
 
         // ========================================================
-        // INJECTED PROCEDURAL CANVASES-RULE GRASS CLUSTERS
+        // INJECTED PROCEDURAL STATIC GRASS — FULL PLANE CODESPACE
         // ========================================================
         const grassGeo = new THREE.BufferGeometry();
-        const baseWidth = 0.05;
-        const alto_hierba = 0.22; // Matches your initialization rule parameters
+        const baseWidth = 0.04;
+        const alto_hierba = 0.18; 
 
         const grassVertices = new Float32Array([
             -baseWidth / 2, 0, 0,
@@ -335,44 +335,36 @@
         grassGeo.computeVertexNormals();
 
         const grassMat = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(0x247137), // Balanced palette grass green color layout
+            color: new THREE.Color(0x226b33), 
             roughness: 0.9,
             metalness: 0.1,
             side: THREE.DoubleSide,
             flatShading: true
         });
 
-        const bladesPerNode = 250;
-        treeConfigs.forEach(config => {
-            const nodeGrassInst = new THREE.InstancedMesh(grassGeo, grassMat, bladesPerNode);
-            const grassDummy = new THREE.Object3D();
+        // Generates 2500 total blades scattered uniformly across the entire landscape area
+        const totalPlaneBlades = 2500;
+        const fullFieldMesh = new THREE.InstancedMesh(grassGeo, grassMat, totalPlaneBlades);
+        const grassDummy = new THREE.Object3D();
+        
+        // Boundaries matches plane geometry limits (spanning roughly from x/z -10 to 10)
+        const planeExtent = 18.0; 
+
+        for(let i = 0; i < totalPlaneBlades; i++) {
+            const posX = (Math.random() - 0.5) * planeExtent;
+            const posZ = (Math.random() - 0.5) * planeExtent;
+
+            grassDummy.position.set(posX, 0.0, posZ);
+            grassDummy.rotation.y = Math.random() * Math.PI * 2;
             
-            // Set boundary limits based on node size constraints
-            const spawnRadius = config.name === "Mother_Tree" ? 2.0 : 1.2;
+            const s = 0.5 + Math.random() * 0.6;
+            grassDummy.scale.set(s, s, s);
 
-            for(let i = 0; i < bladesPerNode; i++) {
-                const radius = Math.random() * spawnRadius;
-                const theta = Math.random() * Math.PI * 2;
-
-                // Relative calculation offsets matching core layout coordinates
-                grassDummy.position.set(
-                    config.pos.x + Math.cos(theta) * radius,
-                    0.0,
-                    config.pos.z + Math.sin(theta) * radius
-                );
-
-                grassDummy.rotation.y = Math.random() * Math.PI * 2;
-                
-                // Controlled size scale variance
-                const s = (0.6 + Math.random() * 0.6) * config.scale;
-                grassDummy.scale.set(s, s, s);
-
-                grassDummy.updateMatrix();
-                nodeGrassInst.setMatrixAt(i, grassDummy.matrix);
-            }
-            scene.add(nodeGrassInst);
-            treeState.grassInstances.push(nodeGrassInst);
-        });
+            grassDummy.updateMatrix();
+            fullFieldMesh.setMatrixAt(i, grassDummy.matrix);
+        }
+        scene.add(fullFieldMesh);
+        treeState.grassMesh = fullFieldMesh; // Saved safely to bypass animation loop alterations
 
         killRandom();
     })
@@ -395,19 +387,10 @@
     function animate () {
         requestAnimationFrame(animate);
         const timeDelta = 0.01;
-        const runtimeEpoch = Date.now() * 0.0025;
 
         forest.forEach(item => {
             item.material.uniforms.uTime.value += timeDelta;
         });
-
-        // Procedural wind physics applied directly to grass elements
-        if(treeState.isLoaded) {
-            treeState.grassInstances.forEach((inst, idx) => {
-                inst.rotation.z = Math.sin(runtimeEpoch + idx) * 0.05;
-                inst.rotation.x = Math.abs(Math.sin(runtimeEpoch * 0.5 + idx)) * 0.03;
-            });
-        }
         
         if (treeState.isLoaded && treeState.deadID.length > 0 && forest[0]) {
             const motherLeaves = forest[0].leavesMesh;
