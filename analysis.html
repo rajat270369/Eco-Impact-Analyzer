@@ -318,7 +318,7 @@
         // HIGH-DENSITY ULTRA-WIDE UNIFORM GRASS FIELD
         // ========================================================
         const grassGeo = new THREE.BufferGeometry();
-        const baseWidth = 0.05;
+        const baseWidth = 0.18;
         const alto_hierba = 0.65; 
 
         const grassVertices = new Float32Array([
@@ -341,7 +341,7 @@
             flatShading: true
         });
 
-        const totalPlaneBlades = 60000;
+        const totalPlaneBlades = 90000;
         const fullFieldMesh = new THREE.InstancedMesh(grassGeo, grassMat, totalPlaneBlades);
         const grassDummy = new THREE.Object3D();
         const fieldWidth = 160.0; 
