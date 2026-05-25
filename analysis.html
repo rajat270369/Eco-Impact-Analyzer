@@ -7,26 +7,12 @@
     
     <style>
         body, html {
-            background-color: #2f3257;
-            background: linear-gradient(#2f3257, #3a1d2b);
+            background-color: #000000; /* Standard black backdrop for consistent page theme */
             margin: 0;
             padding: 0;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
-        }
-
-        #previewHack {
-            position: absolute;
-            height: 100vh; 
-            width: 100vw; /* Fixed from 100vh to cover entire browser viewport */
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-image: url("https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/preview.png");
-            background-size: cover;
-            background-position: center;
-            z-index: 10;
         }
 
         canvas {
@@ -50,7 +36,6 @@
     </script>
 </head>
 <body>
-  <div id="previewHack"></div>
 
 <script type="module">
     import * as THREE from "three";
@@ -122,7 +107,6 @@
 
         void main(){
             float gradMap = (getPosColors() + getDiffuse()) * vCloseToGround / 2. ;
-            // Hover intensifies the neon glow factor slightly
             vec3 colorShiftA = mix(uColorA, vec3(0.4, 1.0, 0.1), uIsHovered * 0.4);
             vec4 c = vec4(mix3(colorShiftA, uColorB, uColorC, gradMap), 1.0);
             gl_FragColor = vec4(pow(c.xyz, vec3(0.454545)), c.w);
@@ -166,9 +150,9 @@
         uniforms: {
             ...THREE.UniformsLib.lights,
             uTime: { value: 0. },
-            uColorA: { value: new THREE.Color(0x00ff66) }, // Matrix Green
-            uColorB: { value: new THREE.Color(0x39ff14) }, // Electric Neon Green
-            uColorC: { value: new THREE.Color(0x00ff00) }, // Bright Primary Neon Green
+            uColorA: { value: new THREE.Color(0x00ff66) }, 
+            uColorB: { value: new THREE.Color(0x39ff14) }, 
+            uColorC: { value: new THREE.Color(0x00ff00) }, 
             uBoxMin: { value: new THREE.Vector3(0, 0, 0) },
             uBoxSize: { value: new THREE.Vector3(10, 10, 10) },
             uRaycast: { value: new THREE.Vector3(0, -999, 0) },
@@ -182,9 +166,6 @@
     // LOAD AND CLONE FOREST SYSTEM
     loader.loadAsync("https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/tree.glb")
     .then(obj => {
-        const preview = document.getElementById("previewHack");
-        if(preview) preview.style.display = "none";
-
         const basePole = obj.scene.getObjectByName("Pole");
         const baseCrown = obj.scene.getObjectByName("Leaves");
         const baseLeafGeo = obj.scene.getObjectByName("Leaf").geometry;
@@ -204,7 +185,6 @@
             const treeGroup = new THREE.Group();
             treeGroup.name = config.name;
             
-            // Stem color logic left completely unchanged
             const poleClone = basePole.clone();
             poleClone.material = new THREE.MeshStandardMaterial({
                 color: 0x111115,
@@ -262,7 +242,6 @@
         // LABELED NODE MANAGEMENT (ROCKS REMOVED, LABELS RETAINED)
         // ========================================================
         function buildLabeledNode(targetTree, titleText) {
-            // Text Label Overlay Element Buildout matching first page styling
             const labelContainer = document.createElement('div');
             labelContainer.className = 'tree-label-div';
             labelContainer.innerHTML = `<p style="margin:0; padding:5px 10px; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); border:1px solid #00f3ff; box-shadow: 0 0 8px rgba(0,243,255,0.4); border-radius:2px; text-shadow: 0 0 5px #00f3ff;">${titleText}</p>`;
@@ -284,7 +263,6 @@
             });
         }
 
-        // Generate Labels
         buildLabeledNode(forest[0], "ABOUT PROTOCOL");
 
         const labelTitles = ["MONITOR ENGINE", "ANALYZE MODULE", "STRATEGIZE PIPELINE", "DEVELOP CONSOLE"];
@@ -340,7 +318,6 @@
             motherLeaves.instanceMatrix.needsUpdate = true; 
         } 
 
-        // Live Spatial Projection Framework Mapping
         if(treeState.isLoaded && treeState.labeledRocks.length > 0) {
             const frustum = new THREE.Frustum();
             const projScreenMatrix = new THREE.Matrix4();
