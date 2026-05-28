@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import random
+import requests
 import time
 from collections import deque
 
@@ -14,55 +14,12 @@ CORS(app)
 MAX_HISTORY = 50
 telemetry_history = deque(maxlen=MAX_HISTORY)
 
-# Baseline operational thresholds for site telemetry
+# Baseline operational safety limits based on international guidelines (US-AQI & µg/m³)
 THRESHOLDS = {
-    "co2_rate": 150.0,        # kg/hour maximum optimal limits
-    "particulate_pm10": 50.0, # micrograms/m³ limit
-    "noise_level": 85.0,       # Decibels (dB) safety limit
+    "us_aqi": 100.0,           # Warning limit for sensitive groups
+    "particulate_pm10": 50.0,   # High particulate dust warning threshold
+    "particulate_pm25": 35.0    # Fine industrial soot warning threshold
 }
-
-# Initial state registry for monitored heavy machinery
-device_registry = {
-    "GEN-01": {"name": "Primary Diesel Generator", "status": "OPERATIONAL", "load": 0.72},
-    "EXC-04": {"name": "Heavy Excavator Unit", "status": "OPERATIONAL", "load": 0.45},
-    "MIX-02": {"name": "Concrete Batching Station", "status": "IDLE", "load": 0.0}
-}
-
-
-def generate_live_sensor_reading():
-    """Simulates real-time sensor variations based on active hardware load coefficients."""
-    active_machines = sum(1 for m in device_registry.values() if m["status"] == "OPERATIONAL")
-    load_factor = sum(m["load"] for m in device_registry.values())
-    
-    co2_now = round((load_factor * 110.0) + random.uniform(-10, 10), 2)
-    pm10_now = round((active_machines * 15.2) + random.uniform(-5, 8), 2)
-    noise_now = round(65.0 + (load_factor * 22.0) + random.uniform(-3, 3), 1)
-    
-    alerts = []
-    if co2_now > THRESHOLDS["co2_rate"]:
-        alerts.append({"type": "CRITICAL", "parameter": "CO₂ Rate Emission Overload", "value": co2_now})
-    if pm10_now > THRESHOLDS["particulate_pm10"]:
-        alerts.append({"type": "WARNING", "parameter": "High Ambient Particulate Matter (PM10)", "value": pm10_now})
-    if noise_now > THRESHOLDS["noise_level"]:
-        alerts.append({"type": "DANGER", "parameter": "Acoustic Decibel Threshold Breached", "value": noise_now})
-
-    return {
-        "timestamp": time.strftime("%H:%M:%S"),
-        "unix_epoch": time.time(),
-        "metrics": {
-            "co2_rate_kgh": max(0.0, co2_now),
-            "particulate_pm10": max(0.0, pm10_now),
-            "noise_db": max(0.0, noise_now)
-        },
-        "alerts": alerts,
-        "active_load_coefficient": round(load_factor, 2)
-    }
-
-
-# Seed core ring buffer so history charts load with real historical context
-for _ in range(20):
-    telemetry_history.append(generate_live_sensor_reading())
-    time.sleep(0.01)
 
 
 # ==========================================
@@ -121,47 +78,81 @@ def calculate_impact_api():
 
 
 # ==========================================
-# 3. ENGINE MONITOR MODULE ENDPOINTS
+# 3. ENGINE MONITOR MODULE ENDPOINTS (LIVE API)
 # ==========================================
 
-@app.route('/monitor/stream', methods=['GET'])
-def get_live_telemetry():
+@app.route('/monitor/real-data', methods=['POST'])
+def get_real_environmental_data():
     try:
-        new_frame = generate_live_sensor_reading()
-        telemetry_history.append(new_frame)
-        return jsonify(new_frame)
+        data = request.json or {}
+        lat = data.get("lat")
+        lon = data.get("lon")
+
+        if lat is None or lon is None:
+            return jsonify({"error": "Latitude and Longitude are required coordinates."}), 400
+
+        # Querying Open-Meteo Air Quality Grid (No-Auth API)
+        api_url = f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&current=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,us_aqi"
+        
+        response = requests.get(api_url, timeout=10)
+        if response.status_code != 200:
+            return jsonify({"error": "Failed to contact open-meteo environmental towers."}), 502
+            
+        result = response.json()
+        current_data = result.get("current", {})
+
+        # Value parsing extraction
+        aqi = int(current_data.get("us_aqi", 0))
+        pm10 = current_data.get("pm10", 0.0)
+        pm25 = current_data.get("pm2_5", 0.0)
+        co = current_data.get("carbon_monoxide", 0.0)
+        no2 = current_data.get("nitrogen_dioxide", 0.0)
+
+        # Custom localized alert parsing
+        alerts = []
+        if aqi > 150:
+            alerts.append({"type": "CRITICAL", "parameter": "Unhealthy Air Quality Index Threshold", "value": aqi})
+        elif aqi > THRESHOLDS["us_aqi"]:
+            alerts.append({"type": "WARNING", "parameter": "Sensitive Groups At Risk", "value": aqi})
+            
+        if pm10 > THRESHOLDS["particulate_pm10"]:
+            alerts.append({"type": "WARNING", "parameter": "High Coarse Particulate Matter (PM10)", "value": pm10})
+            
+        if pm25 > THRESHOLDS["particulate_pm25"]:
+            alerts.append({"type": "WARNING", "parameter": "High Fine Particulate Matter (PM2.5)", "value": pm25})
+
+        # Format standardized data frame
+        data_frame = {
+            "timestamp": time.strftime("%H:%M:%S"),
+            "unix_epoch": time.time(),
+            "location_name": f"GPS Node ({round(float(lat), 3)}, {round(float(lon), 3)})",
+            "aqi": aqi,
+            "metrics": {
+                "pm10": pm10,
+                "pm25": pm25,
+                "carbon_monoxide": co,
+                "nitrogen_dioxide": no2
+            },
+            "alerts": alerts
+        }
+
+        # Save to historical memory buffer tracking array
+        telemetry_history.append(data_frame)
+        return jsonify(data_frame)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
 @app.route('/monitor/history', methods=['GET'])
 def get_telemetry_history():
+    """Returns past recorded frames logged during the current session profile."""
     return jsonify(list(telemetry_history))
-
-
-@app.route('/monitor/devices', methods=['GET', 'POST'])
-def manage_devices():
-    try:
-        if request.method == 'POST':
-            data = request.json or {}
-            device_id = data.get("device_id")
-            
-            if device_id in device_registry:
-                if "status" in data:
-                    device_registry[device_id]["status"] = data["status"]
-                if "load" in data:
-                    # Automatically zero load scales if a machine is toggled to an inactive state
-                    device_registry[device_id]["load"] = float(data["load"]) if data["status"] == "OPERATIONAL" else 0.0
-                return jsonify({"success": True, "updated_device": device_registry[device_id]})
-            return jsonify({"error": "Device ID registration signature missing."}), 404
-            
-        return jsonify(device_registry)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/monitor/thresholds', methods=['GET'])
 def get_thresholds():
+    """Exposes current trigger caps to help style warning colors in UI panels."""
     return jsonify(THRESHOLDS)
 
 
