@@ -91,7 +91,7 @@ def get_real_environmental_data():
         if lat is None or lon is None:
             return jsonify({"error": "Latitude and Longitude are required coordinates."}), 400
 
-        # Querying Open-Meteo Air Quality Grid (No-Auth API)
+        # Querying Open-Meteo Air Quality Grid
         api_url = f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&current=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,us_aqi"
         
         response = requests.get(api_url, timeout=10)
@@ -102,15 +102,20 @@ def get_real_environmental_data():
         current_data = result.get("current", {})
 
         # Value parsing extraction
-        aqi = int(current_data.get("us_aqi", 0))
+        raw_aqi = int(current_data.get("us_aqi", 0))
         pm10 = current_data.get("pm10", 0.0)
         pm25 = current_data.get("pm2_5", 0.0)
         co = current_data.get("carbon_monoxide", 0.0)
         no2 = current_data.get("nitrogen_dioxide", 0.0)
 
+        # TECHNICAL FIX: Clamp US-AQI to its official standard maximum index ceiling of 500
+        aqi = min(raw_aqi, 500)
+
         # Custom localized alert parsing
         alerts = []
-        if aqi > 150:
+        if raw_aqi > 500:
+            alerts.append({"type": "CRITICAL", "parameter": "HAZARDOUS // Beyond Index Cap", "value": raw_aqi})
+        elif aqi > 150:
             alerts.append({"type": "CRITICAL", "parameter": "Unhealthy Air Quality Index Threshold", "value": aqi})
         elif aqi > THRESHOLDS["us_aqi"]:
             alerts.append({"type": "WARNING", "parameter": "Sensitive Groups At Risk", "value": aqi})
@@ -125,7 +130,7 @@ def get_real_environmental_data():
         data_frame = {
             "timestamp": time.strftime("%H:%M:%S"),
             "unix_epoch": time.time(),
-            "location_name": f"GPS Node ({round(float(lat), 3)}, {round(float(lon), 3)})",
+            "location_name": f"Gurugram Sector Node ({round(float(lat), 3)}, {round(float(lon), 3)})",
             "aqi": aqi,
             "metrics": {
                 "pm10": pm10,
@@ -136,7 +141,6 @@ def get_real_environmental_data():
             "alerts": alerts
         }
 
-        # Save to historical memory buffer tracking array
         telemetry_history.append(data_frame)
         return jsonify(data_frame)
 
