@@ -40,6 +40,228 @@
 
 <div id="previewHack"></div>
 
+<div id="analyze-ui-container">
+    <div class="analyze-card">
+        <div class="analyze-header">
+            <h3>ANALYZE MODULE // ENVIRONMENTAL CALCULATOR</h3>
+            <p>Input raw material volumes to parse aggregate carbon density profiles and fine-grained atmospheric metrics.</p>
+        </div>
+        
+        <form id="analyze-form">
+            <div class="input-grid">
+                <div class="form-group">
+                    <label>DIESEL VOLUMES (Liters)</label>
+                    <input type="number" id="input-diesel" step="any" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>GRID ELECTRICITY (kWh)</label>
+                    <input type="number" id="input-electricity" step="any" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>CONCRETE CAPACITY (m³)</label>
+                    <input type="number" id="input-concrete" step="any" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>SOLID PLASTICS (kg)</label>
+                    <input type="number" id="input-plastic" step="any" value="0" min="0">
+                </div>
+            </div>
+            <button type="submit" id="submit-btn">EXECUTE MASS BALANCE EQUATIONS</button>
+        </form>
+
+        <div id="results-panel" class="hidden">
+            <hr class="ui-divider">
+            <div class="score-row">
+                <div class="score-block primary">
+                    <span class="label">AGGREGATE IMPACT SCORE</span>
+                    <span class="value" id="res-score">0.00</span>
+                </div>
+                <div class="score-block">
+                    <span class="label">TOTAL CO₂ ($kg$)</span>
+                    <span class="value" id="res-co2">0.00</span>
+                </div>
+                <div class="score-block">
+                    <span class="label">SOLID PLASTIC WASTE ($kg$)</span>
+                    <span class="value" id="res-waste">0.00</span>
+                </div>
+            </div>
+
+            <div class="telemetry-grid">
+                <div class="telemetry-item">
+                    <span class="t-label">Diesel Energy Yield</span>
+                    <span class="t-val" id="res-diesel-mj">0 MJ</span>
+                </div>
+                <div class="telemetry-item">
+                    <span class="t-label">Nitrogen Oxides ($NO_x$)</span>
+                    <span class="t-val" id="res-nox">0 kg</span>
+                </div>
+                <div class="telemetry-item">
+                    <span class="t-label">Sulfur Dioxide ($SO_2$)</span>
+                    <span class="t-val" id="res-so2">0 kg</span>
+                </div>
+                <div class="telemetry-item">
+                    <span class="t-label">Concrete Net Weight</span>
+                    <span class="t-val" id="res-conc-kg">0 kg</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* UI Layout Styles matching high-end technical architectures */
+    #analyze-ui-container {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 680px;
+        z-index: 500;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        font-family: 'Courier New', Courier, monospace;
+    }
+    #analyze-ui-container.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(-50%) translateY(10px);
+    }
+    .analyze-card {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 24px;
+        color: #e2e8f0;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .analyze-header h3 {
+        margin: 0 0 6px 0;
+        font-size: 14px;
+        letter-spacing: 2px;
+        color: #38bdf8;
+    }
+    .analyze-header p {
+        margin: 0 0 20px 0;
+        font-size: 11px;
+        color: #94a3b8;
+        line-height: 1.5;
+    }
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .form-group label {
+        font-size: 10px;
+        letter-spacing: 1px;
+        color: #94a3b8;
+    }
+    .form-group input {
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        padding: 10px;
+        color: #f8fafc;
+        font-family: monospace;
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .form-group input:focus {
+        border-color: #38bdf8;
+    }
+    #submit-btn {
+        width: 100%;
+        background: #0284c7;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    #submit-btn:hover {
+        background: #0369a1;
+    }
+    .ui-divider {
+        border: 0;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 20px 0;
+    }
+    .hidden {
+        display: none !important;
+    }
+    .score-row {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .score-block {
+        background: rgba(30, 41, 59, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .score-block.primary {
+        background: rgba(3, 105, 161, 0.2);
+        border-color: rgba(56, 189, 248, 0.3);
+    }
+    .score-block .label {
+        font-size: 9px;
+        color: #94a3b8;
+        margin-bottom: 4px;
+        letter-spacing: 0.5px;
+    }
+    .score-block .value {
+        font-size: 18px;
+        font-weight: bold;
+        color: #f8fafc;
+    }
+    .score-block.primary .value {
+        color: #38bdf8;
+    }
+    .telemetry-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+    .telemetry-item {
+        background: rgba(30, 41, 59, 0.2);
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .telemetry-item .t-label {
+        display: block;
+        color: #64748b;
+        margin-bottom: 2px;
+    }
+    .telemetry-item .t-val {
+        color: #cbd5e1;
+        font-weight: bold;
+    }
+</style>
+
 <script type="module">
     import * as THREE from "three";
     import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -54,7 +276,6 @@
     varying float vCloseToGround;
     
     vec4 getTriplanar(sampler2D tex){
-        // Dynamic multiplier: wind speeds up dramatically only when actively hovered
         float speed = uTime * (1.0 + uIsHovered * 2.0);
         vec4 xPixel = texture(tex, (vObjectPos.xy + speed) / 3.);
         vec4 yPixel = texture(tex, (vObjectPos.yz + speed) / 3.);
@@ -72,7 +293,6 @@
         vWorldNormal = vec3(modelMatrix * instanceMatrix * vec4(normal, 0.));
         vObjectPos = ((vWorldPos - uBoxMin) * 2.) / uBoxSize - vec3(1.0); 
         
-        // Displace vertices with extra amplitude if uIsHovered is engaged
         vec4 noiseOffset = getTriplanar(uNoiseMap) * vCloseToGround * (0.3 + uIsHovered * 0.5); 
         vec4 newPos = instanceMatrix * vec4(position, 1.); 
         newPos.xyz = newPos.xyz + noiseOffset.xyz * 0.5;
@@ -118,7 +338,6 @@
         }
     `;
 
-    // ENGINE ENVIRONMENT INTERFACES
     const scene = new THREE.Scene();
     const loader = new GLTFLoader();
     const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -140,7 +359,6 @@
 
     const forest = [];
     
-    // Default system position memory registers
     const initialCamPos = new THREE.Vector3(-15, 9, -18);
     const initialLookAt = new THREE.Vector3(0, 1.8, 0);
 
@@ -149,11 +367,11 @@
         deadID: [], 
         leavesCount: 0, 
         labeledRocks: [],
-        // Cinematic Zoom Interpolation Engine Flags
         isZooming: false,
         isReturning: false,
         targetCamPos: new THREE.Vector3(),
-        targetLookAt: new THREE.Vector3()
+        targetLookAt: new THREE.Vector3(),
+        activeTreeName: null // Stores which module is currently zoomed into focus
     };
     
     const noiseMap = new THREE.TextureLoader().load('https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/noise.png');
@@ -182,7 +400,6 @@
         fragmentShader: leavesFS,
     });
 
-    // LOAD AND CLONE FOREST SYSTEM
     loader.loadAsync("https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/tree.glb")
     .then(obj => {
         const preview = document.getElementById("previewHack");
@@ -197,7 +414,7 @@
 
         const treeConfigs = [
             { name: "Mother_Tree", pos: new THREE.Vector3(0, 0, 0), scale: 1.0, rotY: 0 },
-            { name: "Satellite_Alpha", pos: new THREE.Vector3(-6, 0, 0), scale: 0.6, rotY: Math.PI * 0.2 },
+            { name: "Satellite_Alpha", pos: new THREE.Vector3(-6, 0, 0), scale: 0.6, rotY: Math.PI * 0.2 }, // ANALYZE TREE
             { name: "Satellite_Beta", pos: new THREE.Vector3(6, 0, 0), scale: 0.6, rotY: Math.PI * 0.7 },
             { name: "Satellite_Gamma", pos: new THREE.Vector3(0, 0, -6), scale: 0.6, rotY: -Math.PI * 0.4 },
             { name: "Satellite_Delta", pos: new THREE.Vector3(0, 0, 6), scale: 0.6, rotY: Math.PI * 1.1 }
@@ -238,7 +455,6 @@
             }
 
             treeGroup.add(instancedLeaves);
-            
             treeGroup.position.copy(config.pos);
             treeGroup.scale.setScalar(config.scale);
             treeGroup.rotation.y = config.rotY;
@@ -256,9 +472,6 @@
         treeState.leavesCount = baseCrown.geometry.attributes.position.count;
         treeState.isLoaded = true;
         
-        // ========================================================
-        // LABEL MANAGEMENT SYSTEM
-        // ========================================================
         function buildLabelNode(targetTree, titleText) {
             const labelContainer = document.createElement('div');
             labelContainer.className = 'tree-label-div';
@@ -283,7 +496,7 @@
 
         buildLabelNode(forest[0], " NEXUS ");
 
-        const labelTitles = ["MONITOR ENGINE", "ANALYZE MODULE", "STRATEGIZE PIPELINE", "DEVELOP CONSOLE"];
+        const labelTitles = ["ANALYZE MODULE", "STRATEGIZE PIPELINE", "MONITOR ENGINE", "DEVELOP CONSOLE"];
         forest.forEach((item, index) => {
             if (item.config.name === "Mother_Tree") return; 
             buildLabelNode(item, labelTitles[index - 1]);
@@ -293,7 +506,6 @@
     })
     .catch(err => console.error("Error configuring forest compilation:", err));
 
-    // SYSTEM ENVIRONMENT POSITION VALUES
     dlight01.position.set(10, 20, 10);
     camera.position.copy(initialCamPos);
     
@@ -306,7 +518,6 @@
     controls.autoRotateSpeed = 0.3;
     controls.enablePan = false;
 
-    // RUNTIME RENDER ENGINE LOOP
     function animate () {
         requestAnimationFrame(animate);
         const timeDelta = 0.01;
@@ -336,7 +547,6 @@
             motherLeaves.instanceMatrix.needsUpdate = true; 
         } 
 
-        // Active Zoom Interpolation Update Execution
         if (treeState.isZooming || treeState.isReturning) {
             camera.position.lerp(treeState.targetCamPos, 0.05);
             controls.target.lerp(treeState.targetLookAt, 0.05);
@@ -354,7 +564,6 @@
             }
         }
 
-        // Live Spatial Label Reposition Loop Matrix Checks
         if(treeState.isLoaded && treeState.labeledRocks.length > 0) {
             const frustum = new THREE.Frustum();
             const projScreenMatrix = new THREE.Matrix4();
@@ -395,11 +604,9 @@
         setTimeout(killRandom, Math.random() * 1800);
     }
 
-    // DISCRETE INTERACTION HOVER MECHANICS
     function pointerMove(e) {
         if (!treeState.isLoaded) return;
 
-        // CRITICAL FIX: If inside canopy or moving, force reset all leaves out of high wind state instantly
         if (treeState.isZooming || treeState.isReturning) {
             forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
             return;
@@ -411,7 +618,6 @@
         const leafTargetMeshes = forest.map(item => item.leavesMesh);
         const leafIntersects = raycaster.intersectObjects(leafTargetMeshes);
         
-        // Clear all states instantly on standard pointer movements
         forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
         treeState.labeledRocks.forEach(item => item.htmlLabel.style.display = 'none');
 
@@ -420,7 +626,6 @@
             const activeNode = forest.find(item => item.leavesMesh === hitMesh);
             
             if (activeNode) {
-                // Instantly blow leaves only while active cursor is over the mesh bounds
                 activeNode.material.uniforms.uIsHovered.value = 1.0;
                 
                 if (Math.random() * 5 > 4.2 && leafIntersects[0].instanceId !== undefined && activeNode.config.name === "Mother_Tree") {
@@ -435,7 +640,6 @@
         }
     }
 
-    // UNIVERSAL CLICK MECHANICS ACROSS ALL CANOPIES
     function onTreeClick(e) {
         if (!treeState.isLoaded || treeState.isReturning || treeState.isZooming) return;
 
@@ -452,8 +656,8 @@
             if (selectedTree) {
                 treeState.isZooming = true;
                 controls.autoRotate = false; 
+                treeState.activeTreeName = selectedTree.config.name;
 
-                // CRITICAL FIX: Kill wind values instantly upon click registration to eliminate latency winding
                 forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
 
                 const treePos = selectedTree.group.position;
@@ -471,23 +675,74 @@
                 );
                 
                 treeState.labeledRocks.forEach(item => item.htmlLabel.style.display = 'none');
+
+                // TRANSITION SYSTEM: Engage UI panels if clicking the Analyze Tree
+                if (treeState.activeTreeName === "Satellite_Alpha") {
+                    document.getElementById('analyze-ui-container').classList.add('active');
+                }
             }
         }
     }
 
-    // INTERACTION SCROLL WHEEL BACK MECHANISATIONS
     function onWindowScroll(e) {
         if (treeState.isZooming && e.deltaY > 0) {
             treeState.isZooming = false;
             treeState.isReturning = true;
 
-            // CRITICAL FIX: Explicit safety execution resetting uniforms on out-zoom
             forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
+
+            // TRANSITION SYSTEM: Fade out active UI view frame cleanly on zoom out
+            if (treeState.activeTreeName === "Satellite_Alpha") {
+                document.getElementById('analyze-ui-container').classList.remove('active');
+            }
+            treeState.activeTreeName = null;
 
             treeState.targetCamPos.copy(initialCamPos);
             treeState.targetLookAt.copy(initialLookAt);
         }
     }
+
+    // ========================================================
+    // BACKEND API CORRELATION MANAGEMENT (FLASK ROUTING)
+    // ========================================================
+    document.getElementById('analyze-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const payload = {
+            diesel: parseFloat(document.getElementById('input-diesel').value) || 0,
+            electricity: parseFloat(document.getElementById('input-electricity').value) || 0,
+            concrete: parseFloat(document.getElementById('input-concrete').value) || 0,
+            plastic: parseFloat(document.getElementById('input-plastic').value) || 0
+        };
+
+        try {
+            const response = await fetch('http://localhost:5000/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error("Mass Balance Core pipeline returned a faulted state.");
+            const metrics = await response.json();
+
+            // Populate Calculated Metrics to Screen Matrix Registers
+            document.getElementById('res-score').innerText = metrics.impact_score;
+            document.getElementById('res-co2').innerText = metrics.co2_emissions;
+            document.getElementById('res-waste').innerText = metrics.solid_waste;
+            
+            document.getElementById('res-diesel-mj').innerText = metrics.monitoring_details.diesel_energy_mj + " MJ";
+            document.getElementById('res-nox').innerText = metrics.monitoring_details.nox_levels + " kg";
+            document.getElementById('res-so2').innerText = metrics.monitoring_details.so2_levels + " kg";
+            document.getElementById('res-conc-kg').innerText = metrics.monitoring_details.concrete_mass_kg + " kg";
+
+            // Unhide results dashboard container panel smoothly
+            document.getElementById('results-panel').classList.remove('hidden');
+
+        } catch (err) {
+            console.error("API Processing pipeline error:", err);
+            alert("Calculation Error: Could not connect to the local analysis backend.");
+        }
+    });
 
     window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight;
