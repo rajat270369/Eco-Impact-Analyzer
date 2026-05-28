@@ -279,7 +279,7 @@
             });
         }
 
-        // Generate Label 1: Mother Tree Core Label ("ABOUT")
+        // Generate Label 1: Mother Tree Core Label ("NEXUS")
         buildLabelNode(forest[0], " NEXUS ");
 
         // Generate Labels for remaining nodes
@@ -363,6 +363,12 @@
             frustum.setFromProjectionMatrix(projScreenMatrix);
 
             treeState.labeledRocks.forEach(item => {
+                // If zooming, hide all floating HTML elements globally
+                if (treeState.isZooming) {
+                    item.htmlLabel.style.display = 'none';
+                    return;
+                }
+
                 if(item.htmlLabel.style.display !== 'block') return; 
 
                 dummy.position.copy(item.treeNode.group.position);
@@ -431,48 +437,56 @@
         }
     }
 
-    // INTERACTION CLICK MECHANICS
+    // UNIVERSAL CLICK MECHANICS ACROSS ALL CANOPIES
     function onTreeClick(e) {
-        if (!treeState.isLoaded || treeState.isReturning) return;
+        if (!treeState.isLoaded || treeState.isReturning || treeState.isZooming) return;
 
         pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
         raycaster.setFromCamera(pointer, camera);
 
-        const motherTree = forest[0]; 
-        if (!motherTree) return;
+        // Map every tree's active instanced leaf system array for ray interception checks
+        const leafTargetMeshes = forest.map(item => item.leavesMesh);
+        const intersects = raycaster.intersectObjects(leafTargetMeshes);
 
-        const intersects = raycaster.intersectObject(motherTree.leavesMesh);
+        if (intersects.length > 0) {
+            const hitMesh = intersects[0].object;
+            const selectedTree = forest.find(item => item.leavesMesh === hitMesh);
 
-        if (intersects.length > 0 && !treeState.isZooming) {
-            treeState.isZooming = true;
-            controls.autoRotate = false; // Disengage auto rotation immediately
-            
-            const treePos = motherTree.group.position;
+            if (selectedTree) {
+                treeState.isZooming = true;
+                controls.autoRotate = false; // Kill idle orbital paths
 
-            // Target the center mass of the canopy
-            treeState.targetLookAt.set(treePos.x, 3.8, treePos.z);
+                const treePos = selectedTree.group.position;
+                const scaleFactor = selectedTree.config.scale;
 
-            // Nestle camera tightly within instanced coordinates
-            treeState.targetCamPos.set(
-                treePos.x + 0.15, 
-                3.6, 
-                treePos.z + 0.4
-            );
-            
-            // Clean up old HTML hover label overlay immediately
-            const associatedLabel = treeState.labeledRocks.find(label => label.treeNode === motherTree);
-            if (associatedLabel) associatedLabel.htmlLabel.style.display = 'none';
+                // Dynamically offset parameters relative to the tree scale configuration thresholds
+                const canopyHeight = 3.8 * scaleFactor;
+                const cameraZOffset = 0.4 * scaleFactor;
+                const cameraXOffset = 0.15 * scaleFactor;
+
+                // Anchor LookAt matrix target straight inside the leaf bundle core
+                treeState.targetLookAt.set(treePos.x, canopyHeight, treePos.z);
+
+                // Slide camera right inside the geometric leaf system profile bounds
+                treeState.targetCamPos.set(
+                    treePos.x + cameraXOffset, 
+                    canopyHeight - (0.2 * scaleFactor), 
+                    treePos.z + cameraZOffset
+                );
+                
+                // Clear all standard UI hover frames immediately upon execution
+                treeState.labeledRocks.forEach(item => item.htmlLabel.style.display = 'none');
+            }
         }
     }
 
-    // INTERACTION SCROLL WHEEL BACK Mechanisations
+    // INTERACTION SCROLL WHEEL BACK MECHANISATIONS
     function onWindowScroll(e) {
-        // e.deltaY > 0 signifies a trackpad pull or mouse wheel spin backwards (Zooming out action)
         if (treeState.isZooming && e.deltaY > 0) {
             treeState.isZooming = false;
             treeState.isReturning = true;
 
-            // Set targets back to the global scene perspective values
+            // Roll back smoothly to global ecosystem architecture views
             treeState.targetCamPos.copy(initialCamPos);
             treeState.targetLookAt.copy(initialLookAt);
         }
