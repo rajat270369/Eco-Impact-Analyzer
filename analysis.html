@@ -38,7 +38,7 @@
 </head>
 <body>
 
- <div id="previewHack"></div>
+<div id="previewHack"></div>
 
 <script type="module">
     import * as THREE from "three";
@@ -54,6 +54,7 @@
     varying float vCloseToGround;
     
     vec4 getTriplanar(sampler2D tex){
+        // Dynamic multiplier: wind speeds up dramatically only when actively hovered
         float speed = uTime * (1.0 + uIsHovered * 2.0);
         vec4 xPixel = texture(tex, (vObjectPos.xy + speed) / 3.);
         vec4 yPixel = texture(tex, (vObjectPos.yz + speed) / 3.);
@@ -71,6 +72,7 @@
         vWorldNormal = vec3(modelMatrix * instanceMatrix * vec4(normal, 0.));
         vObjectPos = ((vWorldPos - uBoxMin) * 2.) / uBoxSize - vec3(1.0); 
         
+        // Displace vertices with extra amplitude if uIsHovered is engaged
         vec4 noiseOffset = getTriplanar(uNoiseMap) * vCloseToGround * (0.3 + uIsHovered * 0.5); 
         vec4 newPos = instanceMatrix * vec4(position, 1.); 
         newPos.xyz = newPos.xyz + noiseOffset.xyz * 0.5;
@@ -279,10 +281,8 @@
             });
         }
 
-        // Generate Label 1: Mother Tree Core Label ("NEXUS")
         buildLabelNode(forest[0], " NEXUS ");
 
-        // Generate Labels for remaining nodes
         const labelTitles = ["MONITOR ENGINE", "ANALYZE MODULE", "STRATEGIZE PIPELINE", "DEVELOP CONSOLE"];
         forest.forEach((item, index) => {
             if (item.config.name === "Mother_Tree") return; 
@@ -343,14 +343,13 @@
 
             if (treeState.isZooming) {
                 if (camera.position.distanceTo(treeState.targetCamPos) < 0.1) {
-                    controls.minDistance = 0.1; // Unlock minimum proximity inside canopy
+                    controls.minDistance = 0.1; 
                 }
             } else if (treeState.isReturning) {
                 if (camera.position.distanceTo(treeState.targetCamPos) < 0.2) {
-                    // Fully re-stabilized on external orbit configurations
                     treeState.isReturning = false;
                     controls.minDistance = 5.0;
-                    controls.autoRotate = true; // Turn back on system auto rotate routine
+                    controls.autoRotate = true; 
                 }
             }
         }
@@ -363,7 +362,6 @@
             frustum.setFromProjectionMatrix(projScreenMatrix);
 
             treeState.labeledRocks.forEach(item => {
-                // If zooming, hide all floating HTML elements globally
                 if (treeState.isZooming) {
                     item.htmlLabel.style.display = 'none';
                     return;
@@ -399,30 +397,30 @@
 
     // DISCRETE INTERACTION HOVER MECHANICS
     function pointerMove(e) {
-        pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
-        raycaster.setFromCamera(pointer, camera);
-        
         if (!treeState.isLoaded) return;
 
-        // If currently locked inside canopy mode or transitioning, pass hover checking
-        if (treeState.isZooming || treeState.isReturning) return;
+        // CRITICAL FIX: If inside canopy or moving, force reset all leaves out of high wind state instantly
+        if (treeState.isZooming || treeState.isReturning) {
+            forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
+            return;
+        }
+
+        pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+        raycaster.setFromCamera(pointer, camera);
 
         const leafTargetMeshes = forest.map(item => item.leavesMesh);
         const leafIntersects = raycaster.intersectObjects(leafTargetMeshes);
         
-        // Reset leaf uniform hover state variables
+        // Clear all states instantly on standard pointer movements
         forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
-        
-        // Hide overlay text blocks cleanly
-        treeState.labeledRocks.forEach(item => {
-            item.htmlLabel.style.display = 'none';
-        });
+        treeState.labeledRocks.forEach(item => item.htmlLabel.style.display = 'none');
 
         if (leafIntersects.length > 0) {
             const hitMesh = leafIntersects[0].object;
             const activeNode = forest.find(item => item.leavesMesh === hitMesh);
             
             if (activeNode) {
+                // Instantly blow leaves only while active cursor is over the mesh bounds
                 activeNode.material.uniforms.uIsHovered.value = 1.0;
                 
                 if (Math.random() * 5 > 4.2 && leafIntersects[0].instanceId !== undefined && activeNode.config.name === "Mother_Tree") {
@@ -444,7 +442,6 @@
         pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
         raycaster.setFromCamera(pointer, camera);
 
-        // Map every tree's active instanced leaf system array for ray interception checks
         const leafTargetMeshes = forest.map(item => item.leavesMesh);
         const intersects = raycaster.intersectObjects(leafTargetMeshes);
 
@@ -454,27 +451,25 @@
 
             if (selectedTree) {
                 treeState.isZooming = true;
-                controls.autoRotate = false; // Kill idle orbital paths
+                controls.autoRotate = false; 
+
+                // CRITICAL FIX: Kill wind values instantly upon click registration to eliminate latency winding
+                forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
 
                 const treePos = selectedTree.group.position;
                 const scaleFactor = selectedTree.config.scale;
 
-                // Dynamically offset parameters relative to the tree scale configuration thresholds
                 const canopyHeight = 3.8 * scaleFactor;
                 const cameraZOffset = 0.4 * scaleFactor;
                 const cameraXOffset = 0.15 * scaleFactor;
 
-                // Anchor LookAt matrix target straight inside the leaf bundle core
                 treeState.targetLookAt.set(treePos.x, canopyHeight, treePos.z);
-
-                // Slide camera right inside the geometric leaf system profile bounds
                 treeState.targetCamPos.set(
                     treePos.x + cameraXOffset, 
                     canopyHeight - (0.2 * scaleFactor), 
                     treePos.z + cameraZOffset
                 );
                 
-                // Clear all standard UI hover frames immediately upon execution
                 treeState.labeledRocks.forEach(item => item.htmlLabel.style.display = 'none');
             }
         }
@@ -486,7 +481,9 @@
             treeState.isZooming = false;
             treeState.isReturning = true;
 
-            // Roll back smoothly to global ecosystem architecture views
+            // CRITICAL FIX: Explicit safety execution resetting uniforms on out-zoom
+            forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
+
             treeState.targetCamPos.copy(initialCamPos);
             treeState.targetLookAt.copy(initialLookAt);
         }
