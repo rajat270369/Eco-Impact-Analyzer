@@ -51,7 +51,7 @@
 </head>
 <body>
 
-  <div id="previewHack"></div>
+ <div id="previewHack"></div>
 
 <script type="module">
     import * as THREE from "three";
@@ -150,7 +150,16 @@
     scene.add(dlight01, alight);
 
     const forest = [];
-    const treeState = { isLoaded: false, deadID: [], leavesCount: 0, labeledRocks: [] };
+    const treeState = { 
+        isLoaded: false, 
+        deadID: [], 
+        leavesCount: 0, 
+        labeledRocks: [],
+        // Cinematic Zoom Interpolation Engine Flags
+        isZooming: false,
+        targetCamPos: new THREE.Vector3(),
+        targetLookAt: new THREE.Vector3()
+    };
     
     const noiseMap = new THREE.TextureLoader().load('https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/noise.png');
     noiseMap.wrapS = THREE.RepeatWrapping;
@@ -253,10 +262,9 @@
         treeState.isLoaded = true;
         
         // ========================================================
-        // LABEL MANAGEMENT SYSTEM (ENVIRONMENT INTERFACES RETAINED)
+        // LABEL MANAGEMENT SYSTEM
         // ========================================================
         function buildLabelNode(targetTree, titleText) {
-            // Text Label Overlay Element Buildout
             const labelContainer = document.createElement('div');
             labelContainer.className = 'tree-label-div';
             labelContainer.innerHTML = `<p style="margin:0; padding:4px 8px; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,0.1); border-radius:4px;">${titleText}</p>`;
@@ -281,7 +289,7 @@
         // Generate Label 1: Mother Tree Core Label ("ABOUT")
         buildLabelNode(forest[0], "ABOUT PROTOCOL");
 
-        // Generate Labels for remaining nodes: The 4 Functional Modules Mapped on Satellite Nodes
+        // Generate Labels for remaining nodes
         const labelTitles = ["MONITOR ENGINE", "ANALYZE MODULE", "STRATEGIZE PIPELINE", "DEVELOP CONSOLE"];
         forest.forEach((item, index) => {
             if (item.config.name === "Mother_Tree") return; 
@@ -335,6 +343,17 @@
             motherLeaves.instanceMatrix.needsUpdate = true; 
         } 
 
+        // Active Zoom Interpolation Update Execution
+        if (treeState.isZooming) {
+            camera.position.lerp(treeState.targetCamPos, 0.05);
+            controls.target.lerp(treeState.targetLookAt, 0.05);
+            controls.autoRotate = false; // Disengage auto rotation to avoid matrix shearing vectors
+
+            if (camera.position.distanceTo(treeState.targetCamPos) < 0.1) {
+                controls.minDistance = 0.1; // Unlock minimum distance so user can look around from inside
+            }
+        }
+
         // Live Spatial Label Reposition Loop Matrix Checks
         if(treeState.isLoaded && treeState.labeledRocks.length > 0) {
             const frustum = new THREE.Frustum();
@@ -378,6 +397,9 @@
         
         if (!treeState.isLoaded) return;
 
+        // If currently locked inside canopy mode, pass hover checking
+        if (treeState.isZooming) return;
+
         const leafTargetMeshes = forest.map(item => item.leavesMesh);
         const leafIntersects = raycaster.intersectObjects(leafTargetMeshes);
         
@@ -408,6 +430,38 @@
         }
     }
 
+    // INTERACTION CLICK MECHANICS
+    function onTreeClick(e) {
+        if (!treeState.isLoaded) return;
+
+        pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+        raycaster.setFromCamera(pointer, camera);
+
+        const motherTree = forest[0]; 
+        if (!motherTree) return;
+
+        const intersects = raycaster.intersectObject(motherTree.leavesMesh);
+
+        if (intersects.length > 0) {
+            treeState.isZooming = true;
+            const treePos = motherTree.group.position;
+
+            // Target the center mass of the canopy
+            treeState.targetLookAt.set(treePos.x, 3.8, treePos.z);
+
+            // Nestle camera tightly within instanced coordinates
+            treeState.targetCamPos.set(
+                treePos.x + 0.15, 
+                3.6, 
+                treePos.z + 0.4
+            );
+            
+            // Clean up old HTML hover label overlay immediately
+            const associatedLabel = treeState.labeledRocks.find(label => label.treeNode === motherTree);
+            if (associatedLabel) associatedLabel.htmlLabel.style.display = 'none';
+        }
+    }
+
     window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -415,6 +469,7 @@
     });
 
     document.addEventListener("mousemove", pointerMove);
+    document.addEventListener("click", onTreeClick);
 </script>
 </body>
 </html>
