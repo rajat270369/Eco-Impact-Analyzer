@@ -150,6 +150,11 @@
     scene.add(dlight01, alight);
 
     const forest = [];
+    
+    // Default system position memory registers
+    const initialCamPos = new THREE.Vector3(-15, 9, -18);
+    const initialLookAt = new THREE.Vector3(0, 1.8, 0);
+
     const treeState = { 
         isLoaded: false, 
         deadID: [], 
@@ -157,6 +162,7 @@
         labeledRocks: [],
         // Cinematic Zoom Interpolation Engine Flags
         isZooming: false,
+        isReturning: false,
         targetCamPos: new THREE.Vector3(),
         targetLookAt: new THREE.Vector3()
     };
@@ -302,9 +308,9 @@
 
     // SYSTEM ENVIRONMENT POSITION VALUES
     dlight01.position.set(10, 20, 10);
-    camera.position.set(-15, 9, -18);
+    camera.position.copy(initialCamPos);
     
-    controls.target = new THREE.Vector3(0, 1.8, 0);
+    controls.target.copy(initialLookAt);
     controls.maxPolarAngle = Math.PI * 0.48; 
     controls.minDistance = 5.0;
     controls.maxDistance = 35.0;
@@ -344,13 +350,21 @@
         } 
 
         // Active Zoom Interpolation Update Execution
-        if (treeState.isZooming) {
+        if (treeState.isZooming || treeState.isReturning) {
             camera.position.lerp(treeState.targetCamPos, 0.05);
             controls.target.lerp(treeState.targetLookAt, 0.05);
-            controls.autoRotate = false; // Disengage auto rotation to avoid matrix shearing vectors
 
-            if (camera.position.distanceTo(treeState.targetCamPos) < 0.1) {
-                controls.minDistance = 0.1; // Unlock minimum distance so user can look around from inside
+            if (treeState.isZooming) {
+                if (camera.position.distanceTo(treeState.targetCamPos) < 0.1) {
+                    controls.minDistance = 0.1; // Unlock minimum proximity inside canopy
+                }
+            } else if (treeState.isReturning) {
+                if (camera.position.distanceTo(treeState.targetCamPos) < 0.2) {
+                    // Fully re-stabilized on external orbit configurations
+                    treeState.isReturning = false;
+                    controls.minDistance = 5.0;
+                    controls.autoRotate = true; // Turn back on system auto rotate routine
+                }
             }
         }
 
@@ -397,8 +411,8 @@
         
         if (!treeState.isLoaded) return;
 
-        // If currently locked inside canopy mode, pass hover checking
-        if (treeState.isZooming) return;
+        // If currently locked inside canopy mode or transitioning, pass hover checking
+        if (treeState.isZooming || treeState.isReturning) return;
 
         const leafTargetMeshes = forest.map(item => item.leavesMesh);
         const leafIntersects = raycaster.intersectObjects(leafTargetMeshes);
@@ -432,7 +446,7 @@
 
     // INTERACTION CLICK MECHANICS
     function onTreeClick(e) {
-        if (!treeState.isLoaded) return;
+        if (!treeState.isLoaded || treeState.isReturning) return;
 
         pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
         raycaster.setFromCamera(pointer, camera);
@@ -442,8 +456,10 @@
 
         const intersects = raycaster.intersectObject(motherTree.leavesMesh);
 
-        if (intersects.length > 0) {
+        if (intersects.length > 0 && !treeState.isZooming) {
             treeState.isZooming = true;
+            controls.autoRotate = false; // Disengage auto rotation immediately
+            
             const treePos = motherTree.group.position;
 
             // Target the center mass of the canopy
@@ -462,6 +478,19 @@
         }
     }
 
+    // INTERACTION SCROLL WHEEL BACK Mechanisations
+    function onWindowScroll(e) {
+        // e.deltaY > 0 signifies a trackpad pull or mouse wheel spin backwards (Zooming out action)
+        if (treeState.isZooming && e.deltaY > 0) {
+            treeState.isZooming = false;
+            treeState.isReturning = true;
+
+            // Set targets back to the global scene perspective values
+            treeState.targetCamPos.copy(initialCamPos);
+            treeState.targetLookAt.copy(initialLookAt);
+        }
+    }
+
     window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -470,6 +499,7 @@
 
     document.addEventListener("mousemove", pointerMove);
     document.addEventListener("click", onTreeClick);
+    document.addEventListener("wheel", onWindowScroll, { passive: true });
 </script>
 </body>
 </html>
