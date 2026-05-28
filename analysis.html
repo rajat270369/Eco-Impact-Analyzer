@@ -50,7 +50,8 @@
     </script>
 </head>
 <body>
-   <div id="previewHack"></div>
+
+  <div id="previewHack"></div>
 
 <script type="module">
     import * as THREE from "three";
@@ -122,14 +123,13 @@
 
         void main(){
             float gradMap = (getPosColors() + getDiffuse()) * vCloseToGround / 2. ;
-            // Cyber hover color modification: morphs directly into a glowing toxic neon green
-            vec3 colorShiftA = mix(uColorA, vec3(0.22, 1.0, 0.08), uIsHovered * 0.6);
+            vec3 colorShiftA = mix(uColorA, vec3(0.0, 0.9, 0.45), uIsHovered * 0.3);
             vec4 c = vec4(mix3(colorShiftA, uColorB, uColorC, gradMap), 1.0);
             gl_FragColor = vec4(pow(c.xyz, vec3(0.454545)), c.w);
         }
     `;
 
-    // ENGINE ENVIRONMENT INTERFACES (Set on infinite pure-black theme background)
+    // ENGINE ENVIRONMENT INTERFACES
     const scene = new THREE.Scene();
     const loader = new GLTFLoader();
     const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -145,31 +145,29 @@
     const pointer = new THREE.Vector2(); 
     const raycaster = new THREE.Raycaster();
     
-    // High-contrast clean white directional light to maintain reflective neon accents
-    const dlight01 = new THREE.DirectionalLight(0xffffff, 2.5);
-    const alight = new THREE.AmbientLight(0xffffff, 0.2);
+    const dlight01 = new THREE.DirectionalLight(0xffffff, 2.0);
+    const alight = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(dlight01, alight);
 
     const forest = [];
-    const treeState = { isLoaded: false, deadID: [], leavesCount: 0, labeledRocks: [] };
+    const treeState = { isLoaded: false, deadID: [], leavesCount: 0, labeledRocks: [], grassMesh: null };
     
     const noiseMap = new THREE.TextureLoader().load('https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/noise.png');
     noiseMap.wrapS = THREE.RepeatWrapping;
     noiseMap.wrapT = THREE.RepeatWrapping;
 
-    const rayPlane = new THREE.Mesh(new THREE.PlaneGeometry(300, 300, 1, 1), new THREE.MeshBasicMaterial({ visible: false }));
+    const rayPlane = new THREE.Mesh(new THREE.PlaneGeometry(200, 200, 1, 1), new THREE.MeshBasicMaterial({ visible: false }));
     scene.add(rayPlane);
 
-    // Neon & Dark Cyber Theme Uniform Tints Applied Globally to Shader Framework
     const baseLeavesMat = new THREE.ShaderMaterial({
         lights: true,
         side: THREE.DoubleSide,
         uniforms: {
             ...THREE.UniformsLib.lights,
             uTime: { value: 0. },
-            uColorA: { value: new THREE.Color(0xff007f) }, // Electric Cyber Pink
-            uColorB: { value: new THREE.Color(0x00f3ff) }, // Neon Cyan Blue
-            uColorC: { value: new THREE.Color(0x00ff66) }, // Matrix Green High-accent
+            uColorA: { value: new THREE.Color(0xb45252) },
+            uColorB: { value: new THREE.Color(0xd3a068) },
+            uColorC: { value: new THREE.Color(0xede19e) },
             uBoxMin: { value: new THREE.Vector3(0, 0, 0) },
             uBoxSize: { value: new THREE.Vector3(10, 10, 10) },
             uRaycast: { value: new THREE.Vector3(0, -999, 0) },
@@ -180,7 +178,7 @@
         fragmentShader: leavesFS,
     });
 
-    // LOAD AND CLONE FOREST SYSTEM (Strictly limited to 5 main nodes)
+    // LOAD AND CLONE FOREST SYSTEM
     loader.loadAsync("https://raw.githubusercontent.com/ceramicSoda/treeshader/main/assets/tree.glb")
     .then(obj => {
         const preview = document.getElementById("previewHack");
@@ -205,13 +203,7 @@
             const treeGroup = new THREE.Group();
             treeGroup.name = config.name;
             
-            // Neon accent matching for tree trunks/poles
             const poleClone = basePole.clone();
-            poleClone.material = new THREE.MeshStandardMaterial({
-                color: 0x111115,
-                roughness: 0.5,
-                metalness: 0.8
-            });
             treeGroup.add(poleClone);
 
             const uniqueMat = baseLeavesMat.clone();
@@ -242,6 +234,7 @@
             }
 
             treeGroup.add(instancedLeaves);
+            
             treeGroup.position.copy(config.pos);
             treeGroup.scale.setScalar(config.scale);
             treeGroup.rotation.y = config.rotY;
@@ -260,9 +253,9 @@
         treeState.isLoaded = true;
         
         // ========================================================
-        // LABELED NEON RING ARCHITECTURE
+        // FIXED ROCK-RING LABELING GENERATION ROUTINE
         // ========================================================
-        const rockGeo = new THREE.DodecahedronGeometry(0.12, 0); 
+        const rockGeo = new THREE.DodecahedronGeometry(0.15, 0); 
 
         function buildLabeledRockRing(targetTree, radius, titleText, totalRocks = 24) {
             const ringGroup = new THREE.Group();
@@ -271,11 +264,10 @@
             ringGroup.position.y = 0.05; 
 
             for (let i = 0; i < totalRocks; i++) {
-                // Modified ring material matching a gloss obsidian/dark charcoal state
-                const individualRockMat = new THREE.MeshStandardMaterial({ 
-                    color: 0x0a0a0c,
-                    roughness: 0.2,
-                    metalness: 0.9
+                const individualRockMat = new THREE.MeshToonMaterial({ 
+                    map: basePole.material.map, 
+                    color: 0x333333, 
+                    side: THREE.FrontSide
                 });
 
                 const angle = (i / totalRocks) * Math.PI * 2;
@@ -288,17 +280,17 @@
                 ringGroup.add(rock);
             }
 
-            // Text Label Elements modified with sharp borders and vibrant neon styling colors
+            // Text Label Overlay Element Buildout
             const labelContainer = document.createElement('div');
             labelContainer.className = 'tree-label-div';
-            labelContainer.innerHTML = `<p style="margin:0; padding:5px 10px; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); border:1px solid #00f3ff; box-shadow: 0 0 8px rgba(0,243,255,0.4); border-radius:2px; text-shadow: 0 0 5px #00f3ff;">${titleText}</p>`;
+            labelContainer.innerHTML = `<p style="margin:0; padding:4px 8px; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,0.1); border-radius:4px;">${titleText}</p>`;
             
             labelContainer.style.position = 'absolute';
-            labelContainer.style.color = '#00f3ff';
+            labelContainer.style.color = '#e2e8f0';
             labelContainer.style.fontSize = '11px';
             labelContainer.style.fontWeight = 'bold';
             labelContainer.style.fontFamily = 'monospace';
-            labelContainer.style.letterSpacing = '2px';
+            labelContainer.style.letterSpacing = '1.5px';
             labelContainer.style.zIndex = '100';
             labelContainer.style.display = 'none'; 
             labelContainer.style.pointerEvents = 'none';
@@ -313,21 +305,76 @@
             scene.add(ringGroup);
         }
 
-        // Core Ring Initializations
+        // Generate Ring 1: Mother Tree Core Ring ("ABOUT")
         buildLabeledRockRing(forest[0], 2.2, "ABOUT PROTOCOL", 32);
 
+        // Generate Ring 2 Core Elements: The 4 Functional Modules Mapped on Satellite Nodes
         const labelTitles = ["MONITOR ENGINE", "ANALYZE MODULE", "STRATEGIZE PIPELINE", "DEVELOP CONSOLE"];
         forest.forEach((item, index) => {
             if (item.config.name === "Mother_Tree") return; 
             buildLabeledRockRing(item, 1.4, labelTitles[index - 1], 20);
         });
 
+        // ========================================================
+        // HIGH-DENSITY RADIAL EXPONENTIAL INFINITE GRASS FIELD
+        // ========================================================
+        const grassGeo = new THREE.BufferGeometry();
+        const baseWidth = 0.05;
+        const alto_hierba = 0.65; 
+
+        const grassVertices = new Float32Array([
+            -baseWidth / 2, 0, 0,
+             baseWidth / 2, 0, 0,
+            -baseWidth / 3, alto_hierba * 0.4, 0.03, 
+             baseWidth / 3, alto_hierba * 0.4, 0.03,
+             0,             alto_hierba,       0.09  
+        ]);
+        const grassIndices = [0, 1, 3,  0, 3, 2,  2, 3, 4];
+        grassGeo.setAttribute('position', new THREE.BufferAttribute(grassVertices, 3));
+        grassGeo.setIndex(grassIndices);
+        grassGeo.computeVertexNormals();
+
+        const grassMat = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(0x226b33), 
+            roughness: 0.9,
+            metalness: 0.1,
+            side: THREE.DoubleSide,
+            flatShading: true
+        });
+
+        // Elevated to 12,000 instances for massive dense scene presence
+        const totalPlaneBlades = 12000;
+        const fullFieldMesh = new THREE.InstancedMesh(grassGeo, grassMat, totalPlaneBlades);
+        const grassDummy = new THREE.Object3D();
+
+        for(let i = 0; i < totalPlaneBlades; i++) {
+            // Using a power-distribution curve: packs grass densely around the core center terrain
+            // while scattering trailing clusters out to the absolute view distance horizon threshold (120 units)
+            const theta = Math.random() * Math.PI * 2;
+            const distanceFactor = Math.pow(Math.random(), 2.5) * 120.0; 
+
+            const posX = Math.cos(theta) * distanceFactor;
+            const posZ = Math.sin(theta) * distanceFactor;
+
+            grassDummy.position.set(posX, 0.0, posZ);
+            grassDummy.rotation.y = Math.random() * Math.PI * 2;
+            
+            // Random scaling factor ensures depth variability
+            const s = 0.6 + Math.random() * 0.6;
+            grassDummy.scale.set(s, s, s);
+
+            grassDummy.updateMatrix();
+            fullFieldMesh.setMatrixAt(i, grassDummy.matrix);
+        }
+        scene.add(fullFieldMesh);
+        treeState.grassMesh = fullFieldMesh; 
+
         killRandom();
     })
-    .catch(err => console.error("Error configuration stack failed:", err));
+    .catch(err => console.error("Error configuring forest compilation:", err));
 
-    // POSITION CONFIGURATIONS
-    dlight01.position.set(15, 25, 15);
+    // SYSTEM ENVIRONMENT POSITION VALUES
+    dlight01.position.set(10, 20, 10);
     camera.position.set(-15, 9, -18);
     
     controls.target = new THREE.Vector3(0, 1.8, 0);
@@ -336,7 +383,7 @@
     controls.maxDistance = 35.0;
     controls.enableDamping = true;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.25;
+    controls.autoRotateSpeed = 0.3;
     controls.enablePan = false;
 
     // RUNTIME RENDER ENGINE LOOP
@@ -369,7 +416,7 @@
             motherLeaves.instanceMatrix.needsUpdate = true; 
         } 
 
-        // Dynamic 3D to Screen-Space Label Projection Loop Mapping Matrix Check
+        // Live Spatial Label Reposition Loop Matrix Checks
         if(treeState.isLoaded && treeState.labeledRocks.length > 0) {
             const frustum = new THREE.Frustum();
             const projScreenMatrix = new THREE.Matrix4();
@@ -415,8 +462,10 @@
         const leafTargetMeshes = forest.map(item => item.leavesMesh);
         const leafIntersects = raycaster.intersectObjects(leafTargetMeshes);
         
+        // Reset leaf uniform hover state variables
         forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
         
+        // Hide overlay text blocks cleanly
         treeState.labeledRocks.forEach(item => {
             item.htmlLabel.style.display = 'none';
         });
