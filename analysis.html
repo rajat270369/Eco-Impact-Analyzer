@@ -150,6 +150,82 @@
         </div>
     </div>
 </div>
+<!-- STRATEGIZE PIPELINE OVERLAY (SLATE GREY / BRUTALIST PROFILES) -->
+<div id="strategize-ui-container" class="ui-overlay">
+    <div class="analyze-card target-grey">
+        <div class="analyze-header grey-text">
+            <h3>STRATEGIZE PIPELINE // MITIGATION MATRIX</h3>
+            <p>Ingest data feeds across system environments to generate tactical operational blueprints and lower atmospheric impact scores.</p>
+        </div>
+
+        <form id="strategize-form">
+            <div class="strategy-control-grid">
+                <!-- Row 1: Source Selector Toggles -->
+                <div class="form-group full-width">
+                    <label>DATA INGESTION STREAM ORIGIN</label>
+                    <div class="origin-toggle-group">
+                        <button type="button" id="toggle-origin-monitor" class="toggle-btn active" data-origin="monitor">LIVE MONITOR FEED (REAL coordinates)</button>
+                        <button type="button" id="toggle-origin-analyze" class="toggle-btn" data-origin="analyze">PROJECTED ANALYZE METRICS (CALCULATOR LAYERS)</button>
+                    </div>
+                </div>
+
+                <!-- Row 2: Optimization Intensity Sliders -->
+                <div class="form-group full-width">
+                    <label>MITIGATION THROTTLE AGGRESSIVENESS: <span id="aggression-display" class="grey-light-text">50%</span></label>
+                    <input type="range" id="input-aggressiveness" min="0" max="1" step="0.05" value="0.5" class="grey-slider">
+                </div>
+
+                <!-- Row 3: Tactical Countermeasures Checkboxes -->
+                <div class="form-group full-width">
+                    <label>DEPLOYABLE OPERATIONS COUNTERMEASURES</label>
+                    <div class="checkbox-tactical-grid">
+                        <label class="check-container">
+                            <input type="checkbox" id="tactic-suppression" value="suppression" checked>
+                            <span class="custom-check"></span> Active Dust Suppression & Misting Cannons
+                        </label>
+                        <label class="check-container">
+                            <input type="checkbox" id="tactic-materials" value="materials">
+                            <span class="custom-check"></span> Alternative Low-Carbon Structural Matrix Swaps
+                        </label>
+                        <label class="check-container">
+                            <input type="checkbox" id="tactic-logistics" value="logistics" checked>
+                            <span class="custom-check"></span> Logistical Traffic Shift & Off-Peak Schedules
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="grey-btn">COMPILE TACTICAL ACTION PLAYBOOK</button>
+        </form>
+
+        <!-- Strategy Playbook Reports Output -->
+        <div id="strategy-results-panel" class="hidden">
+            <hr class="ui-divider grey-divider">
+            
+            <div class="prognosis-heading">PREDICTIVE DELTA PROGNOSIS</div>
+            <div class="score-row">
+                <div class="score-block primary-grey">
+                    <span class="label">TARGET HEALTH INDEX</span>
+                    <span class="value grey-light-text"><span id="prog-aqi-old">0</span> <small class="arrow">➔</small> <span id="prog-aqi-new" class="highlight-green">0</span> <small class="unit">AQI</small></span>
+                </div>
+                <div class="score-block">
+                    <span class="label">COARSE PARTICULATES (PM10)</span>
+                    <span class="value"><span id="prog-pm10-old">0</span> ➔ <span id="prog-pm10-new">0</span> <small class="unit">µg/m³</small></span>
+                </div>
+                <div class="score-block">
+                    <span class="label">FINE PARTICULATES (PM2.5)</span>
+                    <span class="value"><span id="prog-pm25-old">0</span> ➔ <span id="prog-pm25-new">0</span> <small class="unit">µg/m³</small></span>
+                </div>
+            </div>
+
+            <div class="playbook-section">
+                <span class="log-heading">STRATEGIC COUNTERMEASURE PLAYBOOK STEPS</span>
+                <div id="playbook-steps-container">
+                    <!-- Dynamic Rows are generated here via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
     /* SHARED OVERLAY ARCHITECTURE */
@@ -184,6 +260,75 @@
         color: #94a3b8;
         line-height: 1.6;
     }
+    /* THEME 3: SLATE GREY SYSTEM SPECIFICS */
+.target-grey {
+    background: rgba(23, 27, 34, 0.94);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #e2e8f0;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.75), 0 0 50px rgba(148, 163, 184, 0.03);
+}
+.grey-text h3 { margin: 0 0 10px 0; font-size: 18px; font-weight: 700; letter-spacing: 2.5px; color: #cbd5e1; }
+.grey-light-text { color: #94a3b8; font-weight: bold; }
+.grey-divider { background: rgba(148, 163, 184, 0.15); }
+.primary-grey { background: rgba(148, 163, 184, 0.08); border-color: rgba(148, 163, 184, 0.25) !important; }
+
+/* Control Form Styling */
+.strategy-control-grid { display: flex; flex-direction: column; gap: 24px; margin-bottom: 24px; }
+.full-width { grid-column: span 2; }
+
+/* Origin Segment Switches */
+.origin-toggle-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+.toggle-btn {
+    background: rgba(33, 41, 54, 0.6); border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #94a3b8; padding: 14px; font-family: inherit; font-size: 12px; cursor: pointer;
+    border-radius: 4px; font-weight: bold; transition: all 0.2s ease; text-align: center;
+}
+.toggle-btn:hover { background: rgba(33, 41, 54, 0.9); color: #f1f5f9; }
+.toggle-btn.active { background: #475569; border-color: #cbd5e1; color: #ffffff; box-shadow: 0 0 10px rgba(255,255,255,0.05); }
+
+/* Range Sliders */
+.grey-slider {
+    -webkit-appearance: none; width: 100%; height: 6px; background: #1e293b;
+    border-radius: 3px; outline: none; margin-top: 12px;
+}
+.grey-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; background: #cbd5e1;
+    border-radius: 50%; cursor: pointer; transition: transform 0.1s;
+}
+.grey-slider::-webkit-slider-thumb:hover { transform: scale(1.2); background: #ffffff; }
+
+/* Checkboxes Controls */
+.checkbox-tactical-grid { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+.check-container { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #cbd5e1; cursor: pointer; user-select: none; }
+.check-container input { display: none; }
+.custom-check {
+    width: 16px; height: 16px; border: 1px solid #475569; background: #1e293b; border-radius: 3px; display: inline-block; position: relative;
+}
+.check-container input:checked + .custom-check { background: #64748b; border-color: #cbd5e1; }
+.check-container input:checked + .custom-check::after {
+    content: "✓"; position: absolute; top: -2px; left: 3px; font-size: 11px; color: white; font-weight: bold;
+}
+
+.grey-btn {
+    width: 100%; background: #475569; color: white; border: none; padding: 16px;
+    border-radius: 6px; font-family: inherit; font-size: 13px; font-weight: bold; letter-spacing: 1.5px; cursor: pointer; transition: background 0.2s;
+}
+.grey-btn:hover { background: #334155; }
+
+/* Output Report Panel formatting */
+.prognosis-heading { font-size: 11px; font-weight: bold; color: #64748b; letter-spacing: 1px; margin-bottom: 12px; }
+.highlight-green { color: #34d399 !important; }
+.score-block .unit { font-size: 11px; color: #475569; }
+.score-block .arrow { color: #475569; margin: 0 4px; }
+
+.playbook-step-row {
+    background: rgba(15, 20, 28, 0.6); border-left: 3px solid #64748b;
+    padding: 14px 16px; border-radius: 0 4px 4px 0; margin-bottom: 10px; display: flex; gap: 16px; align-items: flex-start;
+}
+.step-num { font-size: 14px; font-weight: bold; color: #94a3b8; background: rgba(255,255,255,0.03); padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+.step-details { display: flex; flex-direction: column; gap: 4px; }
+.step-action { font-size: 13px; font-weight: bold; color: #f1f5f9; letter-spacing: 0.5px; }
+.step-impact { font-size: 12px; color: #64748b; line-height: 1.4; }
 
     /* THEME 1: CYBER BLUE SPECIFICS */
     .target-blue {
@@ -541,9 +686,9 @@
                 const label = treeState.labeledRocks.find(l => l.treeNode === activeNode);
                 if(label) label.htmlLabel.style.display = 'block';
             }
-        }
-    }
-
+        }    
+    }    
+     
     // --- Geolocation Tracking Process Loop ---
     function startMonitorPolling() {
         const logBox = document.getElementById('terminal-log-stream');
@@ -654,6 +799,9 @@
                 } else if (treeState.activeTreeName === "Satellite_Beta") {
                     document.getElementById('monitor-ui-container').classList.add('active');
                     startMonitorPolling(); // Boots up GPS query streams only when exploring Satellite_Beta
+                } else if (treeState.activeTreeName === "Satellite_Gamma") {
+                 // Correctly routes Satellite_Gamma directly onto the Strategize Engine Panel
+                document.getElementById('strategize-ui-container').classList.add('active');
                 }
             }
         }
@@ -665,13 +813,15 @@
             treeState.isZooming = false; treeState.isReturning = true;
             forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
 
-            if (treeState.activeTreeName === "Satellite_Alpha") {
-                document.getElementById('analyze-ui-container').classList.remove('active');
-            } else if (treeState.activeTreeName === "Satellite_Beta") {
-                document.getElementById('monitor-ui-container').classList.remove('active');
-                stopMonitorPolling(); // Destroys loops immediately to clear memory footprints
-            }
-            treeState.activeTreeName = null;
+             if (treeState.activeTreeName === "Satellite_Alpha") {
+               document.getElementById('analyze-ui-container').classList.remove('active');
+             } else if (treeState.activeTreeName === "Satellite_Beta") {
+               document.getElementById('monitor-ui-container').classList.remove('active');
+               stopMonitorPolling(); 
+             } else if (treeState.activeTreeName === "Satellite_Gamma") {
+                 document.getElementById('strategize-ui-container').classList.remove('active');
+             }
+             treeState.activeTreeName = null;
             treeState.targetCamPos.copy(initialCamPos); treeState.targetLookAt.copy(initialLookAt);
         }
     }
@@ -704,10 +854,83 @@
         }
     });
 
+    // --- STRATEGIZE PIECES INTERACTIVE HANDLING ---
+    document.getElementById('input-aggressiveness').addEventListener('input', (e) => {
+        document.getElementById('aggression-display').innerText = `${Math.round(e.target.value * 100)}%`;
+    });
+
+    document.querySelectorAll('.origin-toggle-group .toggle-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.origin-toggle-group .toggle-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+        });
+    });
+
+    document.getElementById('strategize-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const activeOriginBtn = document.querySelector('.origin-toggle-group .toggle-btn.active');
+        const selectedOrigin = activeOriginBtn ? activeOriginBtn.getAttribute('data-origin') : 'unknown';
+        const aggressionValue = document.getElementById('input-aggressiveness').value;
+        
+        const chosenTactics = [];
+        if (document.getElementById('tactic-suppression').checked) chosenTactics.push("suppression");
+        if (document.getElementById('tactic-materials').checked) chosenTactics.push("materials");
+        if (document.getElementById('tactic-logistics').checked) chosenTactics.push("logistics");
+
+        try {
+            const response = await fetch('http://localhost:5000/strategize/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    origin: selectedOrigin,
+                    aggressiveness: parseFloat(aggressionValue),
+                    tactics: chosenTactics
+                })
+            });
+            
+            if (!response.ok) throw new Error();
+            const data = await response.json();
+
+            document.getElementById('prog-aqi-old').innerText = data.prognosis.initial_aqi;
+            document.getElementById('prog-aqi-new').innerText = data.prognosis.target_aqi;
+            document.getElementById('prog-pm10-old').innerText = data.prognosis.initial_pm10;
+            document.getElementById('prog-pm10-new').innerText = data.prognosis.target_pm10;
+            document.getElementById('prog-pm25-old').innerText = data.prognosis.initial_pm25;
+            document.getElementById('prog-pm25-new').innerText = data.prognosis.target_pm25;
+
+            const playbookContainer = document.getElementById('playbook-steps-container');
+            playbookContainer.innerHTML = '';
+            
+            if (data.playbook.length === 0) {
+                playbookContainer.innerHTML = '<div class="log-entry system">[INFO] Current ecological conditions require no tactical updates.</div>';
+            } else {
+                data.playbook.forEach(step => {
+                    const stepRow = document.createElement('div');
+                    stepRow.className = 'playbook-step-row';
+                    stepRow.innerHTML = `
+                        <div class="step-num">${step.step}</div>
+                        <div class="step-details">
+                            <div class="step-action">${step.action}</div>
+                            <div class="step-impact">${step.impact}</div>
+                        </div>
+                    `;
+                    playbookContainer.appendChild(stepRow);
+                });
+            }
+
+            document.getElementById('strategy-results-panel').classList.remove('hidden');
+        } catch (err) {
+            alert("Pipeline Compilation Error: Confirm backend server instance connectivity.");
+        }
+    });
+
+    // --- SYSTEM CORE RESIZING AND PERSISTENT LISTENERS ---
     window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
+    
     document.addEventListener("mousemove", pointerMove);
     document.addEventListener("click", onTreeClick);
     document.addEventListener("wheel", onWindowScroll, { passive: true });
