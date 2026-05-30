@@ -602,7 +602,6 @@
 
         buildLabelNode(forest[0], " NEXUS ");
         
-        // --- CORRECTED MODULE ARCHITECTURE TREE LABELS ---
         const labelTitles = ["ANALYZE MODULE", "MONITOR ENGINE", "STRATEGIZE PIPELINE", "DEVELOP CONSOLE"];
         forest.forEach((item, index) => {
             if (item.config.name === "Mother_Tree") return; 
@@ -774,7 +773,7 @@
         }
     }
 
-    // --- CORRECTED CLICK EVENT MAP ROUTER ---
+    // --- CLICK EVENT MAP ROUTER WITH INLINE OVERFLOW FIXES ---
     function onTreeClick(e) {
         if (!treeState.isLoaded || treeState.isReturning || treeState.isZooming) return;
         pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
@@ -793,35 +792,49 @@
                 treeState.targetCamPos.set(pos.x + (0.15 * factor), (3.8 * factor) - (0.2 * factor), pos.z + (0.4 * factor));
                 treeState.labeledRocks.forEach(item => item.htmlLabel.style.display = 'none');
 
-                // Route configurations precisely by node signature names
+                let activeContainer = null;
                 if (treeState.activeTreeName === "Satellite_Alpha") {
-                    document.getElementById('analyze-ui-container').classList.add('active');
+                    activeContainer = document.getElementById('analyze-ui-container');
                 } else if (treeState.activeTreeName === "Satellite_Beta") {
-                    document.getElementById('monitor-ui-container').classList.add('active');
-                    startMonitorPolling(); // Boots up GPS query streams only when exploring Satellite_Beta
+                    activeContainer = document.getElementById('monitor-ui-container');
+                    startMonitorPolling();
                 } else if (treeState.activeTreeName === "Satellite_Gamma") {
-                 // Correctly routes Satellite_Gamma directly onto the Strategize Engine Panel
-                document.getElementById('strategize-ui-container').classList.add('active');
+                    activeContainer = document.getElementById('strategize-ui-container');
+                }
+
+                if (activeContainer) {
+                    activeContainer.classList.add('active');
+                    // Force styling fixes to allow inner scrolling below the window threshold
+                    activeContainer.style.overflowY = 'auto';
+                    activeContainer.style.maxHeight = '90vh';
                 }
             }
         }
     }
 
-    // --- CORRECTED REVERSE NAVIGATION TARGET UNSETS ---
+    // --- REVERSE NAVIGATION TARGET UNSETS ---
     function onWindowScroll(e) {
         if (treeState.isZooming && e.deltaY > 0) {
+            // Check if the user is scrolling inside an active panel instead of zooming out
+            const targetIsland = e.target.closest('#analyze-ui-container, #monitor-ui-container, #strategize-ui-container');
+            if (targetIsland) {
+                // If they are scrolling within the data card, let standard HTML elements scroll down
+                if (targetIsland.scrollTop + targetIsland.clientHeight < targetIsland.scrollHeight - 5) {
+                    return; 
+                }
+            }
+
             treeState.isZooming = false; treeState.isReturning = true;
             forest.forEach(item => item.material.uniforms.uIsHovered.value = 0.0);
 
-             if (treeState.activeTreeName === "Satellite_Alpha") {
-               document.getElementById('analyze-ui-container').classList.remove('active');
-             } else if (treeState.activeTreeName === "Satellite_Beta") {
-               document.getElementById('monitor-ui-container').classList.remove('active');
-               stopMonitorPolling(); 
-             } else if (treeState.activeTreeName === "Satellite_Gamma") {
-                 document.getElementById('strategize-ui-container').classList.remove('active');
-             }
-             treeState.activeTreeName = null;
+            document.querySelectorAll('#analyze-ui-container, #monitor-ui-container, #strategize-ui-container').forEach(el => {
+                el.classList.remove('active');
+                el.style.overflowY = 'hidden';
+            });
+
+            if (treeState.activeTreeName === "Satellite_Beta") stopMonitorPolling(); 
+            
+            treeState.activeTreeName = null;
             treeState.targetCamPos.copy(initialCamPos); treeState.targetLookAt.copy(initialLookAt);
         }
     }
@@ -854,7 +867,6 @@
         }
     });
 
-    // --- STRATEGIZE PIECES INTERACTIVE HANDLING ---
     document.getElementById('input-aggressiveness').addEventListener('input', (e) => {
         document.getElementById('aggression-display').innerText = `${Math.round(e.target.value * 100)}%`;
     });
@@ -866,6 +878,7 @@
         });
     });
 
+    // --- INTER-MODULE STRATEGY ROUTER SUBMIT ---
     document.getElementById('strategize-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -873,6 +886,10 @@
         const selectedOrigin = activeOriginBtn ? activeOriginBtn.getAttribute('data-origin') : 'unknown';
         const aggressionValue = document.getElementById('input-aggressiveness').value;
         
+        // Dynamic Check: See if Analysis UI values exist, extract them, fallback to zero values if missing
+        const structuralScore = document.getElementById('res-score')?.innerText || "0";
+        const totalCo2Generated = document.getElementById('res-co2')?.innerText || "0";
+
         const chosenTactics = [];
         if (document.getElementById('tactic-suppression').checked) chosenTactics.push("suppression");
         if (document.getElementById('tactic-materials').checked) chosenTactics.push("materials");
@@ -885,7 +902,10 @@
                 body: JSON.stringify({
                     origin: selectedOrigin,
                     aggressiveness: parseFloat(aggressionValue),
-                    tactics: chosenTactics
+                    tactics: chosenTactics,
+                    // Sending fallback or current module context directly inside the request body
+                    context_analysis_score: parseFloat(structuralScore),
+                    context_active_co2: parseFloat(totalCo2Generated)
                 })
             });
             
@@ -925,7 +945,6 @@
         }
     });
 
-    // --- SYSTEM CORE RESIZING AND PERSISTENT LISTENERS ---
     window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
