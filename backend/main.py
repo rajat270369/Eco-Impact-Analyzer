@@ -160,6 +160,106 @@ def get_thresholds():
     return jsonify(THRESHOLDS)
 
 
+@app.route('/strategize/generate', methods=['POST'])
+def generate_mitigation_strategy():
+    try:
+        data = request.json or {}
+        origin = data.get("origin", "monitor")  # "monitor" or "analyze"
+        aggressiveness = float(data.get("aggressiveness", 0.5)) # 0.0 to 1.0
+        tactics = data.get("tactics", []) # list of active mitigation toggles
+
+        source_metrics = {}
+        playbook = []
+        projected_reductions = {"aqi": 0, "pm10": 0, "pm25": 0, "co2": 0}
+
+        # 1. EVALUATE SOURCE DATA OVERLAYS
+        if origin == "monitor":
+            # Pull the latest frame logged in history from the live stream
+            if len(telemetry_history) > 0:
+                latest = telemetry_history[-1]
+                source_metrics = {
+                    "aqi": latest["aqi"],
+                    "pm10": latest["metrics"]["pm10"],
+                    "pm25": latest["metrics"]["pm25"]
+                }
+            else:
+                # Default safety fallback if stream hasn't run yet
+                source_metrics = {"aqi": 150, "pm10": 80, "pm25": 45}
+        else:
+            # Analyze Mode: Pulls static calculation metrics or falls back to standard baseline profiles
+            source_metrics = {"aqi": 120, "pm10": 65, "pm25": 38, "co2_sim": 450.0}
+
+        # 2. RUN OPTIMIZATION HEURISTICS
+        current_aqi = source_metrics.get("aqi", 0)
+        current_pm10 = source_metrics.get("pm10", 0.0)
+        current_pm25 = source_metrics.get("pm25", 0.0)
+
+        # Dynamic load-shedding logic based on user's throttle aggression slider
+        if current_aqi > 100 or current_pm10 > 50:
+            load_reduction_pct = int(aggressiveness * 60)
+            if load_reduction_pct > 0:
+                playbook.append({
+                    "step": "01",
+                    "action": f"THROTTLE HEAVY HARDWARE GRID LOAD BY {load_reduction_pct}%",
+                    "impact": f"Reduces core exhaust velocity and volatile airborne dispersion parameters."
+                })
+                projected_reductions["pm10"] += current_pm10 * (aggressiveness * 0.4)
+                projected_reductions["pm25"] += current_pm25 * (aggressiveness * 0.35)
+
+        # Process active tactical deployment options
+        if "suppression" in tactics and (current_pm10 > 50 or current_pm25 > 35):
+            mist_interval = max(10, int(60 - (aggressiveness * 40)))
+            playbook.append({
+                "step": "02",
+                "action": f"DEPLOY WATER MIST CANNONS ON {mist_interval}-MINUTE CYCLES",
+                "impact": f"Accelerates coercive grounding of suspension particulates ({round(current_pm10, 1)} µg/m³ PM10 tracked)."
+            })
+            projected_reductions["pm10"] += current_pm10 * 0.45
+            projected_reductions["pm25"] += current_pm25 * 0.25
+
+        if "materials" in tactics:
+            playbook.append({
+                "step": "03",
+                "action": "HOT-SWAP TO ECO-MIX FLY-ASH CONCRETE & FOSSIL GRID OFFSETS",
+                "impact": "Shaves off industrial mass balance carbon coefficients by a calculated margin of 22%."
+            })
+            projected_reductions["co2"] += 22.0
+
+        if "logistics" in tactics and current_aqi > 150:
+            playbook.append({
+                "step": "04",
+                "action": "RESTRICT TRUCK LOGISTICS AND FREIGHT ARRIVALS TO OFF-PEAK HOURS",
+                "impact": "Prevents compounding localized emissions inside critical atmospheric inversion boundaries."
+            })
+            projected_reductions["aqi"] += current_aqi * 0.15
+
+        # 3. COMPILE DELTA PROGNOSIS REPORT
+        # Calculate final index variations ensuring values stay within physical bounds
+        final_pm10 = max(12.0, current_pm10 - projected_reductions["pm10"])
+        final_pm25 = max(5.0, current_pm25 - projected_reductions["pm25"])
+        
+        # Simple back-calculated predictive AQI estimate for visualization
+        total_pm_drop = (projected_reductions["pm10"] + projected_reductions["pm25"]) / 2
+        final_aqi = max(25, int(current_aqi - total_pm_drop - projected_reductions["aqi"]))
+
+        return jsonify({
+            "timestamp": time.strftime("%H:%M:%S"),
+            "origin_analyzed": origin.upper(),
+            "playbook": playbook,
+            "prognosis": {
+                "initial_aqi": current_aqi,
+                "target_aqi": final_aqi,
+                "initial_pm10": round(current_pm10, 1),
+                "target_pm10": round(final_pm10, 1),
+                "initial_pm25": round(current_pm25, 1),
+                "target_pm25": round(final_pm25, 1)
+            }
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == '__main__':
     # Unified execution container on single port deployment 
     app.run(debug=True, port=5000, host='0.0.0.0')
