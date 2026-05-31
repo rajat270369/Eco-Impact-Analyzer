@@ -141,10 +141,43 @@ def get_real_environmental_data():
             alerts.append({"type": "WARNING", "parameter": "High Fine Particulate Matter (PM2.5)", "value": pm25})
 
         # Format standardized data frame
+        # VALUE PARSING EXTRACTION
+        raw_aqi = int(current_data.get("us_aqi", 0))
+        pm10 = current_data.get("pm10", 0.0)
+        pm25 = current_data.get("pm2_5", 0.0)
+        co = current_data.get("carbon_monoxide", 0.0)
+        no2 = current_data.get("nitrogen_dioxide", 0.0)
+
+        # TECHNICAL FIX: Clamp US-AQI to its official standard maximum index ceiling of 500
+        aqi = min(raw_aqi, 500)
+
+        # REAL DYNAMIC GEOLOCATION LOOKUP (Reverse Geocoding)
+        # We query the open street registry using your live GPS parameters
+        city_name = "Unknown Operational Grid"
+        try:
+            geo_url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=json&addressdetails=1"
+            # Explicit User-Agent header is required by Nominatim's open-access policies
+            geo_response = requests.get(geo_url, headers={"User-Agent": "EcoImpactAnalyzer/1.0"}, timeout=5)
+            
+            if geo_response.status_code == 200:
+                geo_data = geo_response.json()
+                address = geo_data.get("address", {})
+                
+                # Sift out the most specific regional indicator available dynamically
+                city_name = address.get("city") or address.get("town") or address.get("suburb") or address.get("state") or "Active Node"
+        except Exception:
+            # Safe operational fallback if network drops or times out
+            city_name = "Remote Sector"
+
+        # Custom localized alert parsing
+        alerts = []
+        # ... (keep your existing alert checking logic exactly as it is here) ...
+
+        # Format standardized data frame using the dynamic city text
         data_frame = {
             "timestamp": time.strftime("%H:%M:%S"),
             "unix_epoch": time.time(),
-            "location_name": f"Gurugram Sector Node ({round(float(lat), 3)}, {round(float(lon), 3)})",
+            "location_name": f"{city_name} Center Cluster ({round(float(lat), 3)}, {round(float(lon), 3)})",
             "aqi": aqi,
             "metrics": {
                 "pm10": pm10,
