@@ -218,22 +218,42 @@ def generate_mitigation_strategy():
         playbook = []
         projected_reductions = {"aqi": 0, "pm10": 0, "pm25": 0, "co2": 0}
 
-        # 1. COMBINED EVALUATE OVERLAYS (Enforces accurate data across BOTH engines)
-        # Pull real telemetry from the live monitor engine history mapping
-        if len(telemetry_history) > 0:
-            latest = telemetry_history[-1]
-            current_aqi = latest["aqi"]
-            current_pm10 = latest["metrics"]["pm10"]
-            current_pm25 = latest["metrics"]["pm25"]
-            location_string = latest["location_name"]
+        # =================================================================
+        # 1. COMBINED EVALUATE OVERLAYS (Fixed Branching Logic)
+        # =================================================================
+        
+        # Branch A: The user explicitly wants to build a strategy from Live Monitoring Streams
+        if origin == "monitor":
+            if len(telemetry_history) > 0:
+                latest = telemetry_history[-1]
+                current_aqi = latest["aqi"]
+                current_pm10 = latest["metrics"]["pm10"]
+                current_pm25 = latest["metrics"]["pm25"]
+                location_string = latest["location_name"]
+            else:
+                return jsonify({
+                    "timestamp": time.strftime("%H:%M:%S"),
+                    "origin_analyzed": "MONITOR",
+                    "playbook": [],
+                    "prognosis": {"initial_aqi": 0, "target_aqi": 0, "initial_pm10": 0, "target_pm10": 0, "initial_pm25": 0, "target_pm25": 0}
+                })
+                
+        # Branch B: The user switched to Analyze Mode to evaluate static operational calculations
         else:
-            # Explicit empty response profile if the live monitoring engine has not run yet
-            return jsonify({
-                "timestamp": time.strftime("%H:%M:%S"),
-                "origin_analyzed": origin.upper(),
-                "playbook": [],
-                "prognosis": {"initial_aqi": 0, "target_aqi": 0, "initial_pm10": 0, "target_pm10": 0, "initial_pm25": 0, "target_pm25": 0}
-            })
+            if LAST_ANALYZE_DATA["calculated_yet"]:
+                # Convert your material footprint into matching ambient estimates for the predictive model
+                current_aqi = int(LAST_ANALYZE_DATA["impact_score"] * 0.8)
+                current_pm10 = float(LAST_ANALYZE_DATA["co2_emissions"] * 0.15)
+                current_pm25 = float(LAST_ANALYZE_DATA["solid_waste"] * 0.4)
+                location_string = "Asset Calculation Matrix"
+            else:
+                # If they haven't run the analyze asset form yet, return empty data
+                return jsonify({
+                    "timestamp": time.strftime("%H:%M:%S"),
+                    "origin_analyzed": "ANALYZE",
+                    "playbook": [],
+                    "prognosis": {"initial_aqi": 0, "target_aqi": 0, "initial_pm10": 0, "target_pm10": 0, "initial_pm25": 0, "target_pm25": 0}
+                })
 
         # Fetch structural variables calculated straight from the Analyze core module
         analyze_co2 = LAST_ANALYZE_DATA["co2_emissions"]
