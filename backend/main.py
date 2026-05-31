@@ -14,6 +14,14 @@ CORS(app)
 MAX_HISTORY = 50
 telemetry_history = deque(maxlen=MAX_HISTORY)
 
+# Persistent cross-module memory layout to retain accurate calculation fields
+LAST_ANALYZE_DATA = {
+    "co2_emissions": 0.0,
+    "solid_waste": 0.0,
+    "impact_score": 0.0,
+    "calculated_yet": False
+}
+
 # Baseline operational safety limits based on international guidelines (US-AQI & µg/m³)
 THRESHOLDS = {
     "us_aqi": 100.0,           # Warning limit for sensitive groups
@@ -58,6 +66,12 @@ def calculate_impact_api():
         total_co2 = diesel_co2 + elec_co2 + concrete_co2
         total_waste = plastic             
         impact_score = total_co2 + (plastic * 1.5) + (nox_emissions * 10)
+
+        # SAVE TO CENTRAL REPOSITORY FOR THE STRATEGIZE MODULE
+        LAST_ANALYZE_DATA["co2_emissions"] = round(total_co2, 2)
+        LAST_ANALYZE_DATA["solid_waste"] = round(total_waste, 2)
+        LAST_ANALYZE_DATA["impact_score"] = round(impact_score, 2)
+        LAST_ANALYZE_DATA["calculated_yet"] = True
 
         return jsonify({
             "co2_emissions": round(total_co2, 2),
@@ -168,40 +182,50 @@ def generate_mitigation_strategy():
         aggressiveness = float(data.get("aggressiveness", 0.5)) # 0.0 to 1.0
         tactics = data.get("tactics", []) # list of active mitigation toggles
 
-        source_metrics = {}
         playbook = []
         projected_reductions = {"aqi": 0, "pm10": 0, "pm25": 0, "co2": 0}
 
-        # 1. EVALUATE SOURCE DATA OVERLAYS
-        if origin == "monitor":
-            # Pull the latest frame logged in history from the live stream
-            if len(telemetry_history) > 0:
-                latest = telemetry_history[-1]
-                source_metrics = {
-                    "aqi": latest["aqi"],
-                    "pm10": latest["metrics"]["pm10"],
-                    "pm25": latest["metrics"]["pm25"]
-                }
-            else:
-                # Default safety fallback if stream hasn't run yet
-                source_metrics = {"aqi": 150, "pm10": 80, "pm25": 45}
+        # 1. COMBINED EVALUATE OVERLAYS (Enforces accurate data across BOTH engines)
+        # Pull real telemetry from the live monitor engine history mapping
+        if len(telemetry_history) > 0:
+            latest = telemetry_history[-1]
+            current_aqi = latest["aqi"]
+            current_pm10 = latest["metrics"]["pm10"]
+            current_pm25 = latest["metrics"]["pm25"]
+            location_string = latest["location_name"]
         else:
-            # Analyze Mode: Pulls static calculation metrics or falls back to standard baseline profiles
-            source_metrics = {"aqi": 120, "pm10": 65, "pm25": 38, "co2_sim": 450.0}
+            # Explicit empty response profile if the live monitoring engine has not run yet
+            return jsonify({
+                "timestamp": time.strftime("%H:%M:%S"),
+                "origin_analyzed": origin.upper(),
+                "playbook": [],
+                "prognosis": {"initial_aqi": 0, "target_aqi": 0, "initial_pm10": 0, "target_pm10": 0, "initial_pm25": 0, "target_pm25": 0}
+            })
 
-        # 2. RUN OPTIMIZATION HEURISTICS
-        current_aqi = source_metrics.get("aqi", 0)
-        current_pm10 = source_metrics.get("pm10", 0.0)
-        current_pm25 = source_metrics.get("pm25", 0.0)
+        # Fetch structural variables calculated straight from the Analyze core module
+        analyze_co2 = LAST_ANALYZE_DATA["co2_emissions"]
+        analyze_waste = LAST_ANALYZE_DATA["solid_waste"]
+        analyze_score = LAST_ANALYZE_DATA["impact_score"]
+        has_analyzed = LAST_ANALYZE_DATA["calculated_yet"]
+
+        # 2. RUN REAL OPTIMIZATION HEURISTICS
+        # Inject dynamic analysis data alerts straight into the target playbook rules
+        if has_analyzed and analyze_co2 > 150.0:
+            playbook.append({
+                "step": "01",
+                "action": f"MITIGATE EMISSIONS ANOMALY AT SYSTEM ORIGIN ({analyze_co2} kg CO2)",
+                "impact": f"Current structural calculations exceed baseline constraints. Localizing offsets to curb a global score of {analyze_score}."
+            })
+            projected_reductions["co2"] += analyze_co2 * (aggressiveness * 0.3)
 
         # Dynamic load-shedding logic based on user's throttle aggression slider
         if current_aqi > 100 or current_pm10 > 50:
             load_reduction_pct = int(aggressiveness * 60)
             if load_reduction_pct > 0:
                 playbook.append({
-                    "step": "01",
+                    "step": "02",
                     "action": f"THROTTLE HEAVY HARDWARE GRID LOAD BY {load_reduction_pct}%",
-                    "impact": f"Reduces core exhaust velocity and volatile airborne dispersion parameters."
+                    "impact": f"Reduces core exhaust velocity and volatile airborne dispersion parameters at {location_string}."
                 })
                 projected_reductions["pm10"] += current_pm10 * (aggressiveness * 0.4)
                 projected_reductions["pm25"] += current_pm25 * (aggressiveness * 0.35)
@@ -210,7 +234,7 @@ def generate_mitigation_strategy():
         if "suppression" in tactics and (current_pm10 > 50 or current_pm25 > 35):
             mist_interval = max(10, int(60 - (aggressiveness * 40)))
             playbook.append({
-                "step": "02",
+                "step": "03",
                 "action": f"DEPLOY WATER MIST CANNONS ON {mist_interval}-MINUTE CYCLES",
                 "impact": f"Accelerates coercive grounding of suspension particulates ({round(current_pm10, 1)} µg/m³ PM10 tracked)."
             })
@@ -218,16 +242,17 @@ def generate_mitigation_strategy():
             projected_reductions["pm25"] += current_pm25 * 0.25
 
         if "materials" in tactics:
+            waste_context = f" targeting {analyze_waste} kg waste debris" if has_analyzed else ""
             playbook.append({
-                "step": "03",
+                "step": "04",
                 "action": "HOT-SWAP TO ECO-MIX FLY-ASH CONCRETE & FOSSIL GRID OFFSETS",
-                "impact": "Shaves off industrial mass balance carbon coefficients by a calculated margin of 22%."
+                "impact": f"Shaves off industrial mass balance carbon coefficients{waste_context} by a calculated margin of 22%."
             })
             projected_reductions["co2"] += 22.0
 
         if "logistics" in tactics and current_aqi > 150:
             playbook.append({
-                "step": "04",
+                "step": "05",
                 "action": "RESTRICT TRUCK LOGISTICS AND FREIGHT ARRIVALS TO OFF-PEAK HOURS",
                 "impact": "Prevents compounding localized emissions inside critical atmospheric inversion boundaries."
             })

@@ -879,16 +879,13 @@
     });
 
     // --- INTER-MODULE STRATEGY ROUTER SUBMIT ---
+    // --- INTER-MODULE STRATEGY ROUTER SUBMIT ---
     document.getElementById('strategize-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const activeOriginBtn = document.querySelector('.origin-toggle-group .toggle-btn.active');
         const selectedOrigin = activeOriginBtn ? activeOriginBtn.getAttribute('data-origin') : 'unknown';
         const aggressionValue = document.getElementById('input-aggressiveness').value;
-        
-        // Dynamic Check: See if Analysis UI values exist, extract them, fallback to zero values if missing
-        const structuralScore = document.getElementById('res-score')?.innerText || "0";
-        const totalCo2Generated = document.getElementById('res-co2')?.innerText || "0";
 
         const chosenTactics = [];
         if (document.getElementById('tactic-suppression').checked) chosenTactics.push("suppression");
@@ -902,16 +899,37 @@
                 body: JSON.stringify({
                     origin: selectedOrigin,
                     aggressiveness: parseFloat(aggressionValue),
-                    tactics: chosenTactics,
-                    // Sending fallback or current module context directly inside the request body
-                    context_analysis_score: parseFloat(structuralScore),
-                    context_active_co2: parseFloat(totalCo2Generated)
+                    tactics: chosenTactics
                 })
             });
             
             if (!response.ok) throw new Error();
             const data = await response.json();
 
+            const playbookContainer = document.getElementById('playbook-steps-container');
+            const resultsPanel = document.getElementById('strategy-results-panel');
+
+            // Explicit UI Handling for uncalculated empty modules
+            if (data.playbook.length === 0 && data.prognosis.initial_aqi === 0) {
+                playbookContainer.innerHTML = `
+                    <div class="log-entry danger-alert" style="text-align: center; padding: 15px;">
+                        [WARNING] PIPELINE INCOMPLETE <br>
+                        No data found in Monitor Engine or Analyze Module. Please run those tracking sections first to extract a real strategy.
+                    </div>`;
+                
+                // Hide or zero out the metrics visualization panels
+                document.getElementById('prog-aqi-old').innerText = "-";
+                document.getElementById('prog-aqi-new').innerText = "-";
+                document.getElementById('prog-pm10-old').innerText = "-";
+                document.getElementById('prog-pm10-new').innerText = "-";
+                document.getElementById('prog-pm25-old').innerText = "-";
+                document.getElementById('prog-pm25-new').innerText = "-";
+                
+                resultsPanel.classList.remove('hidden');
+                return;
+            }
+
+            // Populate calculations normally if valid data exists
             document.getElementById('prog-aqi-old').innerText = data.prognosis.initial_aqi;
             document.getElementById('prog-aqi-new').innerText = data.prognosis.target_aqi;
             document.getElementById('prog-pm10-old').innerText = data.prognosis.initial_pm10;
@@ -919,27 +937,21 @@
             document.getElementById('prog-pm25-old').innerText = data.prognosis.initial_pm25;
             document.getElementById('prog-pm25-new').innerText = data.prognosis.target_pm25;
 
-            const playbookContainer = document.getElementById('playbook-steps-container');
             playbookContainer.innerHTML = '';
-            
-            if (data.playbook.length === 0) {
-                playbookContainer.innerHTML = '<div class="log-entry system">[INFO] Current ecological conditions require no tactical updates.</div>';
-            } else {
-                data.playbook.forEach(step => {
-                    const stepRow = document.createElement('div');
-                    stepRow.className = 'playbook-step-row';
-                    stepRow.innerHTML = `
-                        <div class="step-num">${step.step}</div>
-                        <div class="step-details">
-                            <div class="step-action">${step.action}</div>
-                            <div class="step-impact">${step.impact}</div>
-                        </div>
-                    `;
-                    playbookContainer.appendChild(stepRow);
-                });
-            }
+            data.playbook.forEach(step => {
+                const stepRow = document.createElement('div');
+                stepRow.className = 'playbook-step-row';
+                stepRow.innerHTML = `
+                    <div class="step-num">${step.step}</div>
+                    <div class="step-details">
+                        <div class="step-action">${step.action}</div>
+                        <div class="step-impact">${step.impact}</div>
+                    </div>
+                `;
+                playbookContainer.appendChild(stepRow);
+            });
 
-            document.getElementById('strategy-results-panel').classList.remove('hidden');
+            resultsPanel.classList.remove('hidden');
         } catch (err) {
             alert("Pipeline Compilation Error: Confirm backend server instance connectivity.");
         }
